@@ -1,10 +1,18 @@
-function LaserBehaviour(_position, _rotation)
+function LaserBehaviour(_position, _rotation, _friends, _game)
 {
     Behaviour.call(this, "laser");
     asPhysical.call(this);
     this.initPhysicsParams.position = _position;
     this.initPhysicsParams.collisionResponse = 0;
     this.initData.rotation = _rotation;
+    var self = this;
+    this.initPhysicsParams.collisionCallback = function(event) {
+        var colName = event.body.parentBehaviour.getName();
+        if (_friends.indexOf(colName) === -1)
+        {
+            _game.removeEntity(self.entityIndex);
+        }
+    }
 }
 
 LaserBehaviour.prototype = Object.create(Behaviour.prototype);
@@ -26,7 +34,7 @@ function BaseShipBehaviour(_position, _name)
     function shoot_callback(_element, _data, _game)
     {
         var new_drawable = new Drawable('bin/laserRed.png');
-        _game.addEntity(new_drawable, new LaserBehaviour(_data.position, _data.rotation));
+        _game.addEntity(new_drawable, new LaserBehaviour(_data.position, _data.rotation, ["base", "ship"],_game));
     }
     this.shootFilter = new RepeatEliminationFilter(shoot_callback, 3);
 }
@@ -39,14 +47,16 @@ BaseShipBehaviour.prototype.shoot = function(_data, _game)
     this.shootFilter.signal(this, _data, _game);
 }
 
-function ShipBehaviour(_position)
+function ShipBehaviour(_position, _game)
 {
     BaseShipBehaviour.call(this, _position, "ship");
+    var self = this;
     this.initPhysicsParams.collisionCallback = function(event) {
         console.log(event.body.parentBehaviour.getName());
-        if (event.body.parentBehaviour.getName() == "laser")
+        var colName = event.body.parentBehaviour.getName();
+        if (colName === "enemyBase")
         {
-            
+            _game.removeEntity(self.entityIndex);
         }
     }
     this.initData.rotation = Math.radians(270);
@@ -94,36 +104,37 @@ ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
     }
     if (_game.controller.getKeyStatus(Controller.Keys.UP))
     {
-        data.rotation += 0.01;
+        data.rotation += 0.1;
     }
     if (_game.controller.getKeyStatus(Controller.Keys.DOWN))
     {
-        data.rotation -= 0.01;
+        data.rotation -= 0.1;
     }
     this.physicsData.force.x = 10 * - Math.sin(data.rotation);
     this.physicsData.force.y = 45 * Math.cos(data.rotation);
     
 }
 
-function EnemyShipBehaviour(_initPosition, _endPosition)
+function EnemyShipBehaviour(_initPosition, _endPosition, _game)
 {
     this.endPosition = _initPosition;
     this.initPosition = _endPosition;
     BaseShipBehaviour.call(this, this.initPosition, "enemy");
+    var self = this;
     this.initPhysicsParams.collisionCallback = function(event) {
-        console.log(event.body.parentBehaviour.getName());
-        if (event.body.parentBehaviour.getName() == "laser")
+        var colName = event.body.parentBehaviour.getName();
+        if (colName === "laser"  || colName === "base")
         {
-            
+            _game.removeEntity(self.entityIndex);
         }
     }
-    this.initData.rotation = Math.radians(0);
+    this.initData.rotation = Math.radians(90);
     this.speed = 200;
 
     function shoot_callback(_element, _data, _game)
     {
         var new_drawable = new Drawable('bin/laserRed.png');
-        _game.addEntity(new_drawable, new LaserBehaviour(_data.position, _data.rotation));
+        _game.addEntity(new_drawable, new LaserBehaviour(_data.position, _data.rotation, ["enemyBase", "enemy"], _game));
     }
     this.shootFilter = new RepeatEliminationFilter(shoot_callback, 3);
 }

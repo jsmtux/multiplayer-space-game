@@ -26,14 +26,31 @@ TextureManager.prototype.createTexture = function(_path)
     return -1;
 }
 
+function fileComplete(progress, cacheKey, success, totalLoaded, totalFiles)
+{
+    PhaserTextureManager.loadedIndexes.push(cacheKey);
+}
+
 function PhaserTextureManager(_phaserGame)
 {
     TextureManager.call(this);
     this.phaserGame = _phaserGame;
 }
 
+PhaserTextureManager.loadedIndexes = [];
+
 PhaserTextureManager.prototype = Object.create(TextureManager.prototype);
 PhaserTextureManager.prototype.constructor = PhaserTextureManager;
+
+PhaserTextureManager.prototype.isLoaded = function(index)
+{
+    return PhaserTextureManager.loadedIndexes.indexOf(index) !== -1;
+}
+
+PhaserTextureManager.prototype.preload = function()
+{
+    this.phaserGame.load.onFileComplete.add(fileComplete, this);
+}
 
 PhaserTextureManager.prototype.createTexture = function(_path)
 {

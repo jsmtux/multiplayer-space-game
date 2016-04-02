@@ -1,36 +1,68 @@
+var ShapeType = {
+    SPHERE : 0,
+    RECTANGLE : 1
+}
 
 function PhysicsEngine()
 {
     this.world = new CANNON.World();
     this.world.broadphase = new CANNON.NaiveBroadphase();
+    this.bodiesToRemove = [];
 }
 
 PhysicsEngine.prototype.registerElement = function(_behaviour, parameters)
 {
-    var radius = 25.0;
-    var mass = 0.5;
-    if (parameters.mass)
+    var type = parameters.shapeType;
+    if (type === undefined)
     {
-        mass = parameters.mass;
+        type = ShapeType.SPHERE;
     }
-    var sphereShape = new CANNON.Sphere(radius);
-    var sphereBody = new CANNON.Body({mass : mass});
-    sphereBody.addShape(sphereShape);
+    var body;
+    if (type === ShapeType.SPHERE)
+    {
+        var radius = 25.0;
+        var mass = 0.5;
+        if (parameters.mass)
+        {
+            mass = parameters.mass;
+        }
+        var sphereShape = new CANNON.Sphere(radius);
+        var sphereBody = new CANNON.Body({mass : mass});
+        sphereBody.addShape(sphereShape);
+        body = sphereBody;
+    } else if (type === ShapeType.RECTANGLE)
+    {
+        var x = 25.0;
+        var y = 250.0;
+        if (parameters.mass)
+        {
+            mass = parameters.mass;
+        }
+        var rectangleShape = new CANNON.Box(new CANNON.Vec3(x, y, y));
+        var rectangleBody = new CANNON.Body({mass : mass});
+        rectangleBody.addShape(rectangleShape);
+        body = rectangleBody;        
+    }
     var position = new CANNON.Vec3(0,0,0);
     if (parameters.position)
     {
         position.x = parameters.position.x;
         position.y = parameters.position.y;
     }
-    sphereBody.position.set(position.x,position.y,0);
-    this.world.add(sphereBody);
-    _behaviour.physicsData = sphereBody;
+    body.position.set(position.x,position.y,0);
+    this.world.add(body);
+    _behaviour.physicsData = body;
     _behaviour.physicsData.collisionResponse = parameters.collisionResponse;
     if (parameters.collisionCallback)
     {
-        sphereBody.addEventListener("collide", parameters.collisionCallback);
+        body.addEventListener("collide", parameters.collisionCallback);
     }
-    sphereBody.parentBehaviour = _behaviour;
+    body.parentBehaviour = _behaviour;
+}
+
+PhysicsEngine.prototype.unRegisterElement = function(_body)
+{
+    this.bodiesToRemove.push(_body);
 }
 
 PhysicsEngine.prototype.updateElement = function(_behaviour, _data, _game)
@@ -47,4 +79,9 @@ PhysicsEngine.prototype.updateInfo = function(_behaviour, _data, _game)
 PhysicsEngine.prototype.updateSimulation = function(_timeStep)
 {
     this.world.step(_timeStep);
+    for(var i in this.bodiesToRemove)
+    {
+        this.world.remove(this.bodiesToRemove[i]);
+    }
+    this.bodiesToRemove = [];
 }

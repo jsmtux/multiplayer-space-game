@@ -1,25 +1,59 @@
-function Drawable(_texture)
+function Drawable(_texture, _front)
 {
     this.texture_path = _texture;
     this.texture = -1;
+    this.created = false;
+    this.preloaded = false;
+    this.front = _front;
 }
 
 Drawable.prototype.preload = function(_game)
 {
-    this.texture = _game.getTextureManager().createTexture(this.texture_path);
+    if (!this.preloaded)
+    {
+        this.texture = _game.getTextureManager().createTexture(this.texture_path);
+    }
+    else
+    {
+        console.warn("Double call to preload");
+    }
 }
 
 Drawable.prototype.create = function(_game)
 {//TODO: this should be part of PhaserDrawable
-    this.sprite = _game.phaser_game.add.sprite(0, 0, this.texture);
-    this.sprite.anchor = new Phaser.Point(0.5, 0.5);
+    if (!this.preloaded)
+    {
+        this.preloaded = _game.getTextureManager().isLoaded(this.texture);
+    }
+    if (!this.created && this.preloaded)
+    {
+        this.created = true;
+        this.sprite = _game.phaser_game.add.sprite(0, 0, this.texture);
+        if (this.front === true)
+        {
+            _game.frontLayer.add(this.sprite);
+        }
+        else
+        {
+            _game.backLayer.add(this.sprite);
+        }
+        this.sprite.anchor = new Phaser.Point(0.5, 0.5);
+    }
+}
+
+Drawable.prototype.remove = function()
+{
+    this.sprite.destroy();
 }
 
 Drawable.prototype.draw = function(_element, _time)
 {
-    var data = _element.getInterpolatedData(_time);
-    this.sprite.position = data.position;
-    this.sprite.rotation = data.rotation;
+    if (this.created)
+    {
+        var data = _element.getInterpolatedData(_time);
+        this.sprite.position = data.position;
+        this.sprite.rotation = data.rotation;
+    }
 }
 
 Drawable.prototype.getNetworkData = function()
@@ -52,6 +86,14 @@ function Behaviour(_name)
     this.cur_data;
     this.name = _name;
     this.initData = new ElementRenderData();
+}
+
+Behaviour.prototype.remove = function(_game)
+{
+    if (this.physicsData !== undefined)
+    {
+        _game.getPhysicsEngine().unRegisterElement(this.physicsData);
+    }
 }
 
 Behaviour.prototype.getName = function()
@@ -160,10 +202,61 @@ StaticBehaviour.prototype.updateState = function(data, _game)
     return data;
 }
 
+function BaseBehaviour(_position, _healthCallback, _rotation, _name)
+{
+    if (_name === undefined)
+    {
+        _name = "base";
+    }
+    Behaviour.call(this, _name);
+    asPhysical.call(this);
+    this.initPhysicsParams.position = _position;
+    this.initPhysicsParams.mass = 50000;
+    this.initPhysicsParams.shapeType = ShapeType.RECTANGLE;
+    this.initPhysicsParams.collisionResponse = false;
+    this.health = 100;
+    this.healthCallback = _healthCallback;
+    if (_rotation !== undefined)
+    {
+        this.rotation = Math.radians(_rotation);
+    }
+    this.updateHealth();
+    var self = this;
+    this.initPhysicsParams.collisionCallback = function(event) {
+        var colName = event.body.parentBehaviour.getName();
+        if (colName === "laser")
+        {
+            self.health -= 1;
+        }
+        self.updateHealth();
+    }
+}
+
+BaseBehaviour.prototype = Object.create(Behaviour.prototype);
+BaseBehaviour.prototype.constructor = StaticBehaviour;
+
+BaseBehaviour.prototype.updateHealth = function()
+{
+    this.healthCallback(this.health);
+}
+
+BaseBehaviour.prototype.updateState = function(data, _game)
+{
+    this.updatePhysics(data, _game);
+    data.rotation = this.rotation;
+    return data;
+}
+
 function Entity(_drawable, _behaviour)
 {
     this.drawable = _drawable;
     this.element = _behaviour;
+}
+
+Entity.prototype.remove = function(_game)
+{
+    this.drawable.remove();
+    this.element.remove(_game);
 }
 
 function asPhysical()

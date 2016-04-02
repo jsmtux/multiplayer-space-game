@@ -6,6 +6,14 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/0.3.14/peer.js"></script>
 
+	</head>
+        <body>
+		<button onclick="addPlayerShip()">Add Player ship</button>
+		<button onclick="addShip(0)">Add Ship</button>
+                <br>
+                <p id="base">Base health = <span id="baseHealth">0</span>%</p>
+                <p id="enemyBase">Enemy base health = <span id="enemyHealth">0</span>%</p>
+                
 		<script src="./src/utils.js"></script>
 		<script src="./src/network.js"></script>
 		<script src="./src/controller.js"></script>
@@ -14,6 +22,5 @@
 		<script src="./src/ship_behaviour.js"></script>
 		<script src="./src/texture_manager.js"></script>
 		<script src="./src/game.js"></script>
-	</head>
-		<button onclick="addShip(0)">Add Ship</button>
+        </body>
 </html>

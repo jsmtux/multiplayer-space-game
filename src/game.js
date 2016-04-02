@@ -40,6 +40,7 @@ Game.prototype.updateElements = function()
     var new_data = {};
     for (var entity in this.scene.entities)
     {
+        this.scene.entities[entity].drawable.create(this);
         this.scene.entities[entity].element.updateData(this);
     }
     this.networkManager.sendUpdate();
@@ -61,7 +62,6 @@ Game.prototype.addEntity = function(_drawable, _element, _remote)
     if (this.finishedLoading)
     {
         _drawable.preload(this);
-        _drawable.create(this);
     }
     if (this.networkManager)
     {
@@ -71,7 +71,17 @@ Game.prototype.addEntity = function(_drawable, _element, _remote)
     {
         _element.networkId = -1;
     }
-    this.scene.addEntity(_drawable, _element);
+    return this.scene.addEntity(_drawable, _element);
+}
+
+Game.prototype.removeEntity = function(_index)
+{
+    this.scene.removeEntity(_index, this);
+}
+
+Game.prototype.hasEntity = function(_index)
+{
+    return this.scene.hasEntity(_index);
 }
 
 var RES_X = 1920;
@@ -97,53 +107,96 @@ PhaserGame.prototype.getTextureManager = function()
 
 PhaserGame.prototype.preload = function()
 {
+    this.texture_manager.preload();
     this.phaser_game.stage.disableVisibilityChange = true;
+    //TODO: get rid of this.
     this.getTextureManager().createTexture('bin/enemy.png');
+    this.getTextureManager().createTexture('bin/player.png');
     this.getTextureManager().createTexture('bin/meteor.png');
     this.getTextureManager().createTexture('bin/laserRed.png');
     for (var entity in this.scene.entities)
     {
         this.scene.entities[entity].drawable.preload(this);
     }
+    this.backLayer = this.phaser_game.add.group();
+    this.frontLayer = this.phaser_game.add.group();
 }
 
 PhaserGame.prototype.create = function()
 {
-    for (var entity in this.scene.entities)
-    {
-        this.scene.entities[entity].drawable.create(this);
-    }
     this.finishedLoading = true;
 }
 
 function Scene()
 {
-    this.entities = [];
+    this.entities = {};
+    this.numEntities = 0;
 }
 
 Scene.prototype.addEntity = function(_drawable, _element)
 {
-    this.entities.push(new Entity(_drawable, _element));
+    _element.entityIndex = this.numEntities;
+    this.entities[this.numEntities] = new Entity(_drawable, _element);
+    return this.numEntities++;
 }
+
+Scene.prototype.removeEntity = function(_index, _game)
+{
+    if (typeof this.entities[_index] !== "undefined")
+    {
+        this.entities[_index].remove(_game);
+        delete this.entities[_index];
+    }
+}
+
+Scene.prototype.hasEntity = function(_index)
+{
+    return typeof this.entities[_index] !== "undefined";
+}
+
+//HTML interaction
+
+var baseHealthSpan = document.getElementById("baseHealth");
+var enemyBaseHealthSpan = document.getElementById("enemyHealth");
+
+function setBaseHealth(_health)
+{
+    baseHealthSpan.innerHTML = _health;
+}
+
+function setEnemyBaseHealth(_health)
+{
+    enemyBaseHealthSpan.innerHTML = _health;
+}
+//\HTML interaction
 
 var scene = new Scene();
 var game = new PhaserGame(scene, isServer);
 if (isServer)
 {
-    game.addEntity(new Drawable('bin/meteor.png'), new StaticBehaviour(new Phaser.Point(300,300)));
-    game.addEntity(new Drawable('bin/meteor.png'), new StaticBehaviour(new Phaser.Point(400,300)));
-    game.addEntity(new Drawable('bin/enemy.png'), new ShipBehaviour(new Phaser.Point(50,500)));
+    //game.addEntity(new Drawable('bin/meteor.png'), new StaticBehaviour(new Phaser.Point(300,300)));
+    game.addEntity(new Drawable('bin/base.png',true), new BaseBehaviour(new Phaser.Point(55,300), setBaseHealth));
+    game.addEntity(new Drawable('bin/base.png',true), new BaseBehaviour(new Phaser.Point(1300,300), setEnemyBaseHealth, 180, "enemyBase"));
 }
 else
 {
     game.networkManager.onConnection = function()
     {
-        game.addEntity(new Drawable('bin/enemy.png'), new ShipBehaviour(new Phaser.Point(600,400)));
+        game.addEntity(new Drawable('bin/player.png'), new ShipBehaviour(new Phaser.Point(600,400), game));
     }
 }
 
 // Top level functions
 function addShip(y)
 {
-    game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(10,200), new Phaser.Point(1500 , 300)));
+    game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(10,200), new Phaser.Point(1500 , 300), game));
+}
+
+var prevShipId;
+function addPlayerShip()
+{
+    if (prevShipId === undefined || !game.hasEntity(prevShipId))
+    {
+        prevShipId = game.addEntity(new Drawable('bin/player.png'), new ShipBehaviour(new Phaser.Point(0,300), game));
+    }
 }

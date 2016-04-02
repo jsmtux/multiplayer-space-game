@@ -1,4 +1,4 @@
-var sendFunction;
+var sendFunction = function(){}
 
 function connectedSendFunction(self, data)
 {

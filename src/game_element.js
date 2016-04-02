@@ -51,6 +51,7 @@ function Behaviour(_name)
     this.old_data;
     this.cur_data;
     this.name = _name;
+    this.initData = new ElementRenderData();
 }
 
 Behaviour.prototype.getName = function()
@@ -70,6 +71,7 @@ function interpolateNumber(prev, cur, time)
 
 Behaviour.prototype.getInterpolatedData = function(_time)
 {
+    //TODO: fix this. Because of this, elements appear in 0,0 before beinig initialised
     var ret = new ElementRenderData();
     if (this.old_data)
     {
@@ -89,7 +91,7 @@ Behaviour.prototype.updateData = function(_game)
     }
     else
     {
-         this.old_data = this.cur_data =  this.updateState(new ElementRenderData(), _game);
+         this.old_data = this.cur_data =  this.updateState(this.initData, _game);
     }
 }
 
@@ -102,6 +104,7 @@ Behaviour.prototype.updateState = function(data)
 function NetworkBehaviour(collisionResponse, type_name)
 {
     Behaviour.call(this, "network");
+    asPhysical.call(this);
     this.netPos = new Phaser.Point();
     this.netRotation = 0;
     this.networkInfoReceived = false;
@@ -111,7 +114,6 @@ function NetworkBehaviour(collisionResponse, type_name)
 
 NetworkBehaviour.prototype = Object.create(Behaviour.prototype);
 NetworkBehaviour.prototype.constructor = NetworkBehaviour;
-asPhysical.call(NetworkBehaviour.prototype);
 
 NetworkBehaviour.prototype.getName = function()
 {
@@ -144,92 +146,18 @@ NetworkBehaviour.prototype.updateNetworkInfo = function(NetworkInfo)
 function StaticBehaviour(_position)
 {
     Behaviour.call(this, "static");
+    asPhysical.call(this);
     this.initPhysicsParams.position = _position;
     this.initPhysicsParams.mass = 50;
 }
 
 StaticBehaviour.prototype = Object.create(Behaviour.prototype);
 StaticBehaviour.prototype.constructor = StaticBehaviour;
-asPhysical.call(StaticBehaviour.prototype);
 
 StaticBehaviour.prototype.updateState = function(data, _game)
 {
     this.updatePhysics(data, _game);
     return data;
-}
-
-function LaserBehaviour(_position, _rotation)
-{
-    Behaviour.call(this, "laser");
-    this.initPhysicsParams.position = _position;
-    this.initPhysicsParams.collisionResponse = 0;
-    this.rotation = _rotation;
-}
-
-LaserBehaviour.prototype = Object.create(Behaviour.prototype);
-LaserBehaviour.prototype.constructor = LaserBehaviour;
-asPhysical.call(LaserBehaviour.prototype);
-
-LaserBehaviour.prototype.updateState = function(data, _game)
-{
-    data.rotation = this.rotation;
-    this.updatePhysics(data, _game);
-    this.physicsData.force.x = -100 * Math.sin(data.rotation);
-    this.physicsData.force.y = 100 * Math.cos(data.rotation);
-    return data;
-}
-
-function ShipBehaviour(_position)
-{
-    Behaviour.call(this, "ship");
-    this.initPhysicsParams.position = _position;
-    this.initPhysicsParams.collisionCallback = function(event) {
-        console.log(event.body.parentBehaviour.getName());
-        if (event.body.parentBehaviour.getName() == "laser")
-        {
-            
-        }
-    }
-}
-
-ShipBehaviour.prototype = Object.create(Behaviour.prototype);
-ShipBehaviour.prototype.constructor = ShipBehaviour;
-asPhysical.call(ShipBehaviour.prototype);
-
-ShipBehaviour.prototype.updateState = function(data, _game)
-{
-    if (_game.controller.getKeyStatus(Controller.Keys.FIRE))
-    {
-        this.shoot(data, _game);
-    }
-    if (_game.controller.getKeyStatus(Controller.Keys.RIGHT))
-    {
-        data.rotation += 0.1;
-    }
-    if (_game.controller.getKeyStatus(Controller.Keys.LEFT))
-    {
-        data.rotation -= 0.1;
-    }
-    if (_game.controller.getKeyStatus(Controller.Keys.UP))
-    {
-        this.physicsData.force.x = -100 * Math.sin(data.rotation);
-        this.physicsData.force.y = 100 * Math.cos(data.rotation);
-    }
-    if (_game.controller.getKeyStatus(Controller.Keys.DOWN))
-    {
-        this.physicsData.force.x = 100 * Math.sin(data.rotation);
-        this.physicsData.force.y = -100 * Math.cos(data.rotation);
-    }
-    this.updatePhysics(data, _game);
-    return data;
-}
-
-ShipBehaviour.prototype.shoot = function(_data, _game)
-{
-    var new_drawable = new Drawable('bin/laserRed.png');
-    new_drawable.preload(_game);
-    new_drawable.create(_game);
-    _game.addEntity(new_drawable, new LaserBehaviour(_data.position, _data.rotation));
 }
 
 function Entity(_drawable, _behaviour)

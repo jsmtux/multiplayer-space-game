@@ -1,9 +1,3 @@
-function getMillis()
-{
-    var date = new Date();
-    return date.getTime();
-}
-
 var isServer = location.hash == "#server";
 
 function Game(_scene, _isServer)
@@ -38,6 +32,7 @@ Game.prototype.updateRenderElements = function()
 
 Game.prototype.updateElements = function()
 {
+    TimeFilter.update();
     if (this.physicsEngine)
     {
         this.physicsEngine.updateSimulation(1.0/this.updateFps);
@@ -79,12 +74,15 @@ Game.prototype.addEntity = function(_drawable, _element, _remote)
     this.scene.addEntity(_drawable, _element);
 }
 
+var RES_X = 1920;
+var RES_Y = 1080;
+
 function PhaserGame(_scene, _isServer)
 {
     Game.call(this, _scene, _isServer);
     var self = this;
     this.initUpdateLoop();
-    this.phaser_game = new Phaser.Game(800, 600, Phaser.AUTO, '', 
+    this.phaser_game = new Phaser.Game(RES_X*0.7, RES_Y*0.6, Phaser.AUTO, '', 
         { preload: function(){self.preload();}, create: function(){self.create()}, update: function(){self.updateRenderElements();}});
     this.texture_manager = new PhaserTextureManager(this.phaser_game);
 }
@@ -133,12 +131,19 @@ var game = new PhaserGame(scene, isServer);
 if (isServer)
 {
     game.addEntity(new Drawable('bin/meteor.png'), new StaticBehaviour(new Phaser.Point(300,300)));
-    game.addEntity(new Drawable('bin/enemy.png'), new ShipBehaviour(new Phaser.Point(0,0)));
+    game.addEntity(new Drawable('bin/meteor.png'), new StaticBehaviour(new Phaser.Point(400,300)));
+    game.addEntity(new Drawable('bin/enemy.png'), new ShipBehaviour(new Phaser.Point(50,500)));
 }
 else
 {
     game.networkManager.onConnection = function()
     {
-        game.addEntity(new Drawable('bin/enemy.png'), new ShipBehaviour(new Phaser.Point(600,600)));
+        game.addEntity(new Drawable('bin/enemy.png'), new ShipBehaviour(new Phaser.Point(600,400)));
     }
+}
+
+// Top level functions
+function addShip(y)
+{
+    game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(10,200), new Phaser.Point(1500 , 300)));
 }

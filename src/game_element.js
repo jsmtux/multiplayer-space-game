@@ -96,6 +96,11 @@ Behaviour.prototype.remove = function(_game)
     }
 }
 
+Behaviour.prototype.isRemote = function()
+{
+    return false;
+}
+
 Behaviour.prototype.getName = function()
 {
     return this.name;
@@ -143,7 +148,7 @@ Behaviour.prototype.updateState = function(data)
     return data;
 }
 
-function NetworkBehaviour(collisionResponse, type_name)
+function NetworkBehaviour(collisionResponse, type_name, _game)
 {
     Behaviour.call(this, "network");
     asPhysical.call(this);
@@ -152,6 +157,7 @@ function NetworkBehaviour(collisionResponse, type_name)
     this.networkInfoReceived = false;
     this.initPhysicsParams.collisionResponse = collisionResponse;
     this.remote_type_name = type_name;
+    this.game = _game;
 }
 
 NetworkBehaviour.prototype = Object.create(Behaviour.prototype);
@@ -160,6 +166,11 @@ NetworkBehaviour.prototype.constructor = NetworkBehaviour;
 NetworkBehaviour.prototype.getName = function()
 {
     return this.remote_type_name;
+}
+
+NetworkBehaviour.prototype.isRemote = function()
+{
+    return true;
 }
 
 NetworkBehaviour.prototype.updateState = function(data, _game)
@@ -180,9 +191,19 @@ NetworkBehaviour.prototype.updateState = function(data, _game)
 
 NetworkBehaviour.prototype.updateNetworkInfo = function(NetworkInfo)
 {
-    this.netPos = NetworkInfo.position;
-    this.netRotation = NetworkInfo.rotation;
-    this.networkInfoReceived = true;
+    if (typeof NetworkInfo === "string" && NetworkInfo === "deleted")
+    {
+        //Remove game element without sending network
+    }
+    else
+    {
+        this.netPos = NetworkInfo.position;
+        if (NetworkInfo.rotation)
+        {
+            this.netRotation = NetworkInfo.rotation;
+        }
+        this.networkInfoReceived = true;
+    }
 }
 
 function StaticBehaviour(_position)

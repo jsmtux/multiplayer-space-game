@@ -76,6 +76,13 @@ Game.prototype.addEntity = function(_drawable, _element, _remote)
 
 Game.prototype.removeEntity = function(_index)
 {
+    if (this.hasEntity(_index))
+    {
+        var entity = this.scene.entities[_index];
+        var remote = entity.element.isRemote();
+        var id = entity.element.networkId;
+        this.networkManager.removeElement(id, remote);
+    }
     this.scene.removeEntity(_index, this);
 }
 

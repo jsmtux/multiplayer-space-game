@@ -15,6 +15,7 @@ function NetworkManager(isServer, _game)
     var self = this;
     this.game = _game;
     this.elements = {};
+    this.removed_elements = [];
     this.remote_elements = {};
     this.drawableInfo = {};
     this.onConnection;
@@ -81,12 +82,29 @@ NetworkManager.prototype.registerElement = function(_drawableInfo, _behaviour, _
     return ind;
 }
 
+NetworkManager.prototype.removeElement = function(_networkId, _remote)
+{
+    if (!_remote)
+    {
+        delete this.elements[_networkId];
+        this.removed_elements.push(_networkId);
+    }
+    else
+    {
+        
+    }
+}
+
 NetworkManager.prototype.sendUpdate = function()
 {
     var toSend = {};
     for(var ind in this.elements)
     {
         toSend[ind] = this.elements[ind].cur_data;
+    }
+    for(var ind in this.removed_elements)
+    {
+        toSend[ind] = "deleted";
     }
     sendFunction(JSON.stringify(toSend));
 }
@@ -105,12 +123,19 @@ NetworkManager.prototype.receiveNetworkUpdate = function(_data)
                 {
                     collisionResponse = data[element].collisionResponse;
                 }
-                this.game.addEntity(new Drawable(data[element].texture), new NetworkBehaviour(collisionResponse, data[element]["type_name"]), true);
+                //maybe set network id here instead of letting game do it
+                this.game.addEntity(new Drawable(data[element].texture), new NetworkBehaviour(collisionResponse, data[element]["type_name"], this.game), true);
             }
         }
         else
         {
-            if (this.remote_elements[element].updateNetworkInfo)
+            if (typeof data[element] === "string" && data[element] === "deleted")
+            {
+                var entityIndex = this.remote_elements[element].entityIndex;
+                delete this.remote_elements[element];
+                this.game.removeEntity(entityIndex);
+            }
+            else if (this.remote_elements[element].updateNetworkInfo)
             {
                 this.remote_elements[element].updateNetworkInfo(data[element]);
             }

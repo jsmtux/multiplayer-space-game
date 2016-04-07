@@ -59,6 +59,7 @@ PhaserTextureManager.prototype.createTexture = function(_path)
     {
         ind = this.getNewInd();
         this.phaserGame.load.image(ind, _path);
+        this.phaserGame.load.start();
         this.loadedTextures[_path] = ind;
     }
     return ind;

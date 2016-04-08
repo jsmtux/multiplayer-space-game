@@ -19,6 +19,7 @@ function NetworkManager(isServer, _game)
     this.remote_elements = {};
     this.drawableInfo = {};
     this.onConnection;
+    this.lastNetworkId = 0;
     if (isServer)
     {
         var peer = new Peer('Alice', {
@@ -64,7 +65,7 @@ NetworkManager.prototype.registerElement = function(_drawableInfo, _behaviour, _
 {
     if (!_remote)
     {
-        var ind = Object.keys(this.elements).length;
+        var ind = this.lastNetworkId++;
         this.elements[ind] = _behaviour;
         var data = _drawableInfo.getNetworkData();
         data['type_name'] = _behaviour.getName();
@@ -76,8 +77,6 @@ NetworkManager.prototype.registerElement = function(_drawableInfo, _behaviour, _
     }
     else
     {
-        var ind = Object.keys(this.remote_elements).length;
-        this.remote_elements[ind] = _behaviour;
     }
     return ind;
 }
@@ -104,8 +103,9 @@ NetworkManager.prototype.sendUpdate = function()
     }
     for(var ind in this.removed_elements)
     {
-        toSend[ind] = "deleted";
+        toSend[this.removed_elements[ind]] = "deleted";
     }
+    this.removed_elements = [];
     sendFunction(JSON.stringify(toSend));
 }
 
@@ -114,7 +114,7 @@ NetworkManager.prototype.receiveNetworkUpdate = function(_data)
     var data = JSON.parse(_data);
     for (element in data)
     {
-        if (this.remote_elements[element] === undefined)
+        if (this.remote_elements[element] === undefined)//we have to check for remote id, not for local network id
         {
             if (data[element].texture !== undefined)
             {
@@ -124,7 +124,10 @@ NetworkManager.prototype.receiveNetworkUpdate = function(_data)
                     collisionResponse = data[element].collisionResponse;
                 }
                 //maybe set network id here instead of letting game do it
-                this.game.addEntity(new Drawable(data[element].texture), new NetworkBehaviour(collisionResponse, data[element]["type_name"], this.game), true);
+                var behaviour = new NetworkBehaviour(collisionResponse, data[element]["type_name"], this.game);
+                this.game.addEntity(new Drawable(data[element].texture), behaviour, true);
+                //var ind = Object.keys(this.remote_elements).length;
+                this.remote_elements[element] = behaviour;
             }
         }
         else

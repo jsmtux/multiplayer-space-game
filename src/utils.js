@@ -43,3 +43,8 @@ RepeatEliminationFilter.prototype.signal = function(_element, _data, _game)
     }
     return false;
 }
+
+function isObjectEmpty(obj)
+{
+    return Object.keys(obj).length === 0;
+}

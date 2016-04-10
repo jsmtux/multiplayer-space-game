@@ -47,19 +47,19 @@ BaseShipBehaviour.prototype.shoot = function(_data, _game)
     this.shootFilter.signal(this, _data, _game);
 }
 
-function ShipBehaviour(_position, _game)
+function ShipBehaviour(_position, _rotation, _game)
 {
     BaseShipBehaviour.call(this, _position, "ship");
     var self = this;
     this.initPhysicsParams.collisionCallback = function(event) {
-        console.log(event.body.parentBehaviour.getName());
-        var colName = event.body.parentBehaviour.getName();
-        if (colName === "enemyBase")
+        var colBehaviour = event.body.parentBehaviour;
+        console.log(colBehaviour);
+        if (colBehaviour.getName() === "base" && colBehaviour.isRemote())
         {
             _game.removeEntity(self.entityIndex);
         }
     }
-    this.initData.rotation = Math.radians(270);
+    this.initData.rotation = Math.radians(270 + _rotation);
 }
 
 ShipBehaviour.prototype = Object.create(BaseShipBehaviour.prototype);
@@ -115,20 +115,21 @@ ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
     
 }
 
-function EnemyShipBehaviour(_initPosition, _endPosition, _game)
+function EnemyShipBehaviour(_initPosition, _endPosition, _rotation, _game)
 {
     this.endPosition = _initPosition;
     this.initPosition = _endPosition;
     BaseShipBehaviour.call(this, this.initPosition, "enemy");
     var self = this;
     this.initPhysicsParams.collisionCallback = function(event) {
-        var colName = event.body.parentBehaviour.getName();
-        if (colName === "laser"  || colName === "base")
+        var colBehaviour = event.body.parentBehaviour;
+        console.log(colBehaviour);
+        if (colBehaviour.getName() === "base" && colBehaviour.isRemote())
         {
             _game.removeEntity(self.entityIndex);
         }
     }
-    this.initData.rotation = Math.radians(90);
+    this.initData.rotation = Math.radians(_rotation);
     this.speed = 200;
 
     function shoot_callback(_element, _data, _game)

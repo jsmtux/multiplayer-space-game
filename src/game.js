@@ -183,20 +183,26 @@ if (isServer)
 {
     //game.addEntity(new Drawable('bin/meteor.png'), new StaticBehaviour(new Phaser.Point(300,300)));
     game.addEntity(new Drawable('bin/base.png',true), new BaseBehaviour(new Phaser.Point(55,300), setBaseHealth));
-    game.addEntity(new Drawable('bin/base.png',true), new BaseBehaviour(new Phaser.Point(1300,300), setEnemyBaseHealth, 180, "enemyBase"));
 }
 else
 {
     game.networkManager.onConnection = function()
     {
-        game.addEntity(new Drawable('bin/player.png'), new ShipBehaviour(new Phaser.Point(600,400), game));
+        game.addEntity(new Drawable('bin/base.png',true), new BaseBehaviour(new Phaser.Point(1300,300), setBaseHealth, 180));
     }
 }
 
 // Top level functions
 function addShip(y)
 {
-    game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(10,200), new Phaser.Point(1500 , 300), game));
+    if (isServer)
+    {
+        game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(1500,300), new Phaser.Point(200 , 200), 270, game));        
+    }
+    else
+    {
+        game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(10,200), new Phaser.Point(1500 , 300), 90, game));
+    }
 }
 
 var prevShipId;
@@ -204,6 +210,13 @@ function addPlayerShip()
 {
     if (prevShipId === undefined || !game.hasEntity(prevShipId))
     {
-        prevShipId = game.addEntity(new Drawable('bin/player.png'), new ShipBehaviour(new Phaser.Point(0,300), game));
+        if (isServer)
+        {
+            prevShipId = game.addEntity(new Drawable('bin/player.png'), new ShipBehaviour(new Phaser.Point(0,300), 0, game));
+        }
+        else
+        {
+            prevShipId = game.addEntity(new Drawable('bin/player.png'), new ShipBehaviour(new Phaser.Point(1500,300), 180, game));
+        }
     }
 }

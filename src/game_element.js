@@ -148,7 +148,7 @@ Behaviour.prototype.updateState = function(data)
     return data;
 }
 
-function NetworkBehaviour(collisionResponse, type_name, _game)
+function NetworkBehaviour(collisionResponse, _data, _game)
 {
     Behaviour.call(this, "network");
     asPhysical.call(this);
@@ -156,7 +156,9 @@ function NetworkBehaviour(collisionResponse, type_name, _game)
     this.netRotation = 0;
     this.networkInfoReceived = false;
     this.initPhysicsParams.collisionResponse = collisionResponse;
-    this.remote_type_name = type_name;
+    console.log(_data);
+    this.initPhysicsParams.shapeType = _data['shapeType'];
+    this.remote_type_name = _data["type_name"];
     this.game = _game;
 }
 
@@ -223,12 +225,9 @@ StaticBehaviour.prototype.updateState = function(data, _game)
     return data;
 }
 
-function BaseBehaviour(_position, _healthCallback, _rotation, _name)
+function BaseBehaviour(_position, _healthCallback, _rotation)
 {
-    if (_name === undefined)
-    {
-        _name = "base";
-    }
+    _name = "base";
     Behaviour.call(this, _name);
     asPhysical.call(this);
     this.initPhysicsParams.position = _position;

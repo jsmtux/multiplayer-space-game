@@ -5,6 +5,7 @@ function NetworkManager(isServer, _game)
     this.elements = {};
     this.removed_elements = [];
     this.remote_elements = {};
+    this.buffered_property_updates = {};
     this.drawableInfo = {};
     this.ready = false;
     this.onConnection;
@@ -61,6 +62,7 @@ NetworkManager.prototype.registerElement = function(_drawableInfo, _behaviour, _
         var ind = this.lastNetworkId++;
         this.elements[ind] = _behaviour;
         var data = _drawableInfo.getNetworkData();
+        data['front'] = _drawableInfo.front;
         data['type_name'] = _behaviour.getName();
         if (_behaviour.initPhysicsParams.collisionResponse === 0)
         {
@@ -112,7 +114,8 @@ NetworkManager.prototype.sendUpdate = function()
         toSend['element_changes'] = elementChanges;
     
         //Random variable updating
-        
+        toSend['game_info'] = this.buffered_property_updates;
+        this.buffered_property_updates = {}
         
         this.sendObject(toSend);
     }
@@ -134,7 +137,7 @@ NetworkManager.prototype.receiveNetworkUpdate = function(_data)
                     collisionResponse = elementChanges[element].collisionResponse;
                 }
                 var behaviour = new NetworkBehaviour(collisionResponse, elementChanges[element], this.game);
-                this.game.addEntity(new Drawable(elementChanges[element].texture), behaviour, true);
+                this.game.addEntity(new Drawable(elementChanges[element].texture, elementChanges[element].front), behaviour, true);
                 this.remote_elements[element] = behaviour;
             }
         }
@@ -152,4 +155,15 @@ NetworkManager.prototype.receiveNetworkUpdate = function(_data)
             }
         }
     }
+    
+    var propertyUpdates = data['game_info'];
+    for (property in propertyUpdates)
+    {
+        this.game.ReceivePropertyChange(property, propertyUpdates[property]);
+    }
+}
+
+NetworkManager.prototype.SignalPropertyChange = function(_name, _text)
+{
+    this.buffered_property_updates[_name] = _text;
 }

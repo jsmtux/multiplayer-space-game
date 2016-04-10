@@ -5,14 +5,18 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/2.4.4/phaser.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/0.3.14/peer.js"></script>
-
+                <link rel="stylesheet" type="text/css" href="style.css">
 	</head>
         <body>
 		<button onclick="addPlayerShip()">Add Player ship</button>
 		<button onclick="addShip(0)">Add Ship</button>
                 <br>
-                <p id="base">Base health = <span id="baseHealth">0</span>%</p>
-                <p id="enemyBase">Enemy base health = <span id="enemyHealth">0</span>%</p>
+                
+                <ul>
+                  <li class="health"><img src="bin/heart_pixelart.png"></img>Base health <span id="baseHealth">0</span>%</li>
+                  <li class="enemyHealth"><img src="bin/sword_pixelart.png">Enemy base health <span id="enemyHealth">0</span>%</li>
+                  <li class="money"><img src="bin/money_pixelart.png">Money <span id="money">0</span>u</li>
+                </ul>
                 
 		<script src="./src/utils.js"></script>
 		<script src="./src/network.js"></script>

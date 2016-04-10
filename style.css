@@ -1,0 +1,38 @@
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+    min-width: 1000px;
+    width: 100%;
+}
+
+li {
+    float: left;
+    display: inline-block;
+    color: white;
+    text-align: center;
+    padding: 8px 10px;
+    text-decoration: none;
+    width: 250px;
+}
+
+.health {
+    background-color: #50C75D;
+}
+
+.enemyHealth {
+    background-color: #FF596D;
+}
+
+.money {
+    background-color: #4E9599;
+}
+
+li img {
+    height: 35px;
+    position: relative;
+    left: -15px;
+    margin-bottom: -10px;
+}

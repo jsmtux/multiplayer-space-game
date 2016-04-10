@@ -9,6 +9,7 @@ function Game(_scene, _isServer)
     this.physicsEngine = new PhysicsEngine();
     this.networkManager = new NetworkManager(_isServer, this);
     this.finishedLoading = false;
+    this.properties = {};
 }
 
 Game.prototype.initUpdateLoop = function()
@@ -91,6 +92,17 @@ Game.prototype.hasEntity = function(_index)
     return this.scene.hasEntity(_index);
 }
 
+Game.prototype.SignalPropertyChange = function(_name, _text)
+{
+    this.networkManager.SignalPropertyChange(_name, _text);
+}
+
+Game.prototype.ReceivePropertyChange = function(_name, _text)
+{
+    this.properties[_name] = _text;
+    setEnemyBaseHealth(_name, _text)
+}
+
 var RES_X = 1920;
 var RES_Y = 1080;
 
@@ -165,20 +177,58 @@ Scene.prototype.hasEntity = function(_index)
 
 var baseHealthSpan = document.getElementById("baseHealth");
 var enemyBaseHealthSpan = document.getElementById("enemyHealth");
+var moneySpan = document.getElementById("money");
 
-function setBaseHealth(_health)
-{
-    baseHealthSpan.innerHTML = _health;
-}
-
-function setEnemyBaseHealth(_health)
-{
-    enemyBaseHealthSpan.innerHTML = _health;
-}
 //\HTML interaction
 
 var scene = new Scene();
 var game = new PhaserGame(scene, isServer);
+
+function Money(amount, div)
+{
+    this.current = amount;
+    this.info_div = div;
+    this.info_div.innerHTML = amount;
+}
+
+Money.prototype.get = function()
+{
+    return this.current;
+}
+
+Money.prototype.set = function(amount)
+{
+    this.current = amount;
+    this.info_div.innerHTML = amount;
+}
+
+Money.prototype.checkAndSubstract = function(amount)
+{
+    var ret = false;
+    if (this.current >= amount)
+    {
+        ret = true;
+        this.set(this.current - amount);
+    }
+    return ret;
+}
+
+var playerMoney = new Money(1500, moneySpan);
+
+function setBaseHealth(_health)
+{
+    baseHealthSpan.innerHTML = _health;
+    game.SignalPropertyChange("RemoteBaseHealth", _health);
+}
+
+function setEnemyBaseHealth(_name, _health)
+{
+    if (_name == "RemoteBaseHealth")
+    {
+        enemyBaseHealthSpan.innerHTML = _health;
+    }
+}
+
 if (isServer)
 {
     //game.addEntity(new Drawable('bin/meteor.png'), new StaticBehaviour(new Phaser.Point(300,300)));
@@ -195,6 +245,10 @@ else
 // Top level functions
 function addShip(y)
 {
+    if (!playerMoney.checkAndSubstract(150))
+    {
+        return;
+    }
     if (isServer)
     {
         game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(1500,300), new Phaser.Point(200 , 200), 270, game));        
@@ -208,6 +262,10 @@ function addShip(y)
 var prevShipId;
 function addPlayerShip()
 {
+    if (!playerMoney.checkAndSubstract(250))
+    {
+        return;
+    }
     if (prevShipId === undefined || !game.hasEntity(prevShipId))
     {
         if (isServer)
@@ -216,7 +274,7 @@ function addPlayerShip()
         }
         else
         {
-            prevShipId = game.addEntity(new Drawable('bin/player.png'), new ShipBehaviour(new Phaser.Point(1500,300), 180, game));
+            prevShipId = game.addEntity(new Drawable('bin/player.png'), new ShipBehaviour(new Phaser.Point(1350,300), 180, game));
         }
     }
 }

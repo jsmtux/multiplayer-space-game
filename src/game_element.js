@@ -156,7 +156,6 @@ function NetworkBehaviour(collisionResponse, _data, _game)
     this.netRotation = 0;
     this.networkInfoReceived = false;
     this.initPhysicsParams.collisionResponse = collisionResponse;
-    console.log(_data);
     this.initPhysicsParams.shapeType = _data['shapeType'];
     this.remote_type_name = _data["type_name"];
     this.game = _game;

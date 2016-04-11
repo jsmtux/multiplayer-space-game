@@ -100,7 +100,8 @@ Game.prototype.SignalPropertyChange = function(_name, _text)
 Game.prototype.ReceivePropertyChange = function(_name, _text)
 {
     this.properties[_name] = _text;
-    setEnemyBaseHealth(_name, _text)
+    setEnemyBaseHealth(_name, _text);
+    setMoneyAmount(_name, _text);
 }
 
 var RES_X = 1920;
@@ -111,7 +112,7 @@ function PhaserGame(_scene, _isServer)
     Game.call(this, _scene, _isServer);
     var self = this;
     this.initUpdateLoop();
-    this.phaser_game = new Phaser.Game(RES_X*0.7, RES_Y*0.6, Phaser.AUTO, '', 
+    this.phaser_game = new Phaser.Game(RES_X*0.7, RES_Y*0.6, Phaser.AUTO, 'game-window', 
         { preload: function(){self.preload();}, create: function(){self.create()}, update: function(){self.updateRenderElements();}});
     this.texture_manager = new PhaserTextureManager(this.phaser_game);
 }
@@ -129,10 +130,6 @@ PhaserGame.prototype.preload = function()
     this.texture_manager.preload();
     this.phaser_game.stage.disableVisibilityChange = true;
     //TODO: get rid of this.
-    this.getTextureManager().createTexture('bin/enemy.png');
-    this.getTextureManager().createTexture('bin/player.png');
-    this.getTextureManager().createTexture('bin/meteor.png');
-    this.getTextureManager().createTexture('bin/laserRed.png');
     for (var entity in this.scene.entities)
     {
         this.scene.entities[entity].drawable.preload(this);
@@ -213,6 +210,11 @@ Money.prototype.checkAndSubstract = function(amount)
     return ret;
 }
 
+Money.prototype.add = function(amount)
+{
+    this.set(this.current + amount);
+}
+
 var playerMoney = new Money(1500, moneySpan);
 
 function setBaseHealth(_health)
@@ -226,6 +228,19 @@ function setEnemyBaseHealth(_name, _health)
     if (_name == "RemoteBaseHealth")
     {
         enemyBaseHealthSpan.innerHTML = _health;
+    }
+}
+
+function onShipHit()
+{
+    game.SignalPropertyChange("MoneyReceived", 250);
+}
+
+function setMoneyAmount(_name, _money)
+{
+    if (_name == "MoneyReceived")
+    {
+        playerMoney.add(_money);
     }
 }
 
@@ -251,22 +266,18 @@ function addShip(y)
     }
     if (isServer)
     {
-        game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(1500,300), new Phaser.Point(200 , 200), 270, game));        
+        game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(1500,300), new Phaser.Point(200 , 200), 270, game, onShipHit));        
     }
     else
     {
-        game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(10,200), new Phaser.Point(1500 , 300), 90, game));
+        game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(10,200), new Phaser.Point(1500 , 300), 90, game, onShipHit));
     }
 }
 
 var prevShipId;
 function addPlayerShip()
 {
-    if (!playerMoney.checkAndSubstract(250))
-    {
-        return;
-    }
-    if (prevShipId === undefined || !game.hasEntity(prevShipId))
+    if ((prevShipId === undefined || !game.hasEntity(prevShipId)) && playerMoney.checkAndSubstract(250))
     {
         if (isServer)
         {

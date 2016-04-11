@@ -1,4 +1,4 @@
-function LaserBehaviour(_position, _rotation, _friends, _game)
+function LaserBehaviour(_position, _rotation, _game)
 {
     Behaviour.call(this, "laser");
     asPhysical.call(this);
@@ -7,8 +7,7 @@ function LaserBehaviour(_position, _rotation, _friends, _game)
     this.initData.rotation = _rotation;
     var self = this;
     this.initPhysicsParams.collisionCallback = function(event) {
-        var colName = event.body.parentBehaviour.getName();
-        if (_friends.indexOf(colName) === -1)
+        if (event.body.parentBehaviour.isRemote())
         {
             _game.removeEntity(self.entityIndex);
         }
@@ -34,7 +33,7 @@ function BaseShipBehaviour(_position, _name)
     function shoot_callback(_element, _data, _game)
     {
         var new_drawable = new Drawable('bin/laserRed.png');
-        _game.addEntity(new_drawable, new LaserBehaviour(_data.position, _data.rotation, ["base", "ship"],_game));
+        _game.addEntity(new_drawable, new LaserBehaviour(_data.position, _data.rotation, _game));
     }
     this.shootFilter = new RepeatEliminationFilter(shoot_callback, 3);
 }
@@ -115,7 +114,7 @@ ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
     
 }
 
-function EnemyShipBehaviour(_initPosition, _endPosition, _rotation, _game)
+function EnemyShipBehaviour(_initPosition, _endPosition, _rotation, _game, _hitCallback)
 {
     this.endPosition = _initPosition;
     this.initPosition = _endPosition;
@@ -128,6 +127,11 @@ function EnemyShipBehaviour(_initPosition, _endPosition, _rotation, _game)
         {
             _game.removeEntity(self.entityIndex);
         }
+        if (colBehaviour.getName() === "laser" && colBehaviour.isRemote())
+        {
+            _game.removeEntity(self.entityIndex);
+            _hitCallback();
+        }
     }
     this.initData.rotation = Math.radians(_rotation);
     this.speed = 200;
@@ -135,7 +139,7 @@ function EnemyShipBehaviour(_initPosition, _endPosition, _rotation, _game)
     function shoot_callback(_element, _data, _game)
     {
         var new_drawable = new Drawable('bin/laserRed.png');
-        _game.addEntity(new_drawable, new LaserBehaviour(_data.position, _data.rotation, ["enemyBase", "enemy"], _game));
+        _game.addEntity(new_drawable, new LaserBehaviour(_data.position, _data.rotation, _game));
     }
     this.shootFilter = new RepeatEliminationFilter(shoot_callback, 3);
 }

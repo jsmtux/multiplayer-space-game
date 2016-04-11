@@ -8,23 +8,26 @@
                 <link rel="stylesheet" type="text/css" href="style.css">
 	</head>
         <body>
-		<button onclick="addPlayerShip()">Add Player ship</button>
-		<button onclick="addShip(0)">Add Ship</button>
-                <br>
+            <br>
+            
+            <ul>
+              <li class="health"><img src="bin/heart_pixelart.png"></img>Base health <span id="baseHealth">0</span>%</li>
+              <li class="enemyHealth"><img src="bin/sword_pixelart.png">Enemy base health <span id="enemyHealth">0</span>%</li>
+              <li class="money"><img src="bin/money_pixelart.png">Money <span id="money">0</span>u</li>
+            </ul>
+            <div id="game-window"></div>
+            <ul>
+              <li class="health noselect" onclick="addPlayerShip()"><img src="bin/player.png"></img>New Player ship</li>
+              <li class="enemyHealth noselect" onclick="addShip(0)"><img src="bin/enemy.png">New aux ship</li>
+            </ul>
                 
-                <ul>
-                  <li class="health"><img src="bin/heart_pixelart.png"></img>Base health <span id="baseHealth">0</span>%</li>
-                  <li class="enemyHealth"><img src="bin/sword_pixelart.png">Enemy base health <span id="enemyHealth">0</span>%</li>
-                  <li class="money"><img src="bin/money_pixelart.png">Money <span id="money">0</span>u</li>
-                </ul>
-                
-		<script src="./src/utils.js"></script>
-		<script src="./src/network.js"></script>
-		<script src="./src/controller.js"></script>
-		<script src="./src/physics.js"></script>
-		<script src="./src/game_element.js"></script>
-		<script src="./src/ship_behaviour.js"></script>
-		<script src="./src/texture_manager.js"></script>
-		<script src="./src/game.js"></script>
+			<script src="./src/utils.js"></script>
+			<script src="./src/network.js"></script>
+			<script src="./src/controller.js"></script>
+			<script src="./src/physics.js"></script>
+			<script src="./src/game_element.js"></script>
+			<script src="./src/ship_behaviour.js"></script>
+			<script src="./src/texture_manager.js"></script>
+			<script src="./src/game.js"></script>
         </body>
 </html>

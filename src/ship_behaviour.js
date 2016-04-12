@@ -52,8 +52,8 @@ function ShipBehaviour(_position, _rotation, _game)
     var self = this;
     this.initPhysicsParams.collisionCallback = function(event) {
         var colBehaviour = event.body.parentBehaviour;
-        console.log(colBehaviour);
-        if (colBehaviour.getName() === "base" && colBehaviour.isRemote())
+        var colName = colBehaviour.getName();
+        if ((colName === "base" || colName === "laser")&& colBehaviour.isRemote())
         {
             _game.removeEntity(self.entityIndex);
         }
@@ -114,10 +114,9 @@ ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
     
 }
 
-function EnemyShipBehaviour(_initPosition, _endPosition, _rotation, _game, _hitCallback)
+function EnemyShipBehaviour(_initPosition, _rotation, _game, _hitCallback)
 {
-    this.endPosition = _initPosition;
-    this.initPosition = _endPosition;
+    this.initPosition = _initPosition;
     BaseShipBehaviour.call(this, this.initPosition, "enemy");
     var self = this;
     this.initPhysicsParams.collisionCallback = function(event) {
@@ -134,70 +133,30 @@ function EnemyShipBehaviour(_initPosition, _endPosition, _rotation, _game, _hitC
         }
     }
     this.initData.rotation = Math.radians(_rotation);
-    this.speed = 200;
+    this.speed = 100;
 
     function shoot_callback(_element, _data, _game)
     {
         var new_drawable = new Drawable('bin/laserRed.png');
         _game.addEntity(new_drawable, new LaserBehaviour(_data.position, _data.rotation, _game));
     }
-    this.shootFilter = new RepeatEliminationFilter(shoot_callback, 3);
+    this.shootFilter = new RepeatEliminationFilter(shoot_callback, 30);
+    this.curRotation = 0;
 }
 
 EnemyShipBehaviour.prototype = Object.create(BaseShipBehaviour.prototype);
 EnemyShipBehaviour.prototype.constructor = EnemyShipBehaviour;
-
-EnemyShipBehaviour.Status = {
-    Entering : 0,
-    Shooting : 1,
-    Leaving : 2
-}
-
-EnemyShipBehaviour.prototype.moveTowards = function(_data, _position)
-{
-    var difference = Phaser.Point.subtract(_data.position, _position);
-    var distance = difference.getMagnitude();
-    difference = Phaser.Point.normalize(difference);
-    var speed = Math.min(this.speed, distance);
-    this.physicsData.force.x =  -difference.x * speed < this.physicsData.velocity.x ? -speed : speed;
-    this.physicsData.force.y = -difference.y * speed < this.physicsData.velocity.y ? -speed : speed;
-    return distance;
-}
 
 EnemyShipBehaviour.prototype.updateState = function(data, _game)
 {
     var self = this;
     this.updatePhysics(data, _game);
     
-    if (!this.status)
-    {
-        this.status = EnemyShipBehaviour.Status.Entering;
-    }
-    
-    switch(this.status)
-    {
-        case EnemyShipBehaviour.Status.Entering:
-            if (this.moveTowards(data, this.endPosition) < 1)
-            {
-                this.status = EnemyShipBehaviour.Status.Shooting;
-                this.initShootingStatus = TimeFilter.numTicks;
-            }
-            break;
-        case EnemyShipBehaviour.Status.Leaving:
-            if (this.moveTowards(data, this.initPosition) < 1)
-            {
-                this.status = EnemyShipBehaviour.Status.Entering;
-                this.initShootingStatus = TimeFilter.numTicks;
-            }
-            break;
-        case EnemyShipBehaviour.Status.Shooting:
-            this.shootFilter.signal(this, data, _game);
-            if (TimeFilter.numTicks - this.initShootingStatus > 100)
-            {
-                this.status = EnemyShipBehaviour.Status.Leaving;
-            }
-            break;
-    }
+    this.curRotation = Math.random() * 0.1 - 0.05;
+    data.rotation += this.curRotation;
+    this.physicsData.velocity.x = -this.speed * Math.sin(data.rotation);
+    this.physicsData.velocity.y = this.speed * Math.cos(data.rotation);
+    this.shootFilter.signal(this, data, _game);
     
     return data;
 }

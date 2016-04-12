@@ -247,7 +247,7 @@ function setMoneyAmount(_name, _money)
 if (isServer)
 {
     //game.addEntity(new Drawable('bin/meteor.png'), new StaticBehaviour(new Phaser.Point(300,300)));
-    game.addEntity(new Drawable('bin/base.png',true), new BaseBehaviour(new Phaser.Point(55,300), setBaseHealth));
+    game.addEntity(new Drawable('bin/base.png',true), new BaseBehaviour(new Phaser.Point(54,300), setBaseHealth));
 }
 else
 {
@@ -266,11 +266,11 @@ function addShip(y)
     }
     if (isServer)
     {
-        game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(1500,300), new Phaser.Point(200 , 200), 270, game, onShipHit));        
+        game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(0 , 200), 270, game, onShipHit));        
     }
     else
     {
-        game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(10,200), new Phaser.Point(1500 , 300), 90, game, onShipHit));
+        game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(1400 , 200), 90, game, onShipHit));
     }
 }
 

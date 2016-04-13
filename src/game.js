@@ -1,6 +1,6 @@
 var isServer = location.hash == "#server";
 
-function Game(_scene, _isServer)
+function Game(_scene, _isServer, _resolution)
 {
     this.scene = _scene;
     this.lastUpdated = getMillis();
@@ -9,6 +9,7 @@ function Game(_scene, _isServer)
     this.physicsEngine = new PhysicsEngine();
     this.networkManager = new NetworkManager(_isServer, this);
     this.finishedLoading = false;
+    this.resolution = _resolution;
     this.properties = {};
 }
 
@@ -104,15 +105,12 @@ Game.prototype.ReceivePropertyChange = function(_name, _text)
     setMoneyAmount(_name, _text);
 }
 
-var RES_X = 1920;
-var RES_Y = 1080;
-
-function PhaserGame(_scene, _isServer)
+function PhaserGame(_scene, _isServer, _resolution)
 {
-    Game.call(this, _scene, _isServer);
+    Game.call(this, _scene, _isServer, _resolution);
     var self = this;
     this.initUpdateLoop();
-    this.phaser_game = new Phaser.Game(RES_X*0.7, RES_Y*0.6, Phaser.AUTO, 'game-window', 
+    this.phaser_game = new Phaser.Game(_resolution.x, _resolution.y, Phaser.AUTO, 'game-window', 
         { preload: function(){self.preload();}, create: function(){self.create()}, update: function(){self.updateRenderElements();}});
     this.texture_manager = new PhaserTextureManager(this.phaser_game);
 }
@@ -178,8 +176,9 @@ var moneySpan = document.getElementById("money");
 
 //\HTML interaction
 
+var resolution = new Phaser.Point(1344, 648);
 var scene = new Scene();
-var game = new PhaserGame(scene, isServer);
+var game = new PhaserGame(scene, isServer, resolution);
 
 function Money(amount, div)
 {
@@ -253,7 +252,7 @@ else
 {
     game.networkManager.onConnection = function()
     {
-        game.addEntity(new Drawable('bin/base.png',true), new BaseBehaviour(new Phaser.Point(1300,300), setBaseHealth, 180));
+        game.addEntity(new Drawable('bin/base.png',true), new BaseBehaviour(new Phaser.Point(resolution.x - 54,300), setBaseHealth, 180));
     }
 }
 
@@ -270,7 +269,7 @@ function addShip(y)
     }
     else
     {
-        game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(1400 , 200), 90, game, onShipHit));
+        game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(resolution.x , 200), 90, game, onShipHit));
     }
 }
 
@@ -281,11 +280,11 @@ function addPlayerShip()
     {
         if (isServer)
         {
-            prevShipId = game.addEntity(new Drawable('bin/player.png'), new ShipBehaviour(new Phaser.Point(0,300), 0, game));
+            prevShipId = game.addEntity(new Drawable('bin/player.png'), new ShipBehaviour(new Phaser.Point(0,300), 270, game));
         }
         else
         {
-            prevShipId = game.addEntity(new Drawable('bin/player.png'), new ShipBehaviour(new Phaser.Point(1350,300), 180, game));
+            prevShipId = game.addEntity(new Drawable('bin/player.png'), new ShipBehaviour(new Phaser.Point(resolution.x,300), 90, game));
         }
     }
 }

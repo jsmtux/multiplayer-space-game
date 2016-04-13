@@ -1,3 +1,4 @@
+
 function LaserBehaviour(_position, _rotation, _game)
 {
     Behaviour.call(this, "laser");
@@ -22,6 +23,7 @@ LaserBehaviour.prototype.updateState = function(data, _game)
     this.updatePhysics(data, _game);
     this.physicsData.velocity.x = -1000 * Math.sin(data.rotation);
     this.physicsData.velocity.y = 1000 * Math.cos(data.rotation);
+    this.removeIfOut(data, _game);
     return data;
 }
 
@@ -58,7 +60,7 @@ function ShipBehaviour(_position, _rotation, _game)
             _game.removeEntity(self.entityIndex);
         }
     }
-    this.initData.rotation = Math.radians(270 + _rotation);
+    this.initData.rotation = Math.radians( _rotation);
 }
 
 ShipBehaviour.prototype = Object.create(BaseShipBehaviour.prototype);
@@ -72,6 +74,7 @@ ShipBehaviour.prototype.updateState = function(data, _game)
     {
         this.shoot(data, _game);
     }
+    this.removeIfOut(data, _game);
     return data;
 }
 
@@ -157,6 +160,7 @@ EnemyShipBehaviour.prototype.updateState = function(data, _game)
     this.physicsData.velocity.x = -this.speed * Math.sin(data.rotation);
     this.physicsData.velocity.y = this.speed * Math.cos(data.rotation);
     this.shootFilter.signal(this, data, _game);
+    this.removeIfOut(data, _game);
     
     return data;
 }

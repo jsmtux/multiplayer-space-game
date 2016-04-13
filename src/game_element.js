@@ -96,6 +96,21 @@ Behaviour.prototype.remove = function(_game)
     }
 }
 
+Behaviour.prototype.removeIfOut = function(data, _game)
+{
+    var margin = 50;
+    var ret = false;
+    if (data.position.x < - margin 
+        || data.position.x > (_game.resolution.x + margin)
+        || data.position.y < -margin
+        || data.position.y > (_game.resolution.y + margin))
+    {
+        _game.removeEntity(this.entityIndex);
+        ret = true;
+    }
+    return ret;
+}
+
 Behaviour.prototype.isRemote = function()
 {
     return false;

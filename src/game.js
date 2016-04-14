@@ -216,6 +216,7 @@ Money.prototype.add = function(amount)
 
 var playerMoney = new Money(1500, moneySpan);
 
+//Property updating
 function setBaseHealth(_health)
 {
     baseHealthSpan.innerHTML = _health;
@@ -230,11 +231,6 @@ function setEnemyBaseHealth(_name, _health)
     }
 }
 
-function onShipHit()
-{
-    game.SignalPropertyChange("MoneyReceived", 250);
-}
-
 function setMoneyAmount(_name, _money)
 {
     if (_name == "MoneyReceived")
@@ -242,11 +238,19 @@ function setMoneyAmount(_name, _money)
         playerMoney.add(_money);
     }
 }
+///
+
+function onMoneyHit()
+{
+    //game.SignalPropertyChange("MoneyReceived", 250);
+    playerMoney.add(250);
+}
 
 if (isServer)
 {
     //game.addEntity(new Drawable('bin/meteor.png'), new StaticBehaviour(new Phaser.Point(300,300)));
     game.addEntity(new Drawable('bin/base.png',true), new BaseBehaviour(new Phaser.Point(54,300), setBaseHealth));
+    dropCoins();
 }
 else
 {
@@ -254,6 +258,13 @@ else
     {
         game.addEntity(new Drawable('bin/base.png',true), new BaseBehaviour(new Phaser.Point(resolution.x - 54,300), setBaseHealth, 180));
     }
+}
+
+function dropCoins()
+{
+    var xpos = 200 + (resolution.x - 400) * Math.random();
+    game.addEntity(new Drawable('bin/rock_1.png',true), new CoinBehaviour(new Phaser.Point(xpos,0), game));
+    setTimeout(dropCoins, 2000 + Math.random()*4000);
 }
 
 // Top level functions
@@ -265,26 +276,28 @@ function addShip(y)
     }
     if (isServer)
     {
-        game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(0 , 200), 270, game, onShipHit));        
+        game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(0 , 200), 270, game));        
     }
     else
     {
-        game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(resolution.x , 200), 90, game, onShipHit));
+        game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(resolution.x , 200), 90, game));
     }
 }
 
 var prevShipId;
+var shipValue = 0;
+
 function addPlayerShip()
 {
-    if ((prevShipId === undefined || !game.hasEntity(prevShipId)) && playerMoney.checkAndSubstract(250))
+    if ((prevShipId === undefined || !game.hasEntity(prevShipId)) && playerMoney.checkAndSubstract(shipValue))
     {
         if (isServer)
         {
-            prevShipId = game.addEntity(new Drawable('bin/player.png'), new ShipBehaviour(new Phaser.Point(0,300), 270, game));
+            prevShipId = game.addEntity(new Drawable('bin/player.png'), new ShipBehaviour(new Phaser.Point(150,300), 270, game, onMoneyHit));
         }
         else
         {
-            prevShipId = game.addEntity(new Drawable('bin/player.png'), new ShipBehaviour(new Phaser.Point(resolution.x,300), 90, game));
+            prevShipId = game.addEntity(new Drawable('bin/player.png'), new ShipBehaviour(new Phaser.Point(resolution.x - 150,300), 90, game, onMoneyHit));
         }
     }
 }

@@ -48,7 +48,7 @@ BaseShipBehaviour.prototype.shoot = function(_data, _game)
     this.shootFilter.signal(this, _data, _game);
 }
 
-function ShipBehaviour(_position, _rotation, _game)
+function ShipBehaviour(_position, _rotation, _game, _moneyCallback)
 {
     BaseShipBehaviour.call(this, _position, "ship");
     var self = this;
@@ -58,6 +58,10 @@ function ShipBehaviour(_position, _rotation, _game)
         if ((colName === "base" || colName === "laser")&& colBehaviour.isRemote())
         {
             _game.removeEntity(self.entityIndex);
+        }
+        if (colName === "coin")
+        {
+            _moneyCallback();
         }
     }
     this.initData.rotation = Math.radians( _rotation);
@@ -78,8 +82,10 @@ ShipBehaviour.prototype.updateState = function(data, _game)
     return data;
 }
 
-ShipBehaviour.prototype.updateKeyMovement1 = function(data, _game)
+ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
 {
+    this.physicsData.force.x = 0;
+    this.physicsData.force.y = 0;
     if (_game.controller.getKeyStatus(Controller.Keys.RIGHT))
     {
         this.physicsData.force.x = -100 * (Math.cos(data.rotation) - Math.sin(data.rotation));
@@ -98,26 +104,8 @@ ShipBehaviour.prototype.updateKeyMovement1 = function(data, _game)
     }
 }
 
-ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
-{
-    if (_game.controller.getKeyStatus(Controller.Keys.FIRE))
-    {
-        this.shoot(data, _game);
-    }
-    if (_game.controller.getKeyStatus(Controller.Keys.UP))
-    {
-        data.rotation += 0.1;
-    }
-    if (_game.controller.getKeyStatus(Controller.Keys.DOWN))
-    {
-        data.rotation -= 0.1;
-    }
-    this.physicsData.force.x = 10 * - Math.sin(data.rotation);
-    this.physicsData.force.y = 45 * Math.cos(data.rotation);
-    
-}
 
-function EnemyShipBehaviour(_initPosition, _rotation, _game, _hitCallback)
+function EnemyShipBehaviour(_initPosition, _rotation, _game)
 {
     this.initPosition = _initPosition;
     BaseShipBehaviour.call(this, this.initPosition, "enemy");
@@ -125,14 +113,9 @@ function EnemyShipBehaviour(_initPosition, _rotation, _game, _hitCallback)
     this.initPhysicsParams.collisionCallback = function(event) {
         var colBehaviour = event.body.parentBehaviour;
         console.log(colBehaviour);
-        if (colBehaviour.getName() === "base" && colBehaviour.isRemote())
+        if ((colBehaviour.getName() === "base" || colBehaviour.getName() === "laser") && colBehaviour.isRemote())
         {
             _game.removeEntity(self.entityIndex);
-        }
-        if (colBehaviour.getName() === "laser" && colBehaviour.isRemote())
-        {
-            _game.removeEntity(self.entityIndex);
-            _hitCallback();
         }
     }
     this.initData.rotation = Math.radians(_rotation);

@@ -48,8 +48,9 @@ BaseShipBehaviour.prototype.shoot = function(_data, _game)
     this.shootFilter.signal(this, _data, _game);
 }
 
-function ShipBehaviour(_position, _rotation, _game, _moneyCallback)
+function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes)
 {
+    console.log(_attributes);
     BaseShipBehaviour.call(this, _position, "ship");
     var self = this;
     this.initPhysicsParams.collisionCallback = function(event) {
@@ -86,21 +87,34 @@ ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
 {
     this.physicsData.force.x = 0;
     this.physicsData.force.y = 0;
-    if (_game.controller.getKeyStatus(Controller.Keys.RIGHT))
+    
+    if (_game.controller.getKeyStatus(Controller.Keys.RIGHT)
+            || _game.controller.getKeyStatus(Controller.Keys.D))
     {
-        this.physicsData.force.x = -100 * (Math.cos(data.rotation) - Math.sin(data.rotation));
+        this.physicsData.force.x = 100;
     }
-    if (_game.controller.getKeyStatus(Controller.Keys.LEFT))
+    else if (_game.controller.getKeyStatus(Controller.Keys.LEFT)
+            || _game.controller.getKeyStatus(Controller.Keys.A))
     {
-        this.physicsData.force.x += 100 * (Math.cos(data.rotation) - Math.sin(data.rotation));
+        this.physicsData.force.x -= 100;
     }
-    if (_game.controller.getKeyStatus(Controller.Keys.UP))
+    else
     {
-        this.physicsData.force.y = 100 * (Math.cos(data.rotation) - Math.sin(data.rotation));
+        this.physicsData.force.x -= 2 * this.physicsData.velocity.x;        
     }
-    if (_game.controller.getKeyStatus(Controller.Keys.DOWN))
+    if (_game.controller.getKeyStatus(Controller.Keys.UP)
+            || _game.controller.getKeyStatus(Controller.Keys.W))
     {
-        this.physicsData.force.y += -100 * (Math.cos(data.rotation) - Math.sin(data.rotation));
+        this.physicsData.force.y = -100;
+    }
+    else if (_game.controller.getKeyStatus(Controller.Keys.DOWN)
+            || _game.controller.getKeyStatus(Controller.Keys.S))
+    {
+        this.physicsData.force.y += 100;
+    }
+    else
+    {
+        this.physicsData.force.y -= 2 * this.physicsData.velocity.y;        
     }
 }
 

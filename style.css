@@ -1,4 +1,4 @@
-ul {
+ul.horizontal{
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -6,13 +6,13 @@ ul {
     background-color: #333;
     min-width: 1000px;
     width: 100%;
+    text-align: center;
 }
 
-li {
+ul.horizontal li{
     float: left;
     display: inline-block;
     color: white;
-    text-align: center;
     padding: 8px 10px;
     text-decoration: none;
     width: 250px;
@@ -45,4 +45,42 @@ li img {
   -ms-user-select: none;       /* IE/Edge */
   user-select: none;           /* non-prefixed version, currently
                                   not supported by any browser */
+}
+
+#menuWrapper {
+    position: fixed;
+    width: 0px;
+    height: 0px;
+}
+
+.shipConf {
+    width: 270px;
+    max-height: 0px;
+    position: relative;
+    margin-top: -200px;
+    margin-left: -10px;
+    -webkit-transition: max-height 1s; 
+    -moz-transition: max-height 1s; 
+    -ms-transition: max-height 1s; 
+    -o-transition: max-height 1s; 
+    transition: max-height 1s;
+    overflow:hidden;
+}
+
+.shipConf *{
+    margin-left: -10px;
+    text-align: left;
+}
+
+.menu_selection * {
+    border:3px solid black;
+    margin: 5px;
+    padding: 2px;
+    background-color: #fff;
+    width: 35px;
+    height: 35px;
+}
+
+.menu_selection .active {
+    border:3px solid red;    
 }

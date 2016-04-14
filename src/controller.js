@@ -1,8 +1,8 @@
 function Controller()
 {
     var self = this;
-    document.onkeydown = function(event){self.onKeyDown(event.keyCode)}
-    document.onkeyup = function(event){self.onKeyUp(event.keyCode)}
+    document.onkeydown = function(event){self.onKeyDown(event.keyCode);console.log(event.keyCode);}
+    document.onkeyup = function(event){self.onKeyUp(event.keyCode);}
     this.keyStatus = {};
 }
 
@@ -12,6 +12,10 @@ Controller.Keys = {
     LEFT: 37,
     RIGHT: 39,
     FIRE: 32,
+    W: 87,
+    D: 68,
+    S: 83,
+    A: 65
 }
 
 Controller.prototype.onKeyDown = function(key)

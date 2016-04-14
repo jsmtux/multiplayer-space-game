@@ -304,6 +304,7 @@ CoinBehaviour.prototype.updateState = function(data, _game)
     this.updatePhysics(data, _game);
     data.rotation += 0.1;
     this.physicsData.velocity.y = 100.0;
+    this.removeIfOut(data, _game);
     return data;
 }
 

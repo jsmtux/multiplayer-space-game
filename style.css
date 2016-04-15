@@ -34,7 +34,7 @@ li img {
     height: 35px;
     position: relative;
     left: -15px;
-    margin-bottom: -10px;
+    margin-bottom: -5px;
 }
 
 .noselect {
@@ -65,16 +65,17 @@ li img {
     -o-transition: max-height 1s; 
     transition: max-height 1s;
     overflow:hidden;
+    color: black;
 }
 
 .shipConf *{
-    margin-left: -10px;
     text-align: left;
+    padding: 0px 0px 0px 10px;
+    margin: 0px;
 }
 
 .menu_selection * {
     border:3px solid black;
-    margin: 5px;
     padding: 2px;
     background-color: #fff;
     width: 35px;

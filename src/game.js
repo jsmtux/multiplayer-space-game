@@ -37,7 +37,6 @@ Game.prototype.updateElements = function()
     {
         this.physicsEngine.updateSimulation(1.0/this.updateFps);
     }
-    var new_data = {};
     for (var entity in this.scene.entities)
     {
         this.scene.entities[entity].drawable.create(this);

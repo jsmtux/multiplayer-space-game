@@ -128,6 +128,13 @@ function playerShipLaserSelection(id)
     priceMainShipSpan.innerHTML = currentMainShipAttributes.shipValue;  
 }
 
+function playerShipShieldSelection(id)
+{
+    menuButtonSelection('playerShipShieldConf', id);
+    currentMainShipAttributes.setShieldType(id);
+    priceMainShipSpan.innerHTML = currentMainShipAttributes.shipValue;  
+}
+
 function addPlayerShip()
 {
     if ((prevShipId === undefined || !game.hasEntity(prevShipId)) && playerMoney.checkAndSubstract(currentMainShipAttributes.shipValue))

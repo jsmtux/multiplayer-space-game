@@ -41,6 +41,11 @@
                                 <img onclick="playerShipLaserSelection(3)" src="bin/triple_laser.png"></img>
                             </li>
                             <li>Shield</li>
+                            <li id="playerShipShieldConf" class="menu_selection">
+                                <img onclick="playerShipShieldSelection(0)" src="bin/empty.png" class="active"></img>
+                                <img onclick="playerShipShieldSelection(1)" src="bin/shield_1.png"></img>
+                                <img onclick="playerShipShieldSelection(2)" src="bin/shield_2.png"></img>
+                            </li>
                             <li>
                                 
                             </li>
@@ -64,8 +69,9 @@
 			<script src="./src/network.js"></script>
 			<script src="./src/controller.js"></script>
 			<script src="./src/physics.js"></script>
-			<script src="./src/game_element.js"></script>
-			<script src="./src/ship_behaviour.js"></script>
+			<script src="./src/drawable.js"></script>
+			<script src="./src/behaviour/behaviour.js"></script>
+			<script src="./src/behaviour/ship_behaviour.js"></script>
 			<script src="./src/texture_manager.js"></script>
 			<script src="./src/game.js"></script>
 			<script src="./src/scene.js"></script>

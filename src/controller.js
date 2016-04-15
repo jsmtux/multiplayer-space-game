@@ -1,7 +1,7 @@
 function Controller()
 {
     var self = this;
-    document.onkeydown = function(event){self.onKeyDown(event.keyCode);console.log(event.keyCode);}
+    document.onkeydown = function(event){self.onKeyDown(event.keyCode);}
     document.onkeyup = function(event){self.onKeyUp(event.keyCode);}
     this.keyStatus = {};
 }

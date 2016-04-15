@@ -27,16 +27,17 @@ LaserBehaviour.prototype.updateState = function(data, _game)
     return data;
 }
 
+function shoot_callback(_element, _data, _game)
+{
+    var new_drawable = new Drawable('bin/laserRed.png');
+    _game.addEntity(new_drawable, new LaserBehaviour(_data.position, _data.rotation, _game));
+}
+
 function BaseShipBehaviour(_position, _name)
 {
     Behaviour.call(this, _name);
     asPhysical.call(this);
     this.initPhysicsParams.position = _position;
-    function shoot_callback(_element, _data, _game)
-    {
-        var new_drawable = new Drawable('bin/laserRed.png');
-        _game.addEntity(new_drawable, new LaserBehaviour(_data.position, _data.rotation, _game));
-    }
     this.shootFilter = new RepeatEliminationFilter(shoot_callback, 3);
 }
 
@@ -50,7 +51,8 @@ BaseShipBehaviour.prototype.shoot = function(_data, _game)
 
 function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes)
 {
-    console.log(_attributes);
+    this.attributes = _attributes;
+    
     BaseShipBehaviour.call(this, _position, "ship");
     var self = this;
     this.initPhysicsParams.collisionCallback = function(event) {
@@ -66,6 +68,22 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes)
         }
     }
     this.initData.rotation = Math.radians( _rotation);
+    
+    switch(this.attributes.laserType)
+    {
+        case playerLaserTypes.None:
+            this.shootFilter = new RepeatEliminationFilter(function(){}, 0);
+            break;
+        case playerLaserTypes.Single:
+            this.shootFilter = new RepeatEliminationFilter(shoot_callback, 10);
+            break;
+        case playerLaserTypes.Double:
+            this.shootFilter = new RepeatEliminationFilter(shoot_callback, 6);
+            break;
+        case playerLaserTypes.Triple:
+            this.shootFilter = new RepeatEliminationFilter(shoot_callback, 3);
+            break;
+    }
 }
 
 ShipBehaviour.prototype = Object.create(BaseShipBehaviour.prototype);

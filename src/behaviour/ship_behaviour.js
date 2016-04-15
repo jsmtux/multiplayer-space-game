@@ -84,6 +84,9 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes)
             this.shootFilter = new RepeatEliminationFilter(shoot_callback, 3);
             break;
     }
+    
+    this.acceleration = 100;
+    this.maxVelocity = 200;
 }
 
 ShipBehaviour.prototype = Object.create(BaseShipBehaviour.prototype);
@@ -109,12 +112,26 @@ ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
     if (_game.controller.getKeyStatus(Controller.Keys.RIGHT)
             || _game.controller.getKeyStatus(Controller.Keys.D))
     {
-        this.physicsData.force.x = 100;
+        if (this.physicsData.velocity.x < 0)
+        {
+            this.physicsData.force.x = this.acceleration * 2;
+        }
+        else if (this.physicsData.velocity.x < this.maxVelocity)
+        {
+            this.physicsData.force.x = this.acceleration;
+        }
     }
     else if (_game.controller.getKeyStatus(Controller.Keys.LEFT)
             || _game.controller.getKeyStatus(Controller.Keys.A))
     {
-        this.physicsData.force.x -= 100;
+        if (this.physicsData.velocity.x > 0)
+        {
+            this.physicsData.force.x += - this.acceleration * 2;
+        }
+        else if (this.physicsData.velocity.x > -this.maxVelocity)
+        {
+            this.physicsData.force.x += - this.acceleration;
+        }
     }
     else
     {
@@ -123,12 +140,26 @@ ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
     if (_game.controller.getKeyStatus(Controller.Keys.UP)
             || _game.controller.getKeyStatus(Controller.Keys.W))
     {
-        this.physicsData.force.y = -100;
+        if (this.physicsData.velocity.y > 0)
+        {
+            this.physicsData.force.y = - this.acceleration * 2;
+        }
+        else if (this.physicsData.velocity.y > -this.maxVelocity)
+        {
+            this.physicsData.force.y = - this.acceleration;
+        }
     }
     else if (_game.controller.getKeyStatus(Controller.Keys.DOWN)
             || _game.controller.getKeyStatus(Controller.Keys.S))
     {
-        this.physicsData.force.y += 100;
+        if (this.physicsData.velocity.y < 0)
+        {
+            this.physicsData.force.y += this.acceleration * 2;
+        }
+        else if (this.physicsData.velocity.y < this.maxVelocity)
+        {
+            this.physicsData.force.y += this.acceleration;
+        }
     }
     else
     {

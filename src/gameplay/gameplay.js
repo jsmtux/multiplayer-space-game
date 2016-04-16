@@ -43,7 +43,7 @@ function setMoneyAmount(_name, _money)
 ///
 function onMoneyHit()
 {
-    playerMoney.add(250);
+    playerMoney.add(150);
 }
 
 if (isServer)

@@ -63,7 +63,7 @@ function dropCoins()
 {
     var xpos = 200 + (resolution.x - 400) * Math.random();
     game.addEntity(new Drawable('bin/rock_1.png',true), new CoinBehaviour(new Phaser.Point(xpos,0), game));
-    //game.addEntity(new Text('Test text!!;', 'bin/carrier_command.png', 'bin/carrier_command.xml'), new CoinBehaviour(new Phaser.Point(xpos,0), game));
+
     setTimeout(dropCoins, 2000 + Math.random()*4000);
 }
 

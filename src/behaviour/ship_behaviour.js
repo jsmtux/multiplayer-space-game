@@ -55,12 +55,25 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes)
     
     BaseShipBehaviour.call(this, _position, "ship");
     var self = this;
+    
+    var barDrawable = new HealthBar(75);
+    this.barBehaviour = new BarBehaviour(_position, barDrawable);
+    _game.addLocalEntity(barDrawable, this.barBehaviour);
+
     this.initPhysicsParams.collisionCallback = function(event) {
         var colBehaviour = event.body.parentBehaviour;
         var colName = colBehaviour.getName();
-        if ((colName === "base" || colName === "laser")&& colBehaviour.isRemote())
+        if (colName === "base" && colBehaviour.isRemote())
         {
             _game.removeEntity(self.entityIndex);
+        }
+        if (colName === "laser" && colBehaviour.isRemote())
+        {
+            self.health -= 25;
+            if (self.health <= 0)
+            {
+                _game.removeEntity(self.entityIndex);
+            }
         }
         if (colName === "coin")
         {
@@ -90,6 +103,7 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes)
     
     this.acceleration = 100;
     this.maxVelocity = 200;
+    this.health = 100;
 }
 
 ShipBehaviour.prototype = Object.create(BaseShipBehaviour.prototype);
@@ -103,9 +117,19 @@ ShipBehaviour.prototype.updateState = function(data, _game)
     {
         this.shoot(data, _game);
     }
+    this.barBehaviour.position.x = data.position.x - 25;
+    this.barBehaviour.position.y = data.position.y - 35;
     this.removeIfOut(data, _game);
+    this.barBehaviour.setPercentage(this.health);
     return data;
 }
+
+ShipBehaviour.prototype.remove = function(_game)
+{
+    Behaviour.prototype.remove.call(_game);
+    _game.removeEntity(this.barBehaviour.entityIndex);    
+}
+
 
 ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
 {

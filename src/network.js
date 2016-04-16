@@ -12,7 +12,7 @@ function NetworkManager(isServer, _game)
     this.lastNetworkId = 0;
     if (isServer)
     {
-        var peer = new Peer('Alice', {
+        var peer = new Peer('Alice-jose', {
             key: '50aebg7h1a21q0k9',
             config: {'iceServers': [
                 { url: 'stun:stun.l.google.com:19302' },
@@ -22,7 +22,7 @@ function NetworkManager(isServer, _game)
             ]}
         }); 
         
-        this.conn = peer.connect('bob');
+        this.conn = peer.connect('bob-jose');
         this.conn.on('open', function(){
             self.ready = true;
         });
@@ -33,7 +33,7 @@ function NetworkManager(isServer, _game)
     }
     else
     {
-        var peer = new Peer('bob', {key: '50aebg7h1a21q0k9'});  
+        var peer = new Peer('bob-jose', {key: '50aebg7h1a21q0k9'});  
         peer.on('connection', function(conn) {
             self.conn = conn;
             conn.on('data', function(data){
@@ -64,11 +64,19 @@ NetworkManager.prototype.registerElement = function(_drawableInfo, _behaviour, _
         var data = _drawableInfo.getNetworkData();
         data['front'] = _drawableInfo.front;
         data['type_name'] = _behaviour.getName();
-        if (_behaviour.initPhysicsParams.collisionResponse === 0)
+        if (!_behaviour.initPhysicsParams)
         {
             data['collisionResponse'] = 0;
+            data['shapeType'] = ShapeType.SPHERE;
         }
-        data['shapeType'] = _behaviour.initPhysicsParams.shapeType;
+        else
+        {
+            if (_behaviour.initPhysicsParams.collisionResponse === 0)
+            {
+                data['collisionResponse'] = 0;
+            }
+            data['shapeType'] = _behaviour.initPhysicsParams.shapeType;
+        }
         this.drawableInfo[ind] = data;
     }
     return ind;

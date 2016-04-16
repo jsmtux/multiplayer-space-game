@@ -1,3 +1,15 @@
+function Entity(_drawable, _behaviour)
+{
+    this.drawable = _drawable;
+    this.element = _behaviour;
+}
+
+Entity.prototype.remove = function(_game)
+{
+    this.drawable.remove();
+    this.element.remove(_game);
+}
+
 function Scene()
 {
     this.entities = {};

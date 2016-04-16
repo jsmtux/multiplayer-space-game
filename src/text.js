@@ -14,16 +14,17 @@ PhaserFontManager.prototype.addFont = function(_image, _description)
     }
     else
     {
-        this.game.load.bitmapFont(this.global_ind, _image, _description);
+        id = 'f' + this.global_ind++;
+        this.sprite = this.game.load.bitmapFont(id, _image, _description);
         this.game.load.start();
-        this.fonts[_image] = this.global_ind++;
+        this.fonts[_image] = id;
     }
     return id;
 }
 
 function fontFileComplete(progress, cacheKey, success, totalLoaded, totalFiles)
 {
-    if (PhaserFontManager.loadedIndexes.indexOf(cacheKey) == -1)
+    if (PhaserFontManager.loadedIndexes.indexOf(cacheKey) === -1)
     {
         PhaserFontManager.loadedIndexes.push(cacheKey);
     }
@@ -42,15 +43,18 @@ PhaserFontManager.prototype.isLoaded = function(index)
     return PhaserFontManager.loadedIndexes.indexOf(index) !== -1;
 }
 
-function Text(_text, _image, _imageDesc)
+function Text(_text, _image, _imageDesc, _size)
 {
     this.image = _image;
     this.imageDesc = _imageDesc;
     this.text = _text;
+    this.size = _size;
 
     this.font = -1;
     this.created = false;
     this.preloaded = false;
+    
+    this.sprite;
 }
 
 Text.prototype.preload = function(_game)
@@ -73,7 +77,7 @@ Text.prototype.create = function(_game)
     }
     if (!this.created && this.preloaded)
     {
-        this.sprite = _game.phaser_game.add.bitmapText(0, 0, this.font, this.text, 34);
+        this.sprite = _game.phaser_game.add.bitmapText(0, 0, this.font, this.text, this.size);
         _game.frontLayer.add(this.sprite);
         this.sprite.anchor = new Phaser.Point(0.5, 0.5);
         this.created = true;

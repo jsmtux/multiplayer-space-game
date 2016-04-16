@@ -56,6 +56,16 @@ Game.prototype.getPhysicsEngine = function()
     return this.physicsEngine;
 }
 
+Game.prototype.addLocalEntity = function(_drawable, _element)
+{
+    if (this.finishedLoading)
+    {
+        _drawable.preload(this);
+    }
+    _element.networkId = -1;
+    return this.scene.addEntity(_drawable, _element);
+}
+
 Game.prototype.addEntity = function(_drawable, _element, _remote)
 {
     if (this.finishedLoading)

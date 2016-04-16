@@ -65,6 +65,9 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes)
         if (colName === "coin")
         {
             _moneyCallback();
+            
+            var score_drawable = new Text('+150u', 'bin/carrier_command.png', 'bin/carrier_command.xml', 15);
+            _game.addLocalEntity(score_drawable, new FadingScoreBehaviour(self.cur_data.position, score_drawable), false);
         }
     }
     this.initData.rotation = Math.radians( _rotation);
@@ -166,7 +169,6 @@ ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
         this.physicsData.force.y -= 2 * this.physicsData.velocity.y;        
     }
 }
-
 
 function EnemyShipBehaviour(_initPosition, _rotation, _game)
 {

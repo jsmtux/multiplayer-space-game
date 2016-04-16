@@ -140,6 +140,13 @@ NetworkManager.prototype.receiveNetworkUpdate = function(_data)
                 this.game.addEntity(new Drawable(elementChanges[element].texture, elementChanges[element].front), behaviour, true);
                 this.remote_elements[element] = behaviour;
             }
+            if (elementChanges[element].font !== undefined)
+            {
+                var collisionResponse = 0;
+                var behaviour = new NetworkBehaviour(collisionResponse, elementChanges[element], this.game);
+                this.game.addEntity(new Text(elementChanges[element].text, elementChanges[element].font, elementChanges[element].description), behaviour, true);
+                this.remote_elements[element] = behaviour;
+            }
         }
         else
         {

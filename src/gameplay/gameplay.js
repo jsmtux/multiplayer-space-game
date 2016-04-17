@@ -1,6 +1,7 @@
-window.ondragstart = function() { return false; } 
 
-var isServer = location.hash == "#server";
+window.ondragstart = function() { return false; };
+
+var isServer = location.hash === "#server";
 
 
 //HTML interaction
@@ -12,7 +13,7 @@ var priceAuxShipSpan = document.getElementById("priceAuxShip");
 
 //\HTML interaction
 
-var resolution = new Phaser.Point(1344, 648);
+var resolution = new Phaser.Point(window.screen.availWidth * 0.99, window.screen.availHeight * 0.68);
 var scene = new Scene();
 var game = new PhaserGame(scene, isServer, resolution);
 
@@ -41,9 +42,9 @@ function setMoneyAmount(_name, _money)
     }
 }
 ///
-function onMoneyHit()
+function onMoneyHit(value)
 {
-    playerMoney.add(150);
+    playerMoney.add(value);
 }
 
 if (isServer)
@@ -56,14 +57,33 @@ else
     game.networkManager.onConnection = function()
     {
         game.addEntity(new Drawable('bin/base.png',true), new BaseBehaviour(new Phaser.Point(resolution.x - 54,300), setBaseHealth, 180));
-    }
+    };
 }
 
 function dropCoins()
 {
-    var xpos = 200 + (resolution.x - 400) * Math.random();
-    game.addEntity(new Drawable('bin/rock_1.png',true), new CoinBehaviour(new Phaser.Point(xpos,0), game));
+    var kind = Math.random();
+    var path;
+    var value;
 
+    switch (true)
+    {
+        case (kind < 0.5):
+            path = 'bin/rock_bronze.png';
+            value = 150;
+            break;
+        case (kind < 0.8):
+            path = 'bin/rock_silver.png';
+            value = 300;
+            break;
+        case (kind < 1):
+            path = 'bin/rock_gold.png';
+            value = 500;
+            break;
+    }
+  
+    var xpos = 200 + (resolution.x - 400) * Math.random();
+    game.addEntity(new Drawable(path,true), new CoinBehaviour(new Phaser.Point(xpos,0), value, game));
     setTimeout(dropCoins, 2000 + Math.random()*4000);
 }
 

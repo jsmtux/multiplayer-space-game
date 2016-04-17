@@ -1,3 +1,4 @@
+
 function Drawable(_texture, _front)
 {
     this.texture_path = _texture;
@@ -17,7 +18,7 @@ Drawable.prototype.preload = function(_game)
     {
         console.warn("Double call to preload");
     }
-}
+};
 
 Drawable.prototype.create = function(_game)
 {//TODO: this should be part of PhaserDrawable
@@ -39,12 +40,12 @@ Drawable.prototype.create = function(_game)
         }
         this.sprite.anchor = new Phaser.Point(0.5, 0.5);
     }
-}
+};
 
 Drawable.prototype.remove = function()
 {
     this.sprite.destroy();
-}
+};
 
 Drawable.prototype.draw = function(_element, _time)
 {
@@ -54,9 +55,9 @@ Drawable.prototype.draw = function(_element, _time)
         this.sprite.position = data.position;
         this.sprite.rotation = data.rotation;
     }
-}
+};
 
 Drawable.prototype.getNetworkData = function()
 {
     return {"texture":this.texture_path};
-}
+};

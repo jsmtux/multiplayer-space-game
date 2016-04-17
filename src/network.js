@@ -39,7 +39,7 @@ function NetworkManager(isServer, _game)
             conn.on('data', function(data){
                 self.receiveNetworkUpdate(data);
             });
-            if (self.onConnection != undefined)
+            if (self.onConnection !== undefined)
             {
                 self.onConnection();
             }
@@ -53,7 +53,7 @@ function NetworkManager(isServer, _game)
 NetworkManager.prototype.sendObject = function(obj)
 {
     this.conn.send(JSON.stringify(obj));
-}
+};
 
 NetworkManager.prototype.registerElement = function(_drawableInfo, _behaviour, _remote)
 {
@@ -80,7 +80,7 @@ NetworkManager.prototype.registerElement = function(_drawableInfo, _behaviour, _
         this.drawableInfo[ind] = data;
     }
     return ind;
-}
+};
 
 NetworkManager.prototype.removeElement = function(_networkId, _remote)
 {
@@ -93,7 +93,7 @@ NetworkManager.prototype.removeElement = function(_networkId, _remote)
     {
         
     }
-}
+};
 
 NetworkManager.prototype.sendUpdate = function()
 {
@@ -123,11 +123,11 @@ NetworkManager.prototype.sendUpdate = function()
     
         //Random variable updating
         toSend['game_info'] = this.buffered_property_updates;
-        this.buffered_property_updates = {}
+        this.buffered_property_updates = {};
         
         this.sendObject(toSend);
     }
-}
+};
 
 NetworkManager.prototype.receiveNetworkUpdate = function(_data)
 {
@@ -176,9 +176,9 @@ NetworkManager.prototype.receiveNetworkUpdate = function(_data)
     {
         this.game.ReceivePropertyChange(property, propertyUpdates[property]);
     }
-}
+};
 
 NetworkManager.prototype.SignalPropertyChange = function(_name, _text)
 {
     this.buffered_property_updates[_name] = _text;
-}
+};

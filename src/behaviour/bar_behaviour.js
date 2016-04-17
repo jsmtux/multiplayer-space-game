@@ -15,9 +15,9 @@ BarBehaviour.prototype.updateState = function(data, _game)
     data.position = this.position;
     this.removeIfOut(data, _game);
     return data;
-}
+};
 
 BarBehaviour.prototype.setPercentage = function(_percentage)
 {
     this.drawable.barProgress = _percentage;
-}
+};

@@ -15,7 +15,7 @@ Behaviour.prototype.remove = function(_game)
     {
         _game.getPhysicsEngine().unRegisterElement(this.physicsData);
     }
-}
+};
 
 Behaviour.prototype.removeIfOut = function(data, _game)
 {
@@ -30,17 +30,17 @@ Behaviour.prototype.removeIfOut = function(data, _game)
         ret = true;
     }
     return ret;
-}
+};
 
 Behaviour.prototype.isRemote = function()
 {
     return false;
-}
+};
 
 Behaviour.prototype.getName = function()
 {
     return this.name;
-}
+};
 
 function interpolatePoint(prev, cur, time)
 {
@@ -63,7 +63,7 @@ Behaviour.prototype.getInterpolatedData = function(_time)
         ret.rotation = interpolateNumber(this.old_data.rotation, this.cur_data.rotation, _time);
     }
     return ret;
-}
+};
 
 Behaviour.prototype.updateData = function(_game)
 {
@@ -76,13 +76,13 @@ Behaviour.prototype.updateData = function(_game)
     {
          this.old_data = this.cur_data =  this.updateState(this.initData, _game);
     }
-}
+};
 
 Behaviour.prototype.updateState = function(data)
 {
     console.log("Unimplemented updateState for element");
     return data;
-}
+};
 
 function asPhysical()
 {
@@ -103,5 +103,5 @@ function asPhysical()
         {
             _game.getPhysicsEngine().updateInfo(this, data, _game);
         }
-    }
+    };
 }

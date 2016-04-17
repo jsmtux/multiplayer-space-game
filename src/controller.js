@@ -1,8 +1,8 @@
 function Controller()
 {
     var self = this;
-    document.onkeydown = function(event){self.onKeyDown(event.keyCode);}
-    document.onkeyup = function(event){self.onKeyUp(event.keyCode);}
+    document.onkeydown = function(event){self.onKeyDown(event.keyCode);};
+    document.onkeyup = function(event){self.onKeyUp(event.keyCode);};
     this.keyStatus = {};
 }
 
@@ -16,19 +16,19 @@ Controller.Keys = {
     D: 68,
     S: 83,
     A: 65
-}
+};
 
 Controller.prototype.onKeyDown = function(key)
 {
     this.keyStatus[key] = true;
-}
+};
 
 Controller.prototype.onKeyUp = function(key)
 {
     this.keyStatus[key] = false;
-}
+};
 
 Controller.prototype.getKeyStatus = function(key)
 {
     return this.keyStatus[key];
-}
+};

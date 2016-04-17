@@ -18,7 +18,7 @@ Game.prototype.initUpdateLoop = function()
         self.updateElements();
         self.lastUpdated = getMillis();
     }, 1000/this.updateFps);
-}
+};
 
 Game.prototype.updateRenderElements = function()
 {
@@ -28,7 +28,7 @@ Game.prototype.updateRenderElements = function()
     {
         this.scene.entities[entity].drawable.draw(this.scene.entities[entity].element, t);
     }
-}
+};
 
 Game.prototype.updateElements = function()
 {
@@ -43,18 +43,18 @@ Game.prototype.updateElements = function()
         this.scene.entities[entity].element.updateData(this);
     }
     this.networkManager.sendUpdate();
-}
+};
 
 Game.prototype.getTextureManager = function()
 {
     console.log("getTextureManager function undefined");
     return undefined;
-}
+};
 
 Game.prototype.getPhysicsEngine = function()
 {
     return this.physicsEngine;
-}
+};
 
 Game.prototype.addLocalEntity = function(_drawable, _element)
 {
@@ -64,7 +64,7 @@ Game.prototype.addLocalEntity = function(_drawable, _element)
     }
     _element.networkId = -1;
     return this.scene.addEntity(_drawable, _element);
-}
+};
 
 Game.prototype.addEntity = function(_drawable, _element, _remote)
 {
@@ -81,7 +81,7 @@ Game.prototype.addEntity = function(_drawable, _element, _remote)
         _element.networkId = -1;
     }
     return this.scene.addEntity(_drawable, _element);
-}
+};
 
 Game.prototype.removeEntity = function(_index)
 {
@@ -93,21 +93,21 @@ Game.prototype.removeEntity = function(_index)
         this.networkManager.removeElement(id, remote);
     }
     this.scene.removeEntity(_index, this);
-}
+};
 
 Game.prototype.hasEntity = function(_index)
 {
     return this.scene.hasEntity(_index);
-}
+};
 
 Game.prototype.SignalPropertyChange = function(_name, _text)
 {
     this.networkManager.SignalPropertyChange(_name, _text);
-}
+};
 
 Game.prototype.ReceivePropertyChange = function(_name, _text)
 {
     this.properties[_name] = _text;
     setEnemyBaseHealth(_name, _text);
     setMoneyAmount(_name, _text);
-}
+};

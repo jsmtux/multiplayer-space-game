@@ -9,7 +9,7 @@ var playerShieldTypes = {
     'None': 0,
     'Normal': 1,
     'Extended': 2
-}
+};
 
 function MainShipAttributes()
 {

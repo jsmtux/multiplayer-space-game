@@ -20,7 +20,7 @@ PhaserFontManager.prototype.addFont = function(_image, _description)
         this.fonts[_image] = id;
     }
     return id;
-}
+};
 
 function fontFileComplete(progress, cacheKey, success, totalLoaded, totalFiles)
 {

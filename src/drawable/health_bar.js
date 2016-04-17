@@ -10,7 +10,7 @@ function HealthBar(_width)
 HealthBar.prototype.preload = function(_game)
 {
     this.game = _game;
-}
+};
 
 HealthBar.prototype.create = function(_game)
 {
@@ -25,7 +25,7 @@ HealthBar.prototype.create = function(_game)
         
         this.created = true;
     }
-}
+};
 
 HealthBar.prototype.remove = function()
 {
@@ -35,7 +35,7 @@ HealthBar.prototype.remove = function()
         this.sprite.destroy();
         this.game.phaser_game.tweens.remove(this.tween);
     }
-}
+};
 
 HealthBar.prototype.draw = function(_element, _time)
 {
@@ -62,9 +62,9 @@ HealthBar.prototype.draw = function(_element, _time)
         this.sprite.position = data.position;
         this.sprite.rotation = data.rotation;
     }
-}
+};
 
 HealthBar.prototype.getNetworkData = function()
 {
     return {"progress":100};
-}
+};

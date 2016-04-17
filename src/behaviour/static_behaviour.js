@@ -14,4 +14,4 @@ StaticBehaviour.prototype.updateState = function(data, _game)
 {
     this.updatePhysics(data, _game);
     return data;
-}
+};

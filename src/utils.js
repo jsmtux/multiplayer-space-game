@@ -22,7 +22,7 @@ TimeFilter.numTicks = 0;
 TimeFilter.update = function()
 {
     TimeFilter.numTicks++;
-}
+};
 
 function RepeatEliminationFilter(callback, cadence)
 {
@@ -42,7 +42,7 @@ RepeatEliminationFilter.prototype.signal = function(_element, _data, _game)
         return this.callback(_element, _data, _game);
     }
     return false;
-}
+};
 
 function isObjectEmpty(obj)
 {

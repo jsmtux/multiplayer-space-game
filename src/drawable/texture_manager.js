@@ -1,5 +1,4 @@
 
-
 function TextureManager()
 {
     this.loadedTextures = {};
@@ -14,17 +13,17 @@ TextureManager.prototype.getTexInd = function(_path)
         ret = -1;
     }
     return ret;
-}
+};
 
 TextureManager.prototype.getNewInd = function()
 {
     return this.global_ind++;
-}
+};
 
 TextureManager.prototype.createTexture = function(_path)
 {
     return -1;
-}
+};
 
 function fileComplete(progress, cacheKey, success, totalLoaded, totalFiles)
 {
@@ -45,17 +44,17 @@ PhaserTextureManager.prototype.constructor = PhaserTextureManager;
 PhaserTextureManager.prototype.isLoaded = function(index)
 {
     return PhaserTextureManager.loadedIndexes.indexOf(index) !== -1;
-}
+};
 
 PhaserTextureManager.prototype.preload = function()
 {
     this.phaserGame.load.onFileComplete.add(fileComplete, this);
-}
+};
 
 PhaserTextureManager.prototype.createTexture = function(_path)
 {
     var ind = this.getTexInd(_path);
-    if (ind == -1)
+    if (ind === -1)
     {
         ind = this.getNewInd();
         this.phaserGame.load.image(ind, _path);
@@ -63,4 +62,4 @@ PhaserTextureManager.prototype.createTexture = function(_path)
         this.loadedTextures[_path] = ind;
     }
     return ind;
-}
+};

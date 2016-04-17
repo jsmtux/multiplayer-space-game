@@ -22,7 +22,7 @@ function BaseBehaviour(_position, _healthCallback, _rotation)
             self.health -= 1;
         }
         self.updateHealth();
-    }
+    };
 }
 
 BaseBehaviour.prototype = Object.create(Behaviour.prototype);
@@ -31,11 +31,11 @@ BaseBehaviour.prototype.constructor = StaticBehaviour;
 BaseBehaviour.prototype.updateHealth = function()
 {
     this.healthCallback(this.health);
-}
+};
 
 BaseBehaviour.prototype.updateState = function(data, _game)
 {
     this.updatePhysics(data, _game);
     data.rotation = this.rotation;
     return data;
-}
+};

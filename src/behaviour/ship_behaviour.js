@@ -1,4 +1,3 @@
-
 function LaserBehaviour(_position, _rotation, _game)
 {
     Behaviour.call(this, "laser");
@@ -12,7 +11,7 @@ function LaserBehaviour(_position, _rotation, _game)
         {
             _game.removeEntity(self.entityIndex);
         }
-    }
+    };
 }
 
 LaserBehaviour.prototype = Object.create(Behaviour.prototype);
@@ -25,7 +24,7 @@ LaserBehaviour.prototype.updateState = function(data, _game)
     this.physicsData.velocity.y = 1000 * Math.cos(data.rotation);
     this.removeIfOut(data, _game);
     return data;
-}
+};
 
 function shoot_callback(_element, _data, _game)
 {
@@ -47,7 +46,7 @@ BaseShipBehaviour.prototype.constructor = BaseShipBehaviour;
 BaseShipBehaviour.prototype.shoot = function(_data, _game)
 {
     this.shootFilter.signal(this, _data, _game);
-}
+};
 
 function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes)
 {
@@ -75,14 +74,15 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes)
                 _game.removeEntity(self.entityIndex);
             }
         }
-        if (colName === "coin")
+        if (colName.substring(0, 5) === "coin_")
         {
-            _moneyCallback();
+            var value = colName.substring(colName.lastIndexOf("_")+1,colName.length);
+            _moneyCallback(parseInt(value));
             
-            var score_drawable = new Text('+150u', 'bin/carrier_command.png', 'bin/carrier_command.xml', 15);
+            var score_drawable = new Text("+"+value+"u", 'bin/carrier_command.png', 'bin/carrier_command.xml', 15);
             _game.addLocalEntity(score_drawable, new FadingScoreBehaviour(self.cur_data.position, score_drawable), false);
         }
-    }
+    };
     this.initData.rotation = Math.radians( _rotation);
     
     switch(this.attributes.laserType)
@@ -122,13 +122,13 @@ ShipBehaviour.prototype.updateState = function(data, _game)
     this.removeIfOut(data, _game);
     this.barBehaviour.setPercentage(this.health);
     return data;
-}
+};
 
 ShipBehaviour.prototype.remove = function(_game)
 {
     Behaviour.prototype.remove.call(_game);
     _game.removeEntity(this.barBehaviour.entityIndex);    
-}
+};
 
 
 ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
@@ -192,7 +192,7 @@ ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
     {
         this.physicsData.force.y -= 2 * this.physicsData.velocity.y;        
     }
-}
+};
 
 function EnemyShipBehaviour(_initPosition, _rotation, _game)
 {
@@ -206,7 +206,7 @@ function EnemyShipBehaviour(_initPosition, _rotation, _game)
         {
             _game.removeEntity(self.entityIndex);
         }
-    }
+    };
     this.initData.rotation = Math.radians(_rotation);
     this.speed = 100;
 
@@ -235,4 +235,4 @@ EnemyShipBehaviour.prototype.updateState = function(data, _game)
     this.removeIfOut(data, _game);
     
     return data;
-}
+};

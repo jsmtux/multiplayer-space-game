@@ -1,7 +1,7 @@
 var ShapeType = {
     SPHERE : 0,
     RECTANGLE : 1
-}
+};
 
 function PhysicsEngine()
 {
@@ -58,23 +58,23 @@ PhysicsEngine.prototype.registerElement = function(_behaviour, parameters)
         body.addEventListener("collide", parameters.collisionCallback);
     }
     body.parentBehaviour = _behaviour;
-}
+};
 
 PhysicsEngine.prototype.unRegisterElement = function(_body)
 {
     this.bodiesToRemove.push(_body);
-}
+};
 
 PhysicsEngine.prototype.updateElement = function(_behaviour, _data, _game)
 {
     var phisPos = _behaviour.physicsData.position;
     _data.position = new Phaser.Point(phisPos.x, phisPos.y);
-}
+};
 
 PhysicsEngine.prototype.updateInfo = function(_behaviour, _data, _game)
 {
     _behaviour.physicsData.position = new CANNON.Vec3(_data.position.x,_data.position.y,0);
-}
+};
 
 PhysicsEngine.prototype.updateSimulation = function(_timeStep)
 {
@@ -84,4 +84,4 @@ PhysicsEngine.prototype.updateSimulation = function(_timeStep)
         this.world.remove(this.bodiesToRemove[i]);
     }
     this.bodiesToRemove = [];
-}
+};

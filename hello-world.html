@@ -46,9 +46,6 @@
                                 <img onclick="playerShipShieldSelection(1)" src="bin/shield_1.png"></img>
                                 <img onclick="playerShipShieldSelection(2)" src="bin/shield_2.png"></img>
                             </li>
-                            <li>
-                                
-                            </li>
                         </ul>
                     </div>
                   </div>
@@ -58,6 +55,14 @@
               <li class="enemyHealth noselect">
                   <div id="menuWrapper">
                     <div id="auxShipConf" class="shipConf enemyHealth">
+                        <ul>
+                            <li>Behaviour</li>
+                            <li id="auxShipBehaviourConf" class="menu_selection">
+                                <img onclick="auxShipBehaviourSelection(0)" src="bin/random_behaviour.png" class="active"></img>
+                                <img onclick="auxShipBehaviourSelection(1)" src="bin/shield_behaviour.jpg"></img>
+                                <img onclick="auxShipBehaviourSelection(2)" src="bin/attack_behaviour.png"></img>
+                            </li>
+                        </ul>
                     </div>
                   </div>
                   <img src="bin/cog.png" onclick="openShipConf('auxShipConf')">

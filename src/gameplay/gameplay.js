@@ -106,22 +106,6 @@ function menuButtonSelection(name, id)
     }
 }
 
-function addShip(y)
-{
-    if (!playerMoney.checkAndSubstract(150))
-    {
-        return;
-    }
-    if (isServer)
-    {
-        game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(0 , 200), 270, game));        
-    }
-    else
-    {
-        game.addEntity(new Drawable('bin/enemy.png'), new EnemyShipBehaviour(new Phaser.Point(resolution.x , 200), 90, game));
-    }
-}
-
 var prevShipId;
 
 var currentMainShipAttributes = new MainShipAttributes;
@@ -158,7 +142,7 @@ function playerShipShieldSelection(id)
 
 function addPlayerShip()
 {
-    if ((prevShipId === undefined || !game.hasEntity(prevShipId)) && playerMoney.checkAndSubstract(currentMainShipAttributes.shipValue))
+    if ((prevShipId === undefined || !game.getEntity(prevShipId) !== undefined) && playerMoney.checkAndSubstract(currentMainShipAttributes.shipValue))
     {
         if (isServer)
         {
@@ -170,5 +154,47 @@ function addPlayerShip()
             prevShipId = game.addEntity(new Drawable('bin/player.png'),
                 new ShipBehaviour(new Phaser.Point(resolution.x - 150,300), 90, game, onMoneyHit, currentMainShipAttributes));
         }
+    }
+}
+
+
+var AuxShipBehaviourType = {
+    'Random': 0,
+    'Protect': 1,
+    'Attack': 2
+}
+var auxShipBehaviourId = AuxShipBehaviourType.Random;
+function auxShipBehaviourSelection(id)
+{
+    menuButtonSelection('auxShipBehaviourConf', id);
+    auxShipBehaviourId = id;
+}
+
+function addShip(y)
+{
+    if (!playerMoney.checkAndSubstract(150))
+    {
+        return;
+    }
+    var rotation;
+    var position;
+    if (isServer)
+    {
+        rotation = 270;
+        position = 0;
+    }
+    else
+    {
+        rotation = 90;
+        position = resolution.x;
+    }
+    switch (auxShipBehaviourId)
+    {
+        case AuxShipBehaviourType.Random:
+            game.addEntity(new Drawable('bin/enemy.png'), new AuxShipBehaviour(new Phaser.Point(position , 200), rotation, game));
+            break;
+        case AuxShipBehaviourType.Protect:
+            game.addEntity(new Drawable('bin/enemy.png'), new ProtectAuxShipBehaviour(new Phaser.Point(position , 200), rotation, game));
+            break;
     }
 }

@@ -38,6 +38,7 @@ function BaseShipBehaviour(_position, _name)
     asPhysical.call(this);
     this.initPhysicsParams.position = _position;
     this.shootFilter = new RepeatEliminationFilter(shoot_callback, 3);
+    this.acceleration = 100;
 }
 
 BaseShipBehaviour.prototype = Object.create(Behaviour.prototype);
@@ -101,7 +102,6 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes)
             break;
     }
     
-    this.acceleration = 100;
     this.maxVelocity = 200;
     this.health = 100;
 }
@@ -194,7 +194,7 @@ ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
     }
 };
 
-function EnemyShipBehaviour(_initPosition, _rotation, _game)
+function AuxShipBehaviour(_initPosition, _rotation, _game)
 {
     this.initPosition = _initPosition;
     BaseShipBehaviour.call(this, this.initPosition, "enemy");
@@ -219,10 +219,10 @@ function EnemyShipBehaviour(_initPosition, _rotation, _game)
     this.curRotation = 0;
 }
 
-EnemyShipBehaviour.prototype = Object.create(BaseShipBehaviour.prototype);
-EnemyShipBehaviour.prototype.constructor = EnemyShipBehaviour;
+AuxShipBehaviour.prototype = Object.create(BaseShipBehaviour.prototype);
+AuxShipBehaviour.prototype.constructor = AuxShipBehaviour;
 
-EnemyShipBehaviour.prototype.updateState = function(data, _game)
+AuxShipBehaviour.prototype.updateState = function(data, _game)
 {
     var self = this;
     this.updatePhysics(data, _game);
@@ -232,6 +232,80 @@ EnemyShipBehaviour.prototype.updateState = function(data, _game)
     this.physicsData.velocity.x = -this.speed * Math.sin(data.rotation);
     this.physicsData.velocity.y = this.speed * Math.cos(data.rotation);
     this.shootFilter.signal(this, data, _game);
+    this.removeIfOut(data, _game);
+    
+    return data;
+};
+
+AuxShipBehaviour.prototype.moveTowards = function(_data, _position)
+{
+    var difference = Phaser.Point.subtract(_data.position, _position);
+    var speed = this.speed;
+    this.physicsData.force.x = 0;
+    this.physicsData.force.y = 0;
+    if (difference.x > 10)
+    {
+        if (this.physicsData.velocity.x > -this.speed)
+        {
+            this.physicsData.force.x = -this.acceleration;
+        }
+    }
+    else if (difference.x < -10)
+    {
+        if (this.physicsData.velocity.x < this.speed)
+        {
+            this.physicsData.force.x = this.acceleration;
+        }
+    }
+    else {
+        this.physicsData.velocity.x *= 0.9;
+    }
+
+    if (difference.y > 10)
+    {
+        if (this.physicsData.velocity.y > -this.speed)
+        {
+            this.physicsData.force.y = -this.acceleration;
+        }
+    }
+    else if (difference.y < -10)
+    {
+        if (this.physicsData.velocity.y < this.speed)
+        {
+            this.physicsData.force.y = this.acceleration;
+        }
+    }
+    else {
+        this.physicsData.velocity.y *= 0.9;
+    }
+}
+
+function ProtectAuxShipBehaviour(_initPosition, _rotation, _game)
+{
+    AuxShipBehaviour.call(this, _initPosition, _rotation, _game);
+    this.speed = 200;
+}
+
+ProtectAuxShipBehaviour.prototype = Object.create(AuxShipBehaviour.prototype);
+ProtectAuxShipBehaviour.prototype.constructor = AuxShipBehaviour;
+
+ProtectAuxShipBehaviour.prototype.updateState = function(data, _game)
+{
+    var self = this;
+    this.updatePhysics(data, _game);
+    
+    
+    var shipElements = _game.getEntitiesByBehaviourName('ship');
+    for (var ind in shipElements)
+    {
+        if (!shipElements[ind].element.isRemote())
+        {
+            var position = shipElements[ind].element.cur_data.position.clone();
+            position.x += 100;
+            this.moveTowards(data, position);
+            break;
+        }
+    }
     this.removeIfOut(data, _game);
     
     return data;

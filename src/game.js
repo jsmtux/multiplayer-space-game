@@ -85,7 +85,7 @@ Game.prototype.addEntity = function(_drawable, _element, _remote)
 
 Game.prototype.removeEntity = function(_index)
 {
-    if (this.hasEntity(_index))
+    if (this.getEntity(_index) !== undefined)
     {
         var entity = this.scene.entities[_index];
         var remote = entity.element.isRemote();
@@ -95,10 +95,15 @@ Game.prototype.removeEntity = function(_index)
     this.scene.removeEntity(_index, this);
 };
 
-Game.prototype.hasEntity = function(_index)
+Game.prototype.getEntity = function(_index)
 {
-    return this.scene.hasEntity(_index);
+    return this.scene.getEntity(_index);
 };
+
+Game.prototype.getEntitiesByBehaviourName = function(_name)
+{
+    return this.scene.getEntitiesByBehaviourName(_name);
+}
 
 Game.prototype.SignalPropertyChange = function(_name, _text)
 {

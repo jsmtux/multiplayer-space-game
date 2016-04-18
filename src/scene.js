@@ -32,7 +32,20 @@ Scene.prototype.removeEntity = function(_index, _game)
     }
 };
 
-Scene.prototype.hasEntity = function(_index)
+Scene.prototype.getEntity = function(_index)
 {
-    return typeof this.entities[_index] !== "undefined";
+    return this.entities[_index];
 };
+
+Scene.prototype.getEntitiesByBehaviourName = function(_name)
+{
+    var ret = [];
+    for(ind in this.entities)
+    {
+        if (this.entities[ind].element.getName() == _name)
+        {
+            ret.push(this.entities[ind]);
+        }
+    }
+    return ret;
+}

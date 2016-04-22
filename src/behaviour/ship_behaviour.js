@@ -201,7 +201,6 @@ function AuxShipBehaviour(_initPosition, _rotation, _game)
     var self = this;
     this.initPhysicsParams.collisionCallback = function(event) {
         var colBehaviour = event.body.parentBehaviour;
-        console.log(colBehaviour);
         if ((colBehaviour.getName() === "base" || colBehaviour.getName() === "laser") && colBehaviour.isRemote())
         {
             _game.removeEntity(self.entityIndex);
@@ -258,7 +257,7 @@ AuxShipBehaviour.prototype.moveTowards = function(_data, _position)
         }
     }
     else {
-        this.physicsData.velocity.x *= 0.9;
+        this.physicsData.velocity.x *= 0.7;
     }
 
     if (difference.y > 10)
@@ -276,7 +275,7 @@ AuxShipBehaviour.prototype.moveTowards = function(_data, _position)
         }
     }
     else {
-        this.physicsData.velocity.y *= 0.9;
+        this.physicsData.velocity.y *= 0.7;
     }
 }
 
@@ -301,11 +300,53 @@ ProtectAuxShipBehaviour.prototype.updateState = function(data, _game)
         if (!shipElements[ind].element.isRemote())
         {
             var position = shipElements[ind].element.cur_data.position.clone();
-            position.x += 100;
+            position.x -= Math.sin(this.initData.rotation) * 100;
             this.moveTowards(data, position);
+            this.shootFilter.signal(this, data, _game);
             break;
         }
     }
+    this.removeIfOut(data, _game);
+    
+    return data;
+};
+
+function AttackAuxShipBehaviour(_initPosition, _rotation, _game)
+{
+    AuxShipBehaviour.call(this, _initPosition, _rotation, _game);
+    this.speed = 200;
+    this.currentEnemyShip;
+}
+
+AttackAuxShipBehaviour.prototype = Object.create(AuxShipBehaviour.prototype);
+AttackAuxShipBehaviour.prototype.constructor = AuxShipBehaviour;
+
+AttackAuxShipBehaviour.prototype.updateState = function(data, _game)
+{
+    var self = this;
+    this.updatePhysics(data, _game);
+    
+    if (this.currentEnemyShip && _game.getEntity(this.currentEnemyShip.element.entityIndex) !== undefined)
+    {
+        var position = this.currentEnemyShip.element.cur_data.position.clone();
+        position.x -= 200;
+        this.moveTowards(data, position);
+    }
+    else
+    {
+        this.physicsData.force.x = 0;
+        this.physicsData.force.y = 0;
+        var shipElements = _game.getEntitiesByBehaviourName('enemy');
+        for (var ind in shipElements)
+        {
+            if (shipElements[ind].element.isRemote())
+            {
+                this.currentEnemyShip = shipElements[ind];
+                break;
+            }
+        }
+    }
+    this.shootFilter.signal(this, data, _game);
     this.removeIfOut(data, _game);
     
     return data;

@@ -13,7 +13,7 @@ var priceAuxShipSpan = document.getElementById("priceAuxShip");
 
 //\HTML interaction
 
-var resolution = new Phaser.Point(window.screen.availWidth * 0.99, window.screen.availHeight * 0.68);
+var resolution = new Phaser.Point(window.innerWidth * 0.99, window.innerHeight * 0.68);
 var scene = new Scene();
 var game = new PhaserGame(scene, isServer, resolution);
 
@@ -195,6 +195,9 @@ function addShip(y)
             break;
         case AuxShipBehaviourType.Protect:
             game.addEntity(new Drawable('bin/enemy.png'), new ProtectAuxShipBehaviour(new Phaser.Point(position , 200), rotation, game));
+            break;
+        case AuxShipBehaviourType.Attack:
+            game.addEntity(new Drawable('bin/enemy.png'), new AttackAuxShipBehaviour(new Phaser.Point(position , 200), rotation, game));
             break;
     }
 }

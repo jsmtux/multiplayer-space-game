@@ -1,3 +1,7 @@
+body {
+    margin: 0px;
+}
+
 ul.horizontal{
     list-style-type: none;
     margin: 0;
@@ -7,6 +11,7 @@ ul.horizontal{
     min-width: 1000px;
     width: 100%;
     text-align: center;
+    height: 52px;
 }
 
 ul.horizontal li{

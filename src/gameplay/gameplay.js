@@ -12,10 +12,22 @@ var priceMainShipSpan = document.getElementById("priceMainShip");
 var priceAuxShipSpan = document.getElementById("priceAuxShip");
 
 //\HTML interaction
+var resolution = new Phaser.Point(Configuration.x_res, Configuration.y_res);
+var size = new Phaser.Point(window.innerWidth, window.innerHeight - 104);
 
-var resolution = new Phaser.Point(window.innerWidth * 0.99, window.innerHeight * 0.68);
+
+function updateCallback()
+{
+    if (!this.displayCanvas)
+    {
+        this.displayCanvas = document.getElementsByTagName("canvas")[0];
+    }
+    this.displayCanvas.style.width = size.x + 'px';
+    this.displayCanvas.style.height = size.y + 'px';
+}
+
 var scene = new Scene();
-var game = new PhaserGame(scene, isServer, resolution);
+var game = new PhaserGame(scene, isServer, resolution, updateCallback);
 
 var playerMoney = new Money(0, moneySpan);
 

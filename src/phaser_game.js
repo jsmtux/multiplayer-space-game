@@ -1,10 +1,10 @@
-function PhaserGame(_scene, _isServer, _resolution)
+function PhaserGame(_scene, _isServer, _resolution, _updateCallback)
 {
     Game.call(this, _scene, _isServer, _resolution);
     var self = this;
     this.initUpdateLoop();
     this.phaser_game = new Phaser.Game(_resolution.x, _resolution.y, Phaser.AUTO, 'game-window', 
-        { preload: function(){self.preload();}, create: function(){self.create();}, update: function(){self.updateRenderElements();}});
+        { preload: function(){self.preload();}, create: function(){self.create();}, update: function(){self.updateRenderElements();_updateCallback();}});
     this.texture_manager = new PhaserTextureManager(this.phaser_game);
     this.font_manager = new PhaserFontManager(this.phaser_game);
 }

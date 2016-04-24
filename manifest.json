@@ -1,0 +1,28 @@
+{
+  "name": "Multiplayer Space Game",
+  "short_name": "msg",
+  "background_color": "#000000",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "start_url": "index.html",
+  "xwalk_app_version": "0.1",
+  "xwalk_command_line": "",
+  "xwalk_package_id": "com.jsmtux.simple",
+  "xwalk_target_platforms": [
+    "android"
+  ],
+  "xwalk_android_animatable_view": false,
+  "xwalk_android_keep_screen_on": true,
+  "xwalk_android_permissions": [
+    "ACCESS_NETWORK_STATE",
+    "ACCESS_WIFI_STATE",
+    "INTERNET"
+  ],
+  "xwalk_windows_update_id": "16199065-6983-1073-3738-347823033109",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "72x72"
+    }
+  ]
+}

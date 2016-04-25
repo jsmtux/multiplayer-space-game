@@ -16,7 +16,9 @@ FadingScoreBehaviour.prototype.updateState = function(data, _game)
     if (this.drawable.sprite)
     {
         this.drawable.sprite.alpha -= 0.1;
+        this.drawable.sprite.alpha = this.drawable.sprite.alpha < 0 ? 0 : this.drawable.sprite.alpha;
     }
+    
     this.updatePhysics(data, _game);
     this.physicsData.force.y = -100.0;
     this.removeIfOut(data, _game);

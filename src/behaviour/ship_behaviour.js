@@ -113,7 +113,7 @@ ShipBehaviour.prototype.updateState = function(data, _game)
 {
     this.updatePhysics(data, _game);
     this.updateKeyMovement(data, _game);
-    if (_game.controller.getKeyStatus(Controller.Keys.FIRE))
+    if (_game.controller.getFireStatus())
     {
         this.shoot(data, _game);
     }
@@ -136,56 +136,54 @@ ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
     this.physicsData.force.x = 0;
     this.physicsData.force.y = 0;
     
-    if (_game.controller.getKeyStatus(Controller.Keys.RIGHT)
-            || _game.controller.getKeyStatus(Controller.Keys.D))
+    var x_axis = _game.controller.getXAxisStatus();
+    var y_axis = _game.controller.getYAxisStatus();
+    if (x_axis > 0)
     {
         if (this.physicsData.velocity.x < 0)
         {
-            this.physicsData.force.x = this.acceleration * 2;
+            this.physicsData.force.x = x_axis * this.acceleration * 2;
         }
         else if (this.physicsData.velocity.x < this.maxVelocity)
         {
-            this.physicsData.force.x = this.acceleration;
+            this.physicsData.force.x = x_axis * this.acceleration;
         }
     }
-    else if (_game.controller.getKeyStatus(Controller.Keys.LEFT)
-            || _game.controller.getKeyStatus(Controller.Keys.A))
+    else if (x_axis < 0)
     {
         if (this.physicsData.velocity.x > 0)
         {
-            this.physicsData.force.x += - this.acceleration * 2;
+            this.physicsData.force.x += x_axis * this.acceleration * 2;
         }
         else if (this.physicsData.velocity.x > -this.maxVelocity)
         {
-            this.physicsData.force.x += - this.acceleration;
+            this.physicsData.force.x += x_axis * this.acceleration;
         }
     }
     else
     {
         this.physicsData.force.x -= 2 * this.physicsData.velocity.x;        
     }
-    if (_game.controller.getKeyStatus(Controller.Keys.UP)
-            || _game.controller.getKeyStatus(Controller.Keys.W))
+    if (y_axis < 0)
     {
         if (this.physicsData.velocity.y > 0)
         {
-            this.physicsData.force.y = - this.acceleration * 2;
+            this.physicsData.force.y = y_axis * this.acceleration * 2;
         }
         else if (this.physicsData.velocity.y > -this.maxVelocity)
         {
-            this.physicsData.force.y = - this.acceleration;
+            this.physicsData.force.y = y_axis * this.acceleration;
         }
     }
-    else if (_game.controller.getKeyStatus(Controller.Keys.DOWN)
-            || _game.controller.getKeyStatus(Controller.Keys.S))
+    else if (y_axis > 0)
     {
         if (this.physicsData.velocity.y < 0)
         {
-            this.physicsData.force.y += this.acceleration * 2;
+            this.physicsData.force.y += y_axis * this.acceleration * 2;
         }
         else if (this.physicsData.velocity.y < this.maxVelocity)
         {
-            this.physicsData.force.y += this.acceleration;
+            this.physicsData.force.y += y_axis * this.acceleration;
         }
     }
     else

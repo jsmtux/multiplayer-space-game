@@ -28,13 +28,13 @@ TextureManager.prototype.createTexture = function(_path)
 function fileComplete(progress, cacheKey, success, totalLoaded, totalFiles)
 {
     PhaserTextureManager.loadedIndexes.push(cacheKey);
-}
+};
 
 function PhaserTextureManager(_phaserGame)
 {
     TextureManager.call(this);
     this.phaserGame = _phaserGame;
-}
+};
 
 PhaserTextureManager.loadedIndexes = [];
 

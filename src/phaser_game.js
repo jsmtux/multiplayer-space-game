@@ -1,12 +1,13 @@
-function PhaserGame(_scene, _isServer, _resolution, _updateCallback)
+function PhaserGame(_scene, _isServer, _resolution, _callbacks)
 {
-    Game.call(this, _scene, _isServer, _resolution);
+    Game.call(this, _scene, _isServer, _resolution, _callbacks);
     var self = this;
     this.initUpdateLoop();
     this.phaser_game = new Phaser.Game(_resolution.x, _resolution.y, Phaser.AUTO, 'game-window', 
-        { preload: function(){self.preload();}, create: function(){self.create();}, update: function(){self.updateRenderElements();_updateCallback();}});
+        { preload: function(){self.preload();}, create: function(){self.create();}, update: function(){self.updateRenderElements();}});
     this.texture_manager = new PhaserTextureManager(this.phaser_game);
     this.font_manager = new PhaserFontManager(this.phaser_game);
+    this.audio_manager = new AudioManager(this.phaser_game);
 }
 
 PhaserGame.prototype = Object.create(Game.prototype);
@@ -22,10 +23,20 @@ PhaserGame.prototype.getFontManager = function()
     return this.font_manager;
 };
 
+PhaserGame.prototype.getAudioManager = function()
+{
+    return this.audio_manager;
+};
+
 PhaserGame.prototype.preload = function()
 {
+    if (this.callbacks.preload !== undefined)
+    {
+        this.callbacks.preload();
+    }
     this.texture_manager.preload();
     this.font_manager.preload();
+    this.audio_manager.preload();
     this.phaser_game.stage.disableVisibilityChange = true;
     for (var entity in this.scene.entities)
     {
@@ -38,4 +49,9 @@ PhaserGame.prototype.preload = function()
 PhaserGame.prototype.create = function()
 {
     this.finishedLoading = true;
+    
+    if (this.callbacks.create !== undefined)
+    {
+        this.callbacks.create();
+    }
 };

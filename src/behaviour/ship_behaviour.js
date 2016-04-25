@@ -30,15 +30,19 @@ function shoot_callback(_element, _data, _game)
 {
     var new_drawable = new Drawable('bin/laserRed.png');
     _game.addEntity(new_drawable, new LaserBehaviour(_data.position, _data.rotation, _game));
+    
+    _element.shoot_sound.play();
 }
 
-function BaseShipBehaviour(_position, _name)
+function BaseShipBehaviour(_position, _name, _game)
 {
     Behaviour.call(this, _name);
     asPhysical.call(this);
     this.initPhysicsParams.position = _position;
     this.shootFilter = new RepeatEliminationFilter(shoot_callback, 3);
     this.acceleration = 100;
+    
+    this.shoot_sound = _game.getAudioManager().createAudio("bin/shoot.wav");
 }
 
 BaseShipBehaviour.prototype = Object.create(Behaviour.prototype);
@@ -53,7 +57,7 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes)
 {
     this.attributes = _attributes;
     
-    BaseShipBehaviour.call(this, _position, "ship");
+    BaseShipBehaviour.call(this, _position, "ship", _game);
     var self = this;
     
     var barDrawable = new HealthBar(75);
@@ -82,6 +86,8 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes)
             
             var score_drawable = new Text("+"+value+"u", 'bin/carrier_command.png', 'bin/carrier_command.xml', 15);
             _game.addLocalEntity(score_drawable, new FadingScoreBehaviour(self.cur_data.position, score_drawable), false);
+            
+            self.collect_sound.play();
         }
     };
     this.initData.rotation = Math.radians( _rotation);
@@ -104,6 +110,8 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes)
     
     this.maxVelocity = 200;
     this.health = 100;
+    
+    this.collect_sound = _game.getAudioManager().createAudio("bin/pick.wav");
 }
 
 ShipBehaviour.prototype = Object.create(BaseShipBehaviour.prototype);
@@ -195,7 +203,7 @@ ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
 function AuxShipBehaviour(_initPosition, _rotation, _game)
 {
     this.initPosition = _initPosition;
-    BaseShipBehaviour.call(this, this.initPosition, "enemy");
+    BaseShipBehaviour.call(this, this.initPosition, "enemy", _game);
     var self = this;
     this.initPhysicsParams.collisionCallback = function(event) {
         var colBehaviour = event.body.parentBehaviour;
@@ -207,11 +215,6 @@ function AuxShipBehaviour(_initPosition, _rotation, _game)
     this.initData.rotation = Math.radians(_rotation);
     this.speed = 100;
 
-    function shoot_callback(_element, _data, _game)
-    {
-        var new_drawable = new Drawable('bin/laserRed.png');
-        _game.addEntity(new_drawable, new LaserBehaviour(_data.position, _data.rotation, _game));
-    }
     this.shootFilter = new RepeatEliminationFilter(shoot_callback, 30);
     this.curRotation = 0;
 }

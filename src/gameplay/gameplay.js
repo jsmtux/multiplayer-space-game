@@ -26,8 +26,21 @@ function updateCallback()
     this.displayCanvas.style.height = size.y + 'px';
 }
 
+var music;
+
+function preloadCallback()
+{
+    music = game.getAudioManager().createAudio('bin/8bit_1.mp3');
+}
+
+function createCallback()
+{
+    music.setLoop(true);
+    music.play();
+}
+
 var scene = new Scene();
-var game = new PhaserGame(scene, isServer, resolution, updateCallback);
+var game = new PhaserGame(scene, isServer, resolution, {'preload': preloadCallback, 'create':createCallback, 'update' : updateCallback});
 
 var playerMoney = new Money(0, moneySpan);
 

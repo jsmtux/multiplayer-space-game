@@ -1,4 +1,4 @@
-function Game(_scene, _isServer, _resolution)
+function Game(_scene, _isServer, _resolution, _callbacks)
 {
     this.scene = _scene;
     this.lastUpdated = getMillis();
@@ -9,6 +9,7 @@ function Game(_scene, _isServer, _resolution)
     this.finishedLoading = false;
     this.resolution = _resolution;
     this.properties = {};
+    this.callbacks = _callbacks;
 }
 
 Game.prototype.initUpdateLoop = function()
@@ -22,6 +23,10 @@ Game.prototype.initUpdateLoop = function()
 
 Game.prototype.updateRenderElements = function()
 {
+    if (this.callbacks.update !== undefined)
+    {
+        this.callbacks.update();
+    }
     var elapsed = getMillis() - this.lastUpdated;
     var t = elapsed / (1000.0 / this.updateFps);
     for (var entity in this.scene.entities)

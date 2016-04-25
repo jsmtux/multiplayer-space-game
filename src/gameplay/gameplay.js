@@ -1,8 +1,10 @@
 
 window.ondragstart = function() { return false; };
 
-var isServer = location.hash === "#server";
+var parameters = location.search.substr(1).split(';');
 
+var isServer = parameters[0] === "server";
+var matchName = parameters[1];
 
 //HTML interaction
 var baseHealthSpan = document.getElementById("baseHealth");
@@ -40,7 +42,7 @@ function createCallback()
 }
 
 var scene = new Scene();
-var game = new PhaserGame(scene, isServer, resolution, {'preload': preloadCallback, 'create':createCallback, 'update' : updateCallback});
+var game = new PhaserGame(scene, isServer, matchName, resolution, {'preload': preloadCallback, 'create':createCallback, 'update' : updateCallback});
 
 var playerMoney = new Money(0, moneySpan);
 

@@ -1,4 +1,4 @@
-function NetworkManager(isServer, _game)
+function NetworkManager(isServer, _matchName, _game)
 {
     var self = this;
     this.game = _game;
@@ -12,7 +12,7 @@ function NetworkManager(isServer, _game)
     this.lastNetworkId = 0;
     if (isServer)
     {
-        var peer = new Peer(Configuration.serverPeer, {
+        var peer = new Peer(Configuration.serverPeer + '-' + _matchName, {
             key: '50aebg7h1a21q0k9',
             config: {'iceServers': [
                 { url: 'stun:stun.l.google.com:19302' },
@@ -22,7 +22,7 @@ function NetworkManager(isServer, _game)
             ]}
         }); 
         
-        this.conn = peer.connect(Configuration.clientPeer);
+        this.conn = peer.connect(Configuration.clientPeer + '-' + _matchName);
         this.conn.on('open', function(){
             self.ready = true;
         });
@@ -33,7 +33,7 @@ function NetworkManager(isServer, _game)
     }
     else
     {
-        var peer = new Peer(Configuration.clientPeer, {key: '50aebg7h1a21q0k9'});  
+        var peer = new Peer(Configuration.clientPeer + '-' + _matchName, {key: '50aebg7h1a21q0k9'});  
         peer.on('connection', function(conn) {
             self.conn = conn;
             conn.on('data', function(data){

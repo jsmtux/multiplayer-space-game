@@ -1,102 +1,94 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
 <html>
-	<head>
-		<title>phaser - hello world</title>
-		<script src="lib/2.4.4_phaser.js"></script>
-		<script src="lib/0.6.2_cannon.js"></script>
-		<script src="lib/0.3.14_peer.js"></script>
-                <link rel="stylesheet" type="text/css" href="style.css">
-	</head>
-        <body>
-            <ul class="horizontal">
-              <li class="health">
-                  <img src="bin/heart_pixelart.png"></img>
-                  Base health 
-                  <span id="baseHealth">0</span>%
-              </li>
-              <li class="enemyHealth">
-                  <img src="bin/sword_pixelart.png">
-                  Enemy base health 
-                  <span id="enemyHealth">0</span>%
-              </li>
-              <li class="money">
-                  <img src="bin/money_pixelart.png">
-                  Money 
-                  <span id="money">0</span>u
-              </li>
-            </ul>
-            <div id="game-window"></div>
-            <ul class="horizontal">
-              <li class="health noselect">
-                  <div id="menuWrapper" class="health">
-                    <div id="playerShipConf" class="shipConf health">
-                        <ul>
-                            <li>Fire type</li>
-                            <li id="playerShipLaserConf" class="menu_selection">
-                                <img onclick="playerShipLaserSelection(0)" src="bin/empty.png" class="active"></img>
-                                <img onclick="playerShipLaserSelection(1)" src="bin/single_laser.png"></img>
-                                <img onclick="playerShipLaserSelection(2)" src="bin/double_laser.png"></img>
-                                <img onclick="playerShipLaserSelection(3)" src="bin/triple_laser.png"></img>
-                            </li>
-                            <li>Shield</li>
-                            <li id="playerShipShieldConf" class="menu_selection">
-                                <img onclick="playerShipShieldSelection(0)" src="bin/empty.png" class="active"></img>
-                                <img onclick="playerShipShieldSelection(1)" src="bin/shield_1.png"></img>
-                                <img onclick="playerShipShieldSelection(2)" src="bin/shield_2.png"></img>
-                            </li>
-                        </ul>
+    <head>
+        <title>Multiplayer space game</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://storage.googleapis.com/code.getmdl.io/1.0.6/material.min.js"></script>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.indigo-pink.min.css">
+        <style>
+            .demo-card-wide.mdl-card {
+                width: 512px;
+            }
+            .demo-card-wide > .mdl-card__title {
+                color: #fff;
+                height: 176px;
+                background: url('res/html/welcome_card.jpg') center / cover;
+            }
+            .demo-card-wide > .mdl-card__menu {
+                color: #fff;
+            }
+            body {
+                background-image:url('res/html/darkPurple.png')
+            }
+            .centered{
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                -webkit-transform: translate(-50%, -50%);
+                transform: translate(-50%, -50%);
+            }​
+        </style>
+    </head>
+    <body>
+
+        <div class="demo-card-wide mdl-card mdl-shadow--2dp centered">
+            <div class="mdl-card__title">
+                <h2 class="mdl-card__title-text">Multiplayer Space Game</h2>
+            </div>
+            <div class="mdl-card__supporting-text">
+                You need to set the multiplayer parameters before starting
+            </div>
+            <div class="mdl-card__actions">
+                <form>
+                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-server">
+                        <input type="radio" id="option-server" class="mdl-radio__button" name="options" value="1" checked>
+                        <span class="mdl-radio__label">Server</span>
+                    </label>
+                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-client">
+                        <input type="radio" id="option-client" class="mdl-radio__button" name="options" value="2">
+                        <span class="mdl-radio__label">Client</span>
+                    </label>
+                </form>
+                <form action="#">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="text" id="textName">
+                        <label class="mdl-textfield__label" for="textName">Match name</label>
                     </div>
-                  </div>
-                  <img src="bin/cog.png" onclick="openShipConf('playerShipConf')">
-                  <span onclick="addPlayerShip()"><img src="bin/player.png"></img>Player ship - <span id="priceMainShip">0</span>u</span>
-              </li>
-              <li class="enemyHealth noselect">
-                  <div id="menuWrapper">
-                    <div id="auxShipConf" class="shipConf enemyHealth">
-                        <ul>
-                            <li>Behaviour</li>
-                            <li id="auxShipBehaviourConf" class="menu_selection">
-                                <img onclick="auxShipBehaviourSelection(0)" src="bin/random_behaviour.png" class="active"></img>
-                                <img onclick="auxShipBehaviourSelection(1)" src="bin/shield_behaviour.jpg"></img>
-                                <img onclick="auxShipBehaviourSelection(2)" src="bin/attack_behaviour.png"></img>
-                            </li>
-                        </ul>
-                    </div>
-                  </div>
-                  <img src="bin/cog.png" onclick="openShipConf('auxShipConf')">
-                  <span onclick="addShip(0)"><img src="bin/enemy.png">Aux ship - <span id="priceAuxShip">0</span>u</span>
-              </li>
-            </ul>
-                <script src="./src/configuration.js"></script>
-
-		<script src="./src/utils.js"></script>
-		<script src="./src/network.js"></script>
-		<script src="./src/controller.js"></script>
-		<script src="./src/physics.js"></script>
-
-		<script src="./src/drawable/drawable.js"></script>
-		<script src="./src/drawable/text.js"></script>
-		<script src="./src/drawable/health_bar.js"></script>
-		<script src="./src/drawable/texture_manager.js"></script>
-
-		<script src="./src/behaviour/behaviour.js"></script>
-		<script src="./src/behaviour/bar_behaviour.js"></script>
-		<script src="./src/behaviour/static_behaviour.js"></script>
-		<script src="./src/behaviour/base_behaviour.js"></script>
-		<script src="./src/behaviour/coin_behaviour.js"></script>
-		<script src="./src/behaviour/fading_score_behaviour.js"></script>
-		<script src="./src/behaviour/network_behaviour.js"></script>
-		<script src="./src/behaviour/ship_behaviour.js"></script>
-
-		<script src="./src/audio_manager.js"></script>
-
-		<script src="./src/game.js"></script>
-		<script src="./src/scene.js"></script>
-		<script src="./src/phaser_game.js"></script>
-		<script src="./src/element_render_data.js"></script>       
-
-		<script src="./src/gameplay/money.js"></script>
-		<script src="./src/gameplay/ship_attributes.js"></script>
-		<script src="./src/gameplay/gameplay.js"></script>
-        </body>
+                </form>
+            </div>
+            <div class="mdl-card__actions mdl-card--border">
+                <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" onclick="onPlayClick();">
+                    Play
+                </a>
+            </div>
+        </div>
+        
+        <script>
+            function onPlayClick(){
+                var serverRadioButton = document.getElementById("option-server");
+                var nameTextInput = document.getElementById("textName");
+                
+                var urlParameters = "?";
+                if (serverRadioButton.checked)
+                {
+                    urlParameters+= "server";
+                }
+                else
+                {
+                    urlParameters += "client";
+                }
+                urlParameters += ";";
+                urlParameters += nameTextInput.value;
+                urlParameters += ";";
+                window.location.href = "game.html" + urlParameters;
+            }
+        </script>
+    </body>
 </html>

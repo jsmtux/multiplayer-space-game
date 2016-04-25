@@ -1,6 +1,6 @@
-function PhaserGame(_scene, _isServer, _resolution, _callbacks)
+function PhaserGame(_scene, _isServer, _matchName, _resolution, _callbacks)
 {
-    Game.call(this, _scene, _isServer, _resolution, _callbacks);
+    Game.call(this, _scene, _isServer, _matchName, _resolution, _callbacks);
     var self = this;
     this.initUpdateLoop();
     this.phaser_game = new Phaser.Game(_resolution.x, _resolution.y, Phaser.AUTO, 'game-window', 

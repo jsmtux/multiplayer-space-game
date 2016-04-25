@@ -1,11 +1,11 @@
-function Game(_scene, _isServer, _resolution, _callbacks)
+function Game(_scene, _isServer, _matchName, _resolution, _callbacks)
 {
     this.scene = _scene;
     this.lastUpdated = getMillis();
     this.updateFps = 15;
     this.controller = new Controller();
     this.physicsEngine = new PhysicsEngine();
-    this.networkManager = new NetworkManager(_isServer, this);
+    this.networkManager = new NetworkManager(_isServer, _matchName, this);
     this.finishedLoading = false;
     this.resolution = _resolution;
     this.properties = {};

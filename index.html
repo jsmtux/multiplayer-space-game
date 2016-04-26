@@ -62,6 +62,10 @@ and open the template in the editor.
                     </div>
                 </form>
             </div>
+            <div class="mdl-card__actions">
+                Audio volume
+                <input id="volume-slider" class="mdl-slider mdl-js-slider" type="range" min="0" max="100" value="100" tabindex="0">
+            </div>
             <div class="mdl-card__actions mdl-card--border">
                 <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" onclick="onPlayClick();">
                     Play
@@ -73,20 +77,26 @@ and open the template in the editor.
             function onPlayClick(){
                 var serverRadioButton = document.getElementById("option-server");
                 var nameTextInput = document.getElementById("textName");
+                var volumeInput = document.getElementById("volume-slider");
                 
-                var urlParameters = "?";
+                var urlParameters = {};
                 if (serverRadioButton.checked)
                 {
-                    urlParameters+= "server";
+                    urlParameters.type = "server";
                 }
                 else
                 {
-                    urlParameters += "client";
+                    urlParameters.type = "client";
                 }
-                urlParameters += ";";
-                urlParameters += nameTextInput.value;
-                urlParameters += ";";
-                window.location.href = "game.html" + urlParameters;
+                var name = nameTextInput.value;
+                if (name === "")
+                {
+                    name = "empty";
+                }
+                urlParameters.name = name;
+                urlParameters.volume = volumeInput.value;
+                
+                window.location.href = "game.html?" + JSON.stringify(urlParameters);
             }
         </script>
     </body>

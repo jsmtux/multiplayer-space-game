@@ -73,3 +73,8 @@ AudioManager.prototype.createAudio = function(_path)
     }
     return new AudioSample(this, ind);
 };
+
+AudioManager.prototype.setVolume = function(_volume)
+{
+    this.phaserGame.sound.volume = (_volume / 100);
+}

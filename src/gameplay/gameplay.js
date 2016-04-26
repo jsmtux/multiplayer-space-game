@@ -1,10 +1,12 @@
 
 window.ondragstart = function() { return false; };
 
-var parameters = location.search.substr(1).split(';');
+var parameterString = decodeURIComponent(location.search.substr(1));
+var parameters = JSON.parse(parameterString);
 
-var isServer = parameters[0] === "server";
-var matchName = parameters[1];
+var isServer = parameters.type === "server";
+var matchName = parameters.name;
+var volume = parameters.volume;
 
 //HTML interaction
 var baseHealthSpan = document.getElementById("baseHealth");
@@ -33,6 +35,7 @@ var music;
 function preloadCallback()
 {
     music = game.getAudioManager().createAudio('bin/8bit_1.mp3');
+    game.getAudioManager().setVolume(parseInt(volume));
 }
 
 function createCallback()

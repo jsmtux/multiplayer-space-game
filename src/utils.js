@@ -46,5 +46,30 @@ RepeatEliminationFilter.prototype.signal = function(_element, _data, _game)
 
 function isObjectEmpty(obj)
 {
-    return Object.keys(obj).length === 0;
+    return Object.keys(obj).length === 0 && JSON.stringify(obj) === JSON.stringify({});
+}
+
+function copyObject(obj)
+{
+    return JSON.parse(JSON.stringify(obj));
+}
+
+function mergeObjects(obj1, obj2)
+{
+    if (obj1 === undefined)
+    {
+        obj1 = {};
+    }
+    if (obj2 === undefined)
+    {
+        obj1 = {};
+    }
+    for (var attrname in obj2)
+    {
+        if (typeof obj2[attrname] !== "function")
+        {
+            obj1[attrname] = obj2[attrname];
+        }
+    }
+    return obj1;
 }

@@ -3,13 +3,29 @@ function NetworkManager(isServer, _matchName, _game)
     var self = this;
     this.game = _game;
     this.elements = {};
+
     this.removed_elements = [];
     this.remote_elements = {};
-    this.buffered_property_updates = {};
-    this.drawableInfo = {};
+
+    this.buffered_property_updates = {}; // Game property updates
+    this.drawableInfo = {}; // Info from created or deleted elements
     this.ready = false;
     this.onConnection;
+
     this.lastNetworkId = 0;
+
+    this.acks = []; // Buffer of acks pending send
+    this.packetId = 0; // Id of last packet sent
+    this.infoNotAckd = {}; // Set with info not yet ack'd
+    
+    this.ackdPackages = []; // Packages with existing acks TODO: Should add on front and have max size
+    
+    this.lastPacketReceived; // Last package id received
+    
+    this.debugMode = false;
+    this.debugModeFailRate = 0.5;
+    this.debugModePing = 200;
+
     if (isServer)
     {
         var peer = new Peer(Configuration.serverPeer + '-' + _matchName, {
@@ -19,7 +35,8 @@ function NetworkManager(isServer, _matchName, _game)
                 { url: 'stun:stun1.l.google.com:19302' },
                 { url: 'stun:stun-turn.org:3478' },
                 { url: 'turn:stun-turn.org:3478' }
-            ]}
+            ]},
+            reliable:false
         }); 
         
         this.conn = peer.connect(Configuration.clientPeer + '-' + _matchName);
@@ -33,7 +50,7 @@ function NetworkManager(isServer, _matchName, _game)
     }
     else
     {
-        var peer = new Peer(Configuration.clientPeer + '-' + _matchName, {key: '50aebg7h1a21q0k9'});  
+        var peer = new Peer(Configuration.clientPeer + '-' + _matchName, {key: '50aebg7h1a21q0k9', reliable:false});  
         peer.on('connection', function(conn) {
             self.conn = conn;
             conn.on('data', function(data){
@@ -102,12 +119,7 @@ NetworkManager.prototype.sendUpdate = function()
         var toSend = {};
         
         var elementChanges = {};
-        
-        //object updated
-        for(var ind in this.elements)
-        {
-            elementChanges[ind] = this.elements[ind].cur_data;
-        }
+        var isReliable = false;
         
         //object deletion
         for(var ind in this.removed_elements)
@@ -117,7 +129,23 @@ NetworkManager.prototype.sendUpdate = function()
         this.removed_elements = [];
         
         //object creation information
-        for (var attrname in this.drawableInfo) { elementChanges[attrname] = this.drawableInfo[attrname]; }
+        for (var attrname in this.drawableInfo)
+        {
+            elementChanges[attrname] = this.drawableInfo[attrname];
+        }
+        
+        if (!isObjectEmpty(elementChanges))
+        {
+            isReliable = true;
+            this.infoNotAckd[this.packetId] = copyObject(elementChanges);
+        }
+        
+        //object updated
+        for(var ind in this.elements)
+        {
+            elementChanges[ind] = mergeObjects(elementChanges[ind], this.elements[ind].cur_data);
+        }
+
         this.drawableInfo = {};
         toSend['element_changes'] = elementChanges;
     
@@ -125,16 +153,78 @@ NetworkManager.prototype.sendUpdate = function()
         toSend['game_info'] = this.buffered_property_updates;
         this.buffered_property_updates = {};
         
-        this.sendObject(toSend);
+        //Not Ack'd messages
+        if (!isObjectEmpty(this.infoNotAckd))
+        {
+            toSend['repeat_info'] = this.infoNotAckd;
+        }
+        
+        //Message control
+        var msgInfo = {};
+        msgInfo['packet_id'] = this.packetId++;
+        msgInfo['reliable'] = isReliable;
+        msgInfo['acks'] = this.acks;
+        this.acks = [];
+        toSend['msg_info'] = msgInfo;
+        
+        if (this.debugMode)
+        {
+            if (Math.random() > this.debugModeFailRate)
+            {
+                var self = this;
+                setTimeout(function(){ self.sendObject(toSend); }, this.debugModePing + Math.random() * this.debugModePing);
+            }
+        }
+        else
+        {
+            this.sendObject(toSend);
+        }
     }
 };
 
 NetworkManager.prototype.receiveNetworkUpdate = function(_data)
 {
     var data = JSON.parse(_data);
+    
+    var messageControl = data['msg_info'];
+    
+    if (this.ackdPackages.indexOf(messageControl.packet_id) !== -1)
+    {
+        console.log("Ignoring existing packet with id :" + messageControl.packet_id);
+        return;
+    }
+    
+    if (this.lastPacketReceived === undefined || this.lastPacketReceived < messageControl.packet_id )
+    {
+        this.lastPacketReceived = messageControl.packet_id;
+    }
+    
+    if (messageControl.reliable)
+    {
+        this.acks.push(messageControl.packet_id);
+        this.ackdPackages.push(messageControl.packet_id);
+    }
+
+    for (var ind in messageControl.acks)
+    {
+        delete this.infoNotAckd[messageControl.acks[ind]];
+    }
+    
+    var prevAckInfo = data['repeat_info'];
+    for (var i in prevAckInfo)
+    {
+        var prev_msg = {};
+        prev_msg['element_changes'] = prevAckInfo[i];
+        prev_msg['msg_info'] = {};
+        prev_msg['msg_info'].reliable = true;
+        prev_msg['msg_info'].packet_id = i;
+        this.receiveNetworkUpdate(JSON.stringify(prev_msg));
+    }
+    
     var elementChanges = data['element_changes'];
     for (element in elementChanges)
     {
+        // Check if this is a new element
         if (this.remote_elements[element] === undefined)
         {
             if (elementChanges[element].texture !== undefined)
@@ -156,6 +246,7 @@ NetworkManager.prototype.receiveNetworkUpdate = function(_data)
                 this.remote_elements[element] = behaviour;
             }
         }
+        //This is an existing element, either updated or removed
         else
         {
             if (typeof elementChanges[element] === "string" && elementChanges[element] === "deleted")
@@ -166,7 +257,11 @@ NetworkManager.prototype.receiveNetworkUpdate = function(_data)
             }
             else if (this.remote_elements[element].updateNetworkInfo)
             {
-                this.remote_elements[element].updateNetworkInfo(elementChanges[element]);
+                // The updated info is not reliable. If we are receiving a previous package it will be ignored
+                if (this.lastPacketReceived === messageControl.packet_id)
+                {
+                    this.remote_elements[element].updateNetworkInfo(elementChanges[element]);
+                }
             }
         }
     }

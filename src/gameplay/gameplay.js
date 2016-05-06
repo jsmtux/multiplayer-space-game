@@ -146,8 +146,8 @@ function openShipConf(divName)
     var ShipConfDiv = document.getElementById(divName);
     if (!isPlayerShipConfOpened)
     {
-        ShipConfDiv.style.maxHeight = "200px";
-        ShipConfDiv.style.height = "200px";
+        ShipConfDiv.style.maxHeight = "250px";
+        ShipConfDiv.style.height = "250px";
     }
     else
     {

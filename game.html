@@ -27,7 +27,7 @@
             </ul>
             <div id="game-window"></div>
             <ul class="horizontal">
-              <li class="health noselect">
+              <li class="health noselect" onclick="openShipConf('playerShipConf')">
                   <div id="menuWrapper" class="health">
                     <div id="playerShipConf" class="shipConf health">
                         <ul>
@@ -44,13 +44,15 @@
                                 <img onclick="playerShipShieldSelection(1)" src="bin/shield_1.png"></img>
                                 <img onclick="playerShipShieldSelection(2)" src="bin/shield_2.png"></img>
                             </li>
+                            <li>
+                                <button class="launchButton" onclick="addPlayerShip()">LAUNCH!</button>
+                            </li>
                         </ul>
                     </div>
                   </div>
-                  <img src="bin/cog.png" onclick="openShipConf('playerShipConf')">
-                  <span onclick="addPlayerShip()"><img src="bin/player.png"></img>Player ship - <span id="priceMainShip">0</span>u</span>
+                  <span><img src="bin/player.png"></img>Player ship - <span id="priceMainShip">0</span>u</span>
               </li>
-              <li class="enemyHealth noselect">
+              <li class="enemyHealth noselect" onclick="openShipConf('auxShipConf')">
                   <div id="menuWrapper">
                     <div id="auxShipConf" class="shipConf enemyHealth">
                         <ul>
@@ -60,11 +62,13 @@
                                 <img onclick="auxShipBehaviourSelection(1)" src="bin/shield_behaviour.jpg"></img>
                                 <img onclick="auxShipBehaviourSelection(2)" src="bin/attack_behaviour.png"></img>
                             </li>
+                            <li>
+                                <button class="launchButton" onclick="addShip(0)">LAUNCH!</button>
+                            </li>
                         </ul>
                     </div>
                   </div>
-                  <img src="bin/cog.png" onclick="openShipConf('auxShipConf')">
-                  <span onclick="addShip(0)"><img src="bin/enemy.png">Aux ship - <span id="priceAuxShip">0</span>u</span>
+                  <span><img src="bin/enemy.png">Aux ship - <span id="priceAuxShip">0</span>u</span>
               </li>
             </ul>
                 <script src="./src/configuration.js"></script>

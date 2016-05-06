@@ -63,7 +63,7 @@ li img {
     width: 270px;
     max-height: 0px;
     position: relative;
-    margin-top: -200px;
+    margin-top: -250px;
     margin-left: -10px;
     -webkit-transition: max-height 1s; 
     -moz-transition: max-height 1s; 
@@ -90,4 +90,9 @@ li img {
 
 .menu_selection .active {
     border:3px solid red;    
+}
+
+.launchButton {
+    width: 150px;
+    height: 25px;
 }

@@ -29,12 +29,15 @@ function NetworkManager(isServer, _matchName, _game)
     if (isServer)
     {
         var peer = new Peer(Configuration.serverPeer + '-' + _matchName, {
-            key: '50aebg7h1a21q0k9',
+            key: '50aebg7h1a21q0k9', reliable:false,
             config: {'iceServers': [
                 { url: 'stun:stun.l.google.com:19302' },
                 { url: 'stun:stun1.l.google.com:19302' },
-                { url: 'stun:stun-turn.org:3478' },
-                { url: 'turn:stun-turn.org:3478' }
+                {
+                	url: 'turn:jsmtux.ddns.net:3478',
+                	credential: 'msgpsw',
+                	username: 'msggame'
+                },
             ]},
             reliable:false
         }); 
@@ -50,7 +53,18 @@ function NetworkManager(isServer, _matchName, _game)
     }
     else
     {
-        var peer = new Peer(Configuration.clientPeer + '-' + _matchName, {key: '50aebg7h1a21q0k9', reliable:false});  
+        var peer = new Peer(Configuration.clientPeer + '-' + _matchName, {
+            key: '50aebg7h1a21q0k9', reliable:false,
+                config: {'iceServers': [
+                    { url: 'stun:stun.l.google.com:19302' },
+                    { url: 'stun:stun1.l.google.com:19302' },
+                    {
+                    	url: 'turn:jsmtux.ddns.net:3478',
+                    	credential: 'msgpsw',
+                    	username: 'msggame'
+                    }
+                ]}
+        });  
         peer.on('connection', function(conn) {
             self.conn = conn;
             conn.on('data', function(data){

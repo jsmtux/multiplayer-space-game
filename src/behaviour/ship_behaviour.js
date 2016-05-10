@@ -111,6 +111,8 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes)
     this.maxVelocity = 200;
     this.health = 100;
     
+    this.touchOffset = 25;
+    
     this.collect_sound = _game.getAudioManager().createAudio("bin/pick.wav");
 }
 
@@ -141,11 +143,22 @@ ShipBehaviour.prototype.remove = function(_game)
 
 ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
 {
+
     this.physicsData.force.x = 0;
     this.physicsData.force.y = 0;
     
+    //keyboard joystick control
     var x_axis = _game.controller.getXAxisStatus();
     var y_axis = _game.controller.getYAxisStatus();
+    
+    if (_game.controller.touchPos)
+    {
+        x_axis = _game.controller.touchPos.x > data.position.x + this.touchOffset ? 1 : 0;
+        x_axis = _game.controller.touchPos.x < data.position.x - this.touchOffset ? -1 : x_axis;
+        y_axis = _game.controller.touchPos.y > data.position.y + this.touchOffset ? 1 : 0;
+        y_axis = _game.controller.touchPos.y < data.position.y - this.touchOffset ? -1 : y_axis;
+    }
+    
     if (x_axis > 0)
     {
         if (this.physicsData.velocity.x < 0)

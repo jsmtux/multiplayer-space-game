@@ -15,6 +15,12 @@ function Controller()
     this.canvasDiv.addEventListener("touchstart", function(evt){self.handleStart(evt);}, false);
     this.canvasDiv.addEventListener("touchend", function(evt){self.handleEnd(evt);}, false);
     this.canvasDiv.addEventListener("touchmove", function(evt){self.handleMove(evt);}, false);
+
+    this.canvasDiv.addEventListener("mousedown", function(evt){self.handleMouseStart(evt);}, false);
+    this.canvasDiv.addEventListener("mouseup", function(evt){self.handleMouseEnd(evt);}, false);
+    this.canvasDiv.addEventListener("mousemove", function(evt){self.handleMouseMove(evt);}, false);
+    
+    this.updateStretchFactor();
 }
 
 Controller.Keys = {
@@ -29,14 +35,26 @@ Controller.Keys = {
     A: 65
 };
 
+Controller.prototype.updateStretchFactor = function()
+{
+    var div = this.canvasDiv.childNodes[0];
+    if (div)
+    {
+        this.x_stretch_factor = Configuration.x_res / div.offsetWidth;
+        this.y_stretch_factor = Configuration.y_res / div.offsetHeight;
+    }
+}
+
 Controller.prototype.handleStart = function(evt)
 {
+    this.updateStretchFactor();
     evt.preventDefault();
     if (!this.touchStartPos)
     {
         this.touchStartPos = {};
-        this.touchStartPos.x = evt.changedTouches[0].clientX;
-        this.touchStartPos.y = evt.changedTouches[0].clientY;
+        this.touchPos = {};
+        this.touchPos.x = this.touchStartPos.x = (evt.changedTouches[0].pageX - this.canvasDiv.offsetLeft) * this.x_stretch_factor;
+        this.touchPos.y = this.touchStartPos.y = (evt.changedTouches[0].pageY - this.canvasDiv.offsetTop) * this.y_stretch_factor;
         this.touchStartPos.id = evt.changedTouches[0].identifier;
     }
 };
@@ -63,11 +81,50 @@ Controller.prototype.handleMove = function(evt)
         var curTouch = evt.changedTouches[ind];
         if (this.touchStartPos && this.touchStartPos.id === curTouch.identifier)
         {
-            var xdiff = curTouch.clientX - this.touchStartPos.x;
-            var ydiff = curTouch.clientY - this.touchStartPos.y;
+            this.touchPos.x = (evt.changedTouches[0].pageX - this.canvasDiv.offsetLeft) * this.x_stretch_factor;
+            this.touchPos.y = (evt.changedTouches[0].pageY - this.canvasDiv.offsetTop) * this.y_stretch_factor;
+            var xdiff = curTouch.clientX - this.touchPos.x;
+            var ydiff = curTouch.clientY - this.touchPos.y;
             this.touchDiffPos = new Phaser.Point(xdiff,ydiff);
             break;
         }
+    }
+};
+
+Controller.prototype.handleMouseStart = function(evt)
+{
+    this.updateStretchFactor();
+    evt.preventDefault();
+    if (!this.touchStartPos)
+    {
+        this.touchStartPos = {};
+        this.touchPos = {};
+        this.touchPos.x = this.touchStartPos.x = (evt.pageX - this.canvasDiv.offsetLeft) * this.x_stretch_factor;
+        this.touchPos.y = this.touchStartPos.y = (evt.pageY - this.canvasDiv.offsetTop) * this.y_stretch_factor;
+        this.touchStartPos.id = evt.identifier;
+    }
+};
+
+Controller.prototype.handleMouseEnd = function(evt)
+{
+    evt.preventDefault();
+    if (this.touchStartPos && this.touchStartPos.id === evt.identifier)
+    {
+        this.touchStartPos = undefined;
+        this.touchDiffPos = new Phaser.Point(0,0);
+    }
+};
+
+Controller.prototype.handleMouseMove = function(evt)
+{
+    evt.preventDefault();
+    if (this.touchStartPos && this.touchStartPos.id === evt.identifier)
+    {
+        this.touchPos.x = (evt.pageX - this.canvasDiv.offsetLeft) * this.x_stretch_factor;
+        this.touchPos.y = (evt.pageY - this.canvasDiv.offsetTop) * this.y_stretch_factor;
+        var xdiff = evt.clientX - this.touchPos.x;
+        var ydiff = evt.clientY - this.touchPos.y;
+        this.touchDiffPos = new Phaser.Point(xdiff,ydiff);
     }
 };
 

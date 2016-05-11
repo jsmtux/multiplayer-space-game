@@ -42,6 +42,11 @@ Behaviour.prototype.getName = function()
     return this.name;
 };
 
+Behaviour.prototype.isSelectable = function()
+{
+    return false;
+}
+
 function interpolatePoint(prev, cur, time)
 {
     return Phaser.Point.interpolate(prev, cur, time);

@@ -47,6 +47,20 @@ function createCallback()
 var scene = new Scene();
 var game = new PhaserGame(scene, isServer, matchName, resolution, {'preload': preloadCallback, 'create':createCallback, 'update' : updateCallback});
 
+var selectDrawable = new Drawable('bin/crossair_friend_selected.png');
+var selectBehaviour = new SelectBehaviour(selectDrawable);
+game.addLocalEntity(selectDrawable, selectBehaviour);
+
+game.controller.selectionStartCallback = function(position)
+{    
+    var closestSelectable = game.getClosestEntity(position);
+    if (closestSelectable)
+    {
+        selectBehaviour.setCurrentShip(closestSelectable.element);
+    }
+    
+}
+
 var playerMoney = new Money(0, moneySpan);
 
 //Property updating
@@ -177,12 +191,12 @@ function addPlayerShip()
         if (isServer)
         {
             prevShipId = game.addEntity(new Drawable('bin/player.png'),
-                new ShipBehaviour(new Phaser.Point(150,300), 270, game, onMoneyHit, currentMainShipAttributes));
+                new ShipBehaviour(new Phaser.Point(150,300), 270, game, onMoneyHit, currentMainShipAttributes, selectBehaviour));
         }
         else
         {
             prevShipId = game.addEntity(new Drawable('bin/player.png'),
-                new ShipBehaviour(new Phaser.Point(resolution.x - 150,300), 90, game, onMoneyHit, currentMainShipAttributes));
+                new ShipBehaviour(new Phaser.Point(resolution.x - 150,300), 90, game, onMoneyHit, currentMainShipAttributes, selectBehaviour));
         }
     }
 }

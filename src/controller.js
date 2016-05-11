@@ -7,6 +7,7 @@ function Controller()
     
     this.touchStartPos;
     this.touchDiffPos = new Phaser.Point(0,0);
+    this.selectionStartCallback;//this callback will be called when a new touch starts
     
     this.touchRatio = 40;
     
@@ -47,67 +48,47 @@ Controller.prototype.updateStretchFactor = function()
 
 Controller.prototype.handleStart = function(evt)
 {
-    this.updateStretchFactor();
-    evt.preventDefault();
-    if (!this.touchStartPos)
+    for (var ind in evt.changedTouches)
     {
-        this.touchStartPos = {};
-        this.touchPos = {};
-        this.touchPos.x = this.touchStartPos.x = (evt.changedTouches[0].pageX - this.canvasDiv.offsetLeft) * this.x_stretch_factor;
-        this.touchPos.y = this.touchStartPos.y = (evt.changedTouches[0].pageY - this.canvasDiv.offsetTop) * this.y_stretch_factor;
-        this.touchStartPos.id = evt.changedTouches[0].identifier;
+        this.handleMouseStart(evt.changedTouches[ind]);
     }
 };
 
 Controller.prototype.handleEnd = function(evt)
 {
-    evt.preventDefault();
     for (var ind in evt.changedTouches)
     {
-        var curTouch = evt.changedTouches[ind];
-        if (this.touchStartPos && this.touchStartPos.id === curTouch.identifier)
-        {
-            this.touchStartPos = undefined;
-            this.touchDiffPos = new Phaser.Point(0,0);
-        }
+        this.handleMouseEnd(evt.changedTouches[ind]);
     }
 };
 
 Controller.prototype.handleMove = function(evt)
 {
-    evt.preventDefault();
     for (var ind in evt.changedTouches)
     {
-        var curTouch = evt.changedTouches[ind];
-        if (this.touchStartPos && this.touchStartPos.id === curTouch.identifier)
-        {
-            this.touchPos.x = (evt.changedTouches[0].pageX - this.canvasDiv.offsetLeft) * this.x_stretch_factor;
-            this.touchPos.y = (evt.changedTouches[0].pageY - this.canvasDiv.offsetTop) * this.y_stretch_factor;
-            var xdiff = curTouch.clientX - this.touchPos.x;
-            var ydiff = curTouch.clientY - this.touchPos.y;
-            this.touchDiffPos = new Phaser.Point(xdiff,ydiff);
-            break;
-        }
+        this.handleMouseMove(evt.changedTouches[ind]);
     }
 };
 
 Controller.prototype.handleMouseStart = function(evt)
 {
-    this.updateStretchFactor();
-    evt.preventDefault();
     if (!this.touchStartPos)
     {
+        this.updateStretchFactor();
         this.touchStartPos = {};
         this.touchPos = {};
         this.touchPos.x = this.touchStartPos.x = (evt.pageX - this.canvasDiv.offsetLeft) * this.x_stretch_factor;
         this.touchPos.y = this.touchStartPos.y = (evt.pageY - this.canvasDiv.offsetTop) * this.y_stretch_factor;
         this.touchStartPos.id = evt.identifier;
     }
+    if (this.selectionStartCallback)
+    {
+        this.selectionStartCallback(this.touchStartPos);
+    }
 };
 
 Controller.prototype.handleMouseEnd = function(evt)
 {
-    evt.preventDefault();
     if (this.touchStartPos && this.touchStartPos.id === evt.identifier)
     {
         this.touchStartPos = undefined;
@@ -117,7 +98,6 @@ Controller.prototype.handleMouseEnd = function(evt)
 
 Controller.prototype.handleMouseMove = function(evt)
 {
-    evt.preventDefault();
     if (this.touchStartPos && this.touchStartPos.id === evt.identifier)
     {
         this.touchPos.x = (evt.pageX - this.canvasDiv.offsetLeft) * this.x_stretch_factor;

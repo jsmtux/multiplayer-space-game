@@ -37,12 +37,31 @@ Scene.prototype.getEntity = function(_index)
     return this.entities[_index];
 };
 
+Scene.prototype.getClosestEntity = function(_point)
+{
+    var ret = undefined;
+    var min_distance = undefined;
+    for (var ind in this.entities)
+    {
+        if (this.entities[ind].element.isSelectable())
+        {
+            var cur_distance = Phaser.Point.distance(this.entities[ind].drawable.sprite.position, _point);
+            if (ret === undefined || cur_distance < min_distance) // Can add here "|| distance > treshold"
+            {
+                ret = this.entities[ind];
+                min_distance = cur_distance;
+            }
+        }
+    }
+    return ret;
+};
+
 Scene.prototype.getEntitiesByBehaviourName = function(_name)
 {
     var ret = [];
     for(ind in this.entities)
     {
-        if (this.entities[ind].element.getName() == _name)
+        if (this.entities[ind].element.getName() === _name)
         {
             ret.push(this.entities[ind]);
         }

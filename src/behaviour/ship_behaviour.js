@@ -53,7 +53,7 @@ BaseShipBehaviour.prototype.shoot = function(_data, _game)
     this.shootFilter.signal(this, _data, _game);
 };
 
-function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes)
+function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes, _selectBehaviour)
 {
     this.attributes = _attributes;
     
@@ -113,6 +113,9 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes)
     
     this.touchOffset = 25;
     
+    this.selectBehaviour = _selectBehaviour;
+    this.targetDestination;
+    
     this.collect_sound = _game.getAudioManager().createAudio("bin/pick.wav");
 }
 
@@ -121,14 +124,19 @@ ShipBehaviour.prototype.constructor = ShipBehaviour;
 
 ShipBehaviour.prototype.updateState = function(data, _game)
 {
+    if (this.selectBehaviour.isCurrentShip(this))
+    {
+        this.selectBehaviour.position.x = data.position.x;
+        this.selectBehaviour.position.y = data.position.y;
+    }
+    this.barBehaviour.position.x = data.position.x - 25;
+    this.barBehaviour.position.y = data.position.y - 35;
     this.updatePhysics(data, _game);
     this.updateKeyMovement(data, _game);
     if (_game.controller.getFireStatus())
     {
         this.shoot(data, _game);
     }
-    this.barBehaviour.position.x = data.position.x - 25;
-    this.barBehaviour.position.y = data.position.y - 35;
     this.removeIfOut(data, _game);
     this.barBehaviour.setPercentage(this.health);
     return data;
@@ -136,10 +144,20 @@ ShipBehaviour.prototype.updateState = function(data, _game)
 
 ShipBehaviour.prototype.remove = function(_game)
 {
+    if (this.selectBehaviour.isCurrentShip(this))
+    {
+        this.selectBehaviour.position.x = -100;
+        this.selectBehaviour.position.y = -100;
+        this.selectBehaviour.setCurrentShip(undefined);
+    }
     Behaviour.prototype.remove.call(_game);
     _game.removeEntity(this.barBehaviour.entityIndex);    
 };
 
+ShipBehaviour.prototype.isSelectable = function()
+{
+    return true;
+}
 
 ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
 {
@@ -148,15 +166,20 @@ ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
     this.physicsData.force.y = 0;
     
     //keyboard joystick control
-    var x_axis = _game.controller.getXAxisStatus();
-    var y_axis = _game.controller.getYAxisStatus();
+    var x_axis;
+    var y_axis;
     
-    if (_game.controller.touchPos)
+    if (_game.controller.touchPos && this.selectBehaviour.isCurrentShip(this))
     {
-        x_axis = _game.controller.touchPos.x > data.position.x + this.touchOffset ? 1 : 0;
-        x_axis = _game.controller.touchPos.x < data.position.x - this.touchOffset ? -1 : x_axis;
-        y_axis = _game.controller.touchPos.y > data.position.y + this.touchOffset ? 1 : 0;
-        y_axis = _game.controller.touchPos.y < data.position.y - this.touchOffset ? -1 : y_axis;
+        this.targetDestination = new Phaser.Point(_game.controller.touchPos.x, _game.controller.touchPos.y);
+    }
+    
+    if (this.targetDestination)
+    {
+        x_axis = this.targetDestination.x > data.position.x + this.touchOffset ? 1 : 0;
+        x_axis = this.targetDestination.x < data.position.x - this.touchOffset ? -1 : x_axis;
+        y_axis = this.targetDestination.y > data.position.y + this.touchOffset ? 1 : 0;
+        y_axis = this.targetDestination.y < data.position.y - this.touchOffset ? -1 : y_axis;
     }
     
     if (x_axis > 0)

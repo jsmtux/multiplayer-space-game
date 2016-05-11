@@ -4,7 +4,7 @@ function BarBehaviour(_position, _drawable)
 {
     Behaviour.call(this, "health_bar");
     this.drawable = _drawable;
-    this.position = _position;
+    this.position = new Phaser.Point(_position.x, _position.y);
 }
 
 BarBehaviour.prototype = Object.create(Behaviour.prototype);

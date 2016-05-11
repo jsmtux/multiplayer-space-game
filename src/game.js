@@ -88,6 +88,11 @@ Game.prototype.addEntity = function(_drawable, _element, _remote)
     return this.scene.addEntity(_drawable, _element);
 };
 
+Game.prototype.getClosestEntity = function(_position)
+{
+    return this.scene.getClosestEntity(_position);
+}
+
 Game.prototype.removeEntity = function(_index)
 {
     if (this.getEntity(_index) !== undefined)

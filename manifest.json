@@ -5,7 +5,7 @@
   "display": "fullscreen",
   "orientation": "landscape",
   "start_url": "index.html",
-  "xwalk_app_version": "0.1",
+  "xwalk_app_version": "0.2",
   "xwalk_command_line": "",
   "xwalk_package_id": "com.jsmtux.simple",
   "xwalk_target_platforms": [

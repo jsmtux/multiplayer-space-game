@@ -7,6 +7,8 @@ function Behaviour(_name)
     this.cur_data;
     this.name = _name;
     this.initData = new ElementRenderData();
+    this.attachedObject = undefined;
+    this.attachedObjectOffset;
 }
 
 Behaviour.prototype.remove = function(_game)
@@ -56,9 +58,18 @@ Behaviour.prototype.getInterpolatedData = function(_time)
 {
     //TODO: fix this. Because of this, elements appear in 0,0 before beinig initialised
     var ret = new ElementRenderData();
+    var object = this;
+    if (this.attachedObject)
+    {
+        object = this.attachedObject;
+    }
     if (this.old_data)
     {
-        ret.position = interpolatePoint(this.old_data.position, this.cur_data.position, _time);
+        ret.position = interpolatePoint(object.old_data.position, object.cur_data.position, _time);
+        if (this.attachedObjectOffset)
+        {
+            Phaser.Point.add(ret.position, this.attachedObjectOffset, ret.position);
+        }
         ret.scale = interpolateNumber(this.old_data.scale, this.cur_data.scale, _time);
         ret.rotation = interpolateNumber(this.old_data.rotation, this.cur_data.rotation, _time);
     }
@@ -83,6 +94,12 @@ Behaviour.prototype.updateState = function(data)
     console.log("Unimplemented updateState for element");
     return data;
 };
+
+Behaviour.prototype.attachToObject = function(behaviour, offset)
+{
+    this.attachedObject = behaviour;
+    this.attachedObjectOffset = offset;
+}
 
 function asPhysical()
 {

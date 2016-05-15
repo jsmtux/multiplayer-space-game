@@ -62,6 +62,7 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes,
     
     var barDrawable = new HealthBar(75);
     this.barBehaviour = new BarBehaviour(_position, barDrawable);
+    this.barBehaviour.attachToObject(this, new Phaser.Point(-25, -35));
     _game.addLocalEntity(barDrawable, this.barBehaviour);
 
     this.initPhysicsParams.collisionCallback = function(event) {
@@ -113,6 +114,8 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes,
     };
     this.initData.rotation = Math.radians( _rotation);
     
+    var laserRange = 0;
+    
     switch(this.attributes.laserType)
     {
         case playerLaserTypes.None:
@@ -120,14 +123,22 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes,
             break;
         case playerLaserTypes.Single:
             this.shootFilter = new RepeatEliminationFilter(shoot_callback, 10);
+            laserRange = 50;
             break;
         case playerLaserTypes.Double:
             this.shootFilter = new RepeatEliminationFilter(shoot_callback, 6);
+            laserRange = 100;
             break;
         case playerLaserTypes.Triple:
             this.shootFilter = new RepeatEliminationFilter(shoot_callback, 3);
+            laserRange = 150;
             break;
     }
+
+    var coneDrawable = new Cone(45, laserRange);
+    this.coneBehaviour = new BarBehaviour(_position, coneDrawable);
+    this.coneBehaviour.attachToObject(this);
+    _game.addLocalEntity(coneDrawable, this.coneBehaviour);
     
     this.maxVelocity = 200;
     this.health = 100;
@@ -152,8 +163,6 @@ ShipBehaviour.prototype.updateState = function(data, _game)
         this.selectBehaviour.position.x = data.position.x;
         this.selectBehaviour.position.y = data.position.y;
     }
-    this.barBehaviour.position.x = data.position.x - 25;
-    this.barBehaviour.position.y = data.position.y - 35;
     this.updatePhysics(data, _game);
     this.updateKeyMovement(data, _game);
     if (_game.controller.getFireStatus())

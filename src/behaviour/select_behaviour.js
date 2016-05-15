@@ -2,7 +2,7 @@
 //The selected ship can be set through setCurrentShip
 function SelectBehaviour(_drawable)
 {
-    Behaviour.call(this, "health_bar");
+    Behaviour.call(this, "select_element");
     this.drawable = _drawable;
     this.position = new Phaser.Point(-100, -100);
     this.curShip;
@@ -15,7 +15,7 @@ SelectBehaviour.prototype.updateState = function(data, _game)
 {
     if (this.curShip)
     {
-        data.position = this.position;
+        this.attachToObject(this.curShip);
     }
     else
     {

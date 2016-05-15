@@ -4,7 +4,6 @@ function BarBehaviour(_position, _drawable)
 {
     Behaviour.call(this, "health_bar");
     this.drawable = _drawable;
-    this.position = new Phaser.Point(_position.x, _position.y);
 }
 
 BarBehaviour.prototype = Object.create(Behaviour.prototype);
@@ -12,8 +11,6 @@ BarBehaviour.prototype.constructor = BarBehaviour;
 
 BarBehaviour.prototype.updateState = function(data, _game)
 {
-    data.position = this.position;
-    this.removeIfOut(data, _game);
     return data;
 };
 

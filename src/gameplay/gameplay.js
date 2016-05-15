@@ -41,7 +41,7 @@ function preloadCallback()
 function createCallback()
 {
     music.setLoop(true);
-    music.play();
+    music.play();   
 }
 
 var scene = new Scene();

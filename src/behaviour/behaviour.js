@@ -19,6 +19,20 @@ Behaviour.prototype.remove = function(_game)
     }
 };
 
+Behaviour.prototype.getCurrentPosition = function()
+{
+    var object = this;
+    if (this.attachedObject)
+    {
+        object = this.attachedObject;
+    }
+    if (object.cur_data)
+    {
+        return object.cur_data.position;
+    }
+    return undefined;
+}
+
 Behaviour.prototype.removeIfOut = function(data, _game)
 {
     var margin = 50;
@@ -63,7 +77,7 @@ Behaviour.prototype.getInterpolatedData = function(_time)
     {
         object = this.attachedObject;
     }
-    if (this.old_data)
+    if (object.old_data)
     {
         ret.position = interpolatePoint(object.old_data.position, object.cur_data.position, _time);
         if (this.attachedObjectOffset)

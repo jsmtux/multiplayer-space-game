@@ -115,6 +115,7 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes,
     this.initData.rotation = Math.radians( _rotation);
     
     var laserRange = 0;
+    var laserWidth = 90;
     
     switch(this.attributes.laserType)
     {
@@ -123,20 +124,20 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes,
             break;
         case playerLaserTypes.Single:
             this.shootFilter = new RepeatEliminationFilter(shoot_callback, 10);
-            laserRange = 50;
+            laserRange = 100;
             break;
         case playerLaserTypes.Double:
             this.shootFilter = new RepeatEliminationFilter(shoot_callback, 6);
-            laserRange = 100;
+            laserRange = 175;
             break;
         case playerLaserTypes.Triple:
             this.shootFilter = new RepeatEliminationFilter(shoot_callback, 3);
-            laserRange = 150;
+            laserRange = 250;
             break;
     }
 
-    var coneDrawable = new Cone(45, laserRange);
-    this.coneBehaviour = new BarBehaviour(_position, coneDrawable);
+    var coneDrawable = new Cone(laserWidth, laserRange);
+    this.coneBehaviour = new ConeBehaviour(Math.radians( _rotation + 90), laserWidth, laserRange);
     this.coneBehaviour.attachToObject(this);
     _game.addLocalEntity(coneDrawable, this.coneBehaviour);
     
@@ -165,12 +166,23 @@ ShipBehaviour.prototype.updateState = function(data, _game)
     }
     this.updatePhysics(data, _game);
     this.updateKeyMovement(data, _game);
-    if (_game.controller.getFireStatus())
-    {
-        this.shoot(data, _game);
-    }
     this.removeIfOut(data, _game);
     this.barBehaviour.setPercentage(this.health);
+    
+    var ships = _game.getEntitiesByBehaviourName(["ship"]);
+    for (var ind in ships)
+    {
+        var element = ships[ind].element;
+        if (element.isRemote())
+        {
+            var enemyData = element.cur_data;
+            if (enemyData && this.coneBehaviour.isInside(enemyData.position))
+            {
+                this.shoot(data, _game);
+            }
+        }
+    }
+    
     return data;
 };
 
@@ -183,7 +195,8 @@ ShipBehaviour.prototype.remove = function(_game)
         this.selectBehaviour.position.y = -100;
         this.selectBehaviour.setCurrentShip(undefined);
     }
-    _game.removeEntity(this.barBehaviour.entityIndex);    
+    _game.removeEntity(this.barBehaviour.entityIndex);
+    _game.removeEntity(this.coneBehaviour.entityIndex);
 };
 
 ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
@@ -358,7 +371,7 @@ ProtectAuxShipBehaviour.prototype.updateState = function(data, _game)
     this.updatePhysics(data, _game);
     
     
-    var shipElements = _game.getEntitiesByBehaviourName('ship');
+    var shipElements = _game.getEntitiesByBehaviourName(['ship']);
     for (var ind in shipElements)
     {
         if (!shipElements[ind].element.isRemote())
@@ -400,7 +413,7 @@ AttackAuxShipBehaviour.prototype.updateState = function(data, _game)
     {
         this.physicsData.force.x = 0;
         this.physicsData.force.y = 0;
-        var shipElements = _game.getEntitiesByBehaviourName('enemy');
+        var shipElements = _game.getEntitiesByBehaviourName(['enemy']);
         for (var ind in shipElements)
         {
             if (shipElements[ind].element.isRemote())

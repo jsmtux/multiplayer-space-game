@@ -19,6 +19,7 @@ SelectBehaviour.prototype.updateState = function(data, _game)
     }
     else
     {
+        this.attachToObject(undefined);
         data.position = new Phaser.Point(-100, -100);
     }
     return data;

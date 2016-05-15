@@ -110,9 +110,9 @@ Game.prototype.getEntity = function(_index)
     return this.scene.getEntity(_index);
 };
 
-Game.prototype.getEntitiesByBehaviourName = function(_name)
+Game.prototype.getEntitiesByBehaviourName = function(_names)
 {
-    return this.scene.getEntitiesByBehaviourName(_name);
+    return this.scene.getEntitiesByBehaviourName(_names);
 }
 
 Game.prototype.SignalPropertyChange = function(_name, _text)

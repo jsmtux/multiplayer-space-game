@@ -6,7 +6,10 @@ function Entity(_drawable, _behaviour)
 
 Entity.prototype.remove = function(_game)
 {
-    this.drawable.remove();
+    if (this.drawable.created)
+    {
+        this.drawable.remove();
+    }
     this.element.remove(_game);
 }
 
@@ -64,12 +67,12 @@ Scene.prototype.getClosestEntity = function(_point, _elementTypes, _treshold)
     return ret;
 };
 
-Scene.prototype.getEntitiesByBehaviourName = function(_name)
+Scene.prototype.getEntitiesByBehaviourName = function(_names)
 {
     var ret = [];
     for(ind in this.entities)
     {
-        if (this.entities[ind].element.getName() === _name)
+        if (_names.indexOf(this.entities[ind].element.getName()) !== -1)
         {
             ret.push(this.entities[ind]);
         }

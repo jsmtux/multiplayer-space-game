@@ -166,8 +166,3 @@ Controller.prototype.getYAxisStatus = function()
     }
     return ret;    
 };
-
-Controller.prototype.getFireStatus = function()
-{
-    return this.getKeyStatus(Controller.Keys.FIRE) || this.touchStartPos !== undefined;
-}

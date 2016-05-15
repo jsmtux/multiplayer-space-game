@@ -37,9 +37,8 @@ function NetworkManager(isServer, _matchName, _game)
                 	url: 'turn:jsmtux.ddns.net:3478',
                 	credential: 'msgpsw',
                 	username: 'msggame'
-                },
-            ]},
-            reliable:false
+                }
+            ], reliable:false}
         }); 
         
         this.conn = peer.connect(Configuration.clientPeer + '-' + _matchName);

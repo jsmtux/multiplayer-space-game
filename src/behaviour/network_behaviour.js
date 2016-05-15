@@ -50,11 +50,14 @@ NetworkBehaviour.prototype.updateNetworkInfo = function(NetworkInfo)
     }
     else
     {
-        this.netPos = NetworkInfo.position;
+        if (NetworkInfo.position)
+        {
+            this.netPos = NetworkInfo.position;
+            this.networkInfoReceived = true;
+        }
         if (NetworkInfo.rotation)
         {
             this.netRotation = NetworkInfo.rotation;
         }
-        this.networkInfoReceived = true;
     }
 }

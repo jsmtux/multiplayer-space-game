@@ -67,9 +67,20 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes,
     this.initPhysicsParams.collisionCallback = function(event) {
         var colBehaviour = event.body.parentBehaviour;
         var colName = colBehaviour.getName();
-        if (colName === "base" && colBehaviour.isRemote())
+        if (colName === "base")
         {
-            _game.removeEntity(self.entityIndex);
+            if (colBehaviour.isRemote())
+            {
+                _game.removeEntity(self.entityIndex);
+            }
+            else
+            {
+                var score_drawable = new Text("-"+self.currentMoney+"u", 'bin/carrier_command.png', 'bin/carrier_command.xml', 15);
+                _game.addLocalEntity(score_drawable, new FadingScoreBehaviour(self.cur_data.position, score_drawable), false);
+                
+                _moneyCallback(self.currentMoney);
+                self.currentMoney = 0;
+            }
         }
         if (colName === "laser" && colBehaviour.isRemote())
         {
@@ -77,12 +88,22 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes,
             if (self.health <= 0)
             {
                 _game.removeEntity(self.entityIndex);
+                while(self.currentMoney > 0)
+                {
+                    var curPos = self.cur_data.position;
+                    var x_rand = (Math.random() * 50) - 25;
+                    var y_rand = (Math.random() * 50) - 25;
+                    _game.addEntity(
+                            new Drawable(('bin/rock_bronze.png'),true), 
+                            new CoinBehaviour(new Phaser.Point(curPos.x + x_rand, curPos.y + y_rand), 150, _game, false));
+                    self.currentMoney -= 150;                    
+                }
             }
         }
         if (colName.substring(0, 5) === "coin_")
         {
             var value = colName.substring(colName.lastIndexOf("_")+1,colName.length);
-            _moneyCallback(parseInt(value));
+            self.currentMoney += parseInt(value);
             
             var score_drawable = new Text("+"+value+"u", 'bin/carrier_command.png', 'bin/carrier_command.xml', 15);
             _game.addLocalEntity(score_drawable, new FadingScoreBehaviour(self.cur_data.position, score_drawable), false);
@@ -112,6 +133,8 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes,
     this.health = 100;
     
     this.touchOffset = 25;
+    
+    this.currentMoney = 0;
     
     this.selectBehaviour = _selectBehaviour;
     this.targetDestination;
@@ -144,20 +167,15 @@ ShipBehaviour.prototype.updateState = function(data, _game)
 
 ShipBehaviour.prototype.remove = function(_game)
 {
+    Behaviour.prototype.remove.call(this, _game);
     if (this.selectBehaviour.isCurrentShip(this))
     {
         this.selectBehaviour.position.x = -100;
         this.selectBehaviour.position.y = -100;
         this.selectBehaviour.setCurrentShip(undefined);
     }
-    Behaviour.prototype.remove.call(_game);
     _game.removeEntity(this.barBehaviour.entityIndex);    
 };
-
-ShipBehaviour.prototype.isSelectable = function()
-{
-    return true;
-}
 
 ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
 {

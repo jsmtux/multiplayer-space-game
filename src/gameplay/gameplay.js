@@ -53,7 +53,7 @@ game.addLocalEntity(selectDrawable, selectBehaviour);
 
 game.controller.selectionStartCallback = function(position)
 {    
-    var closestSelectable = game.getClosestEntity(position);
+    var closestSelectable = game.getClosestEntity(position, ["ship"]);
     if (closestSelectable)
     {
         selectBehaviour.setCurrentShip(closestSelectable.element);
@@ -122,7 +122,7 @@ function dropCoins()
             break;
         case (kind < 1):
             path = 'bin/rock_gold.png';
-            value = 500;
+            value = 600;
             break;
     }
   

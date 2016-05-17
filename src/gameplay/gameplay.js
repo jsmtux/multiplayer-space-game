@@ -47,7 +47,7 @@ function createCallback()
 var scene = new Scene();
 var game = new PhaserGame(scene, isServer, matchName, resolution, {'preload': preloadCallback, 'create':createCallback, 'update' : updateCallback});
 
-var selectDrawable = new Drawable('bin/crossair_friend_selected.png');
+var selectDrawable = new Drawable('bin/crossair_friend_selected.png', DrawableLayer.BACK);
 var selectBehaviour = new SelectBehaviour(selectDrawable);
 game.addLocalEntity(selectDrawable, selectBehaviour);
 
@@ -93,14 +93,14 @@ function onMoneyHit(value)
 
 if (isServer)
 {
-    game.addEntity(new Drawable('bin/base.png',true), new BaseBehaviour(new Phaser.Point(54,300), setBaseHealth));
+    game.addEntity(new Drawable('bin/base.png',DrawableLayer.FRONT), new BaseBehaviour(new Phaser.Point(54,300), setBaseHealth));
     dropCoins();
 }
 else
 {
     game.networkManager.onConnection = function()
     {
-        game.addEntity(new Drawable('bin/base.png',true), new BaseBehaviour(new Phaser.Point(resolution.x - 54,300), setBaseHealth, 180));
+        game.addEntity(new Drawable('bin/base.png',DrawableLayer.FRONT), new BaseBehaviour(new Phaser.Point(resolution.x - 54,300), setBaseHealth, 180));
     };
 }
 
@@ -127,7 +127,7 @@ function dropCoins()
     }
   
     var xpos = 200 + (resolution.x - 400) * Math.random();
-    game.addEntity(new Drawable(path,true), new CoinBehaviour(new Phaser.Point(xpos,0), value, game));
+    game.addEntity(new Drawable(path,DrawableLayer.FRONT), new CoinBehaviour(new Phaser.Point(xpos,0), value, game));
     setTimeout(dropCoins, 2000 + Math.random()*4000);
 }
 
@@ -190,12 +190,12 @@ function addPlayerShip()
     {
         if (isServer)
         {
-            prevShipId = game.addEntity(new Drawable('bin/player.png'),
+            prevShipId = game.addEntity(new Drawable('bin/player.png', DrawableLayer.MIDDLE),
                 new ShipBehaviour(new Phaser.Point(150,300), 270, game, onMoneyHit, currentMainShipAttributes, selectBehaviour));
         }
         else
         {
-            prevShipId = game.addEntity(new Drawable('bin/player.png'),
+            prevShipId = game.addEntity(new Drawable('bin/player.png', DrawableLayer.MIDDLE),
                 new ShipBehaviour(new Phaser.Point(resolution.x - 150,300), 90, game, onMoneyHit, currentMainShipAttributes, selectBehaviour));
         }
     }

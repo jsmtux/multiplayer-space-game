@@ -18,8 +18,7 @@ Cone.prototype.create = function(_game)
     {
         var phaser_game = _game.phaser_game;
 
-        this.sprite = phaser_game.add.graphics(100, 200);
-        _game.backLayer.add(this.sprite);
+        this.sprite = phaser_game.make.graphics(100, 200);
 
         // set a fill and line style
         this.sprite.beginFill(0xAA1100);
@@ -33,6 +32,7 @@ Cone.prototype.create = function(_game)
             this.sprite.lineTo(Math.cos(Math.radians(curWidth)) * this.length, Math.sin(Math.radians(curWidth)) * this.length);
         }
         this.sprite.endFill();
+        _game.backLayer.add(this.sprite);
         
         this.created = true;
     }

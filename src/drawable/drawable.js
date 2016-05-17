@@ -1,11 +1,20 @@
+var DrawableLayer = {
+    "BACK": 0,
+    "MIDDLE": 1,
+    "FRONT": 2
+}
 
-function Drawable(_texture, _front)
+function Drawable(_texture, _layer)
 {
+    if (_layer === undefined)
+    {
+        _layer = DrawableLayer.MIDDLE;
+    }
     this.texture_path = _texture;
     this.texture = -1;
     this.created = false;
     this.preloaded = false;
-    this.front = _front;
+    this.layer = _layer;
 }
 
 Drawable.prototype.preload = function(_game)
@@ -30,13 +39,17 @@ Drawable.prototype.create = function(_game)
     {
         this.created = true;
         this.sprite = _game.phaser_game.add.sprite(0, 0, this.texture);
-        if (this.front === true)
+        switch(this.layer)
         {
-            _game.frontLayer.add(this.sprite);
-        }
-        else
-        {
-            _game.backLayer.add(this.sprite);
+            case DrawableLayer.FRONT:
+                _game.frontLayer.add(this.sprite);
+                break;
+            case DrawableLayer.MIDDLE:
+                _game.middleLayer.add(this.sprite);
+                break;
+            case DrawableLayer.BACK:
+                _game.backLayer.add(this.sprite);
+                break;
         }
         this.sprite.anchor = new Phaser.Point(0.5, 0.5);
     }

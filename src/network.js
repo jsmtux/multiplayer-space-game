@@ -92,7 +92,7 @@ NetworkManager.prototype.registerElement = function(_drawableInfo, _behaviour, _
         var ind = this.lastNetworkId++;
         this.elements[ind] = _behaviour;
         var data = _drawableInfo.getNetworkData();
-        data['front'] = _drawableInfo.front;
+        data['layer'] = _drawableInfo.layer;
         data['type_name'] = _behaviour.getName();
         if (!_behaviour.initPhysicsParams)
         {
@@ -248,7 +248,7 @@ NetworkManager.prototype.receiveNetworkUpdate = function(_data)
                     collisionResponse = elementChanges[element].collisionResponse;
                 }
                 var behaviour = new NetworkBehaviour(collisionResponse, elementChanges[element], this.game);
-                this.game.addEntity(new Drawable(elementChanges[element].texture, elementChanges[element].front), behaviour, true);
+                this.game.addEntity(new Drawable(elementChanges[element].texture, elementChanges[element].layer), behaviour, true);
                 this.remote_elements[element] = behaviour;
             }
             if (elementChanges[element].font !== undefined)

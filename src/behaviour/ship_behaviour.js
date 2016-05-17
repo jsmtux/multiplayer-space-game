@@ -95,7 +95,7 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes,
                     var x_rand = (Math.random() * 50) - 25;
                     var y_rand = (Math.random() * 50) - 25;
                     _game.addEntity(
-                            new Drawable(('bin/rock_bronze.png'),true), 
+                            new Drawable(('bin/rock_bronze.png'),DrawableLayer.FRONT), 
                             new CoinBehaviour(new Phaser.Point(curPos.x + x_rand, curPos.y + y_rand), 150, _game, false));
                     self.currentMoney -= 150;                    
                 }

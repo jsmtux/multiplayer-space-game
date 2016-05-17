@@ -43,6 +43,7 @@ PhaserGame.prototype.preload = function()
         this.scene.entities[entity].drawable.preload(this);
     }
     this.backLayer = this.phaser_game.add.group();
+    this.middleLayer = this.phaser_game.add.group();
     this.frontLayer = this.phaser_game.add.group();
 };
 

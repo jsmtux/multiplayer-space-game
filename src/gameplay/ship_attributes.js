@@ -11,14 +11,14 @@ var playerShieldTypes = {
     'Extended': 2
 };
 
-function MainShipAttributes()
+function ShipAttributes()
 {
     this.shipValue = 0;
     this.laserType = playerLaserTypes.None;
     this.shieldType = playerShieldTypes.None;
 }
 
-MainShipAttributes.prototype.updateValue = function()
+ShipAttributes.prototype.updateValue = function()
 {
     this.shipValue = 0;
     switch(this.laserType)
@@ -44,14 +44,14 @@ MainShipAttributes.prototype.updateValue = function()
     }      
 };
 
-MainShipAttributes.prototype.setLaserType = function(_type)
+ShipAttributes.prototype.setLaserType = function(_type)
 {
     this.laserType = _type;
     this.updateValue();
 };
 
 
-MainShipAttributes.prototype.setShieldType = function(_type)
+ShipAttributes.prototype.setShieldType = function(_type)
 {
     this.shieldType = _type;
     this.updateValue();

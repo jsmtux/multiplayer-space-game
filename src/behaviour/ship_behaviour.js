@@ -36,28 +36,17 @@ function shoot_callback(_element, _data, _game)
 
 function BaseShipBehaviour(_position, _name, _game)
 {
-    Behaviour.call(this, _name);
+}
+
+function ShipBehaviour(_position, _rotation, _game, _selectBehaviour)
+{
+    Behaviour.call(this, "ship");
     asPhysical.call(this);
     this.initPhysicsParams.position = _position;
     this.shootFilter = new RepeatEliminationFilter(shoot_callback, 3);
-    this.acceleration = 100;
     
     this.shoot_sound = _game.getAudioManager().createAudio("bin/shoot.wav");
-}
 
-BaseShipBehaviour.prototype = Object.create(Behaviour.prototype);
-BaseShipBehaviour.prototype.constructor = BaseShipBehaviour;
-
-BaseShipBehaviour.prototype.shoot = function(_data, _game)
-{
-    this.shootFilter.signal(this, _data, _game);
-};
-
-function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes, _selectBehaviour)
-{
-    this.attributes = _attributes;
-    
-    BaseShipBehaviour.call(this, _position, "ship", _game);
     var self = this;
     
     var barDrawable = new HealthBar(75);
@@ -73,14 +62,6 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes,
             if (colBehaviour.isRemote())
             {
                 _game.removeEntity(self.entityIndex);
-            }
-            else
-            {
-                var score_drawable = new Text("-"+self.currentMoney+"u", 'bin/carrier_command.png', 'bin/carrier_command.xml', 15);
-                _game.addLocalEntity(score_drawable, new FadingScoreBehaviour(self.cur_data.position, score_drawable), false);
-                
-                _moneyCallback(self.currentMoney);
-                self.currentMoney = 0;
             }
         }
         if (colName === "laser" && colBehaviour.isRemote())
@@ -101,61 +82,27 @@ function ShipBehaviour(_position, _rotation, _game, _moneyCallback, _attributes,
                 }
             }
         }
-        if (colName.substring(0, 5) === "coin_")
-        {
-            var value = colName.substring(colName.lastIndexOf("_")+1,colName.length);
-            self.currentMoney += parseInt(value);
-            
-            var score_drawable = new Text("+"+value+"u", 'bin/carrier_command.png', 'bin/carrier_command.xml', 15);
-            _game.addLocalEntity(score_drawable, new FadingScoreBehaviour(self.cur_data.position, score_drawable), false);
-            
-            self.collect_sound.play();
-        }
     };
     this.initData.rotation = Math.radians( _rotation);
     
-    var laserRange = 0;
-    var laserWidth = 90;
-    
-    switch(this.attributes.laserType)
-    {
-        case playerLaserTypes.None:
-            this.shootFilter = new RepeatEliminationFilter(function(){}, 0);
-            break;
-        case playerLaserTypes.Single:
-            this.shootFilter = new RepeatEliminationFilter(shoot_callback, 10);
-            laserRange = 100;
-            break;
-        case playerLaserTypes.Double:
-            this.shootFilter = new RepeatEliminationFilter(shoot_callback, 6);
-            laserRange = 175;
-            break;
-        case playerLaserTypes.Triple:
-            this.shootFilter = new RepeatEliminationFilter(shoot_callback, 3);
-            laserRange = 250;
-            break;
-    }
-
-    var coneDrawable = new Cone(laserWidth, laserRange);
-    this.coneBehaviour = new ConeBehaviour(Math.radians( _rotation + 90), laserWidth, laserRange);
-    this.coneBehaviour.attachToObject(this);
-    _game.addLocalEntity(coneDrawable, this.coneBehaviour);
-    
     this.maxVelocity = 200;
+    this.acceleration = 100;
     this.health = 100;
     
-    this.touchOffset = 25;
-    
-    this.currentMoney = 0;
+    this.slowOffset = 25;
+    this.touchOffset = 55;
     
     this.selectBehaviour = _selectBehaviour;
     this.targetDestination;
-    
-    this.collect_sound = _game.getAudioManager().createAudio("bin/pick.wav");
 }
 
-ShipBehaviour.prototype = Object.create(BaseShipBehaviour.prototype);
+ShipBehaviour.prototype = Object.create(Behaviour.prototype);
 ShipBehaviour.prototype.constructor = ShipBehaviour;
+
+ShipBehaviour.prototype.shoot = function(_data, _game)
+{
+    this.shootFilter.signal(this, _data, _game);
+};
 
 ShipBehaviour.prototype.updateState = function(data, _game)
 {
@@ -216,6 +163,12 @@ ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
     
     if (this.targetDestination)
     {
+        //Slow down approximating to target
+        x_axis = this.targetDestination.x > data.position.x + this.slowOffset ? 0.5 : 0;
+        x_axis = this.targetDestination.x < data.position.x - this.slowOffset ? -0.5 : x_axis;
+        y_axis = this.targetDestination.y > data.position.y + this.slowOffset ? 0.5 : 0;
+        y_axis = this.targetDestination.y < data.position.y - this.slowOffset ? -0.5 : y_axis;
+        //Decide main direction
         x_axis = this.targetDestination.x > data.position.x + this.touchOffset ? 1 : 0;
         x_axis = this.targetDestination.x < data.position.x - this.touchOffset ? -1 : x_axis;
         y_axis = this.targetDestination.y > data.position.y + this.touchOffset ? 1 : 0;
@@ -276,155 +229,87 @@ ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
     }
 };
 
-function AuxShipBehaviour(_initPosition, _rotation, _game)
+function CollectShipBehaviour(_position, _rotation, _game, _selectBehaviour, _moneyCallback)
 {
-    this.initPosition = _initPosition;
-    BaseShipBehaviour.call(this, this.initPosition, "enemy", _game);
+    ShipBehaviour.call(this, _position, _rotation, _game, _selectBehaviour);
+    
     var self = this;
+    var shipCollisionCallback = this.initPhysicsParams.collisionCallback;
+    
     this.initPhysicsParams.collisionCallback = function(event) {
+        shipCollisionCallback(event);
         var colBehaviour = event.body.parentBehaviour;
-        if ((colBehaviour.getName() === "base" || colBehaviour.getName() === "laser") && colBehaviour.isRemote())
+        var colName = colBehaviour.getName();
+        
+        if (colName === "base")
         {
-            _game.removeEntity(self.entityIndex);
-        }
-    };
-    this.initData.rotation = Math.radians(_rotation);
-    this.speed = 100;
-
-    this.shootFilter = new RepeatEliminationFilter(shoot_callback, 30);
-    this.curRotation = 0;
-}
-
-AuxShipBehaviour.prototype = Object.create(BaseShipBehaviour.prototype);
-AuxShipBehaviour.prototype.constructor = AuxShipBehaviour;
-
-AuxShipBehaviour.prototype.updateState = function(data, _game)
-{
-    var self = this;
-    this.updatePhysics(data, _game);
-    
-    this.curRotation = Math.random() * 0.1 - 0.05;
-    data.rotation += this.curRotation;
-    this.physicsData.velocity.x = -this.speed * Math.sin(data.rotation);
-    this.physicsData.velocity.y = this.speed * Math.cos(data.rotation);
-    this.shootFilter.signal(this, data, _game);
-    this.removeIfOut(data, _game);
-    
-    return data;
-};
-
-AuxShipBehaviour.prototype.moveTowards = function(_data, _position)
-{
-    var difference = Phaser.Point.subtract(_data.position, _position);
-    var speed = this.speed;
-    this.physicsData.force.x = 0;
-    this.physicsData.force.y = 0;
-    if (difference.x > 10)
-    {
-        if (this.physicsData.velocity.x > -this.speed)
-        {
-            this.physicsData.force.x = -this.acceleration;
-        }
-    }
-    else if (difference.x < -10)
-    {
-        if (this.physicsData.velocity.x < this.speed)
-        {
-            this.physicsData.force.x = this.acceleration;
-        }
-    }
-    else {
-        this.physicsData.velocity.x *= 0.7;
-    }
-
-    if (difference.y > 10)
-    {
-        if (this.physicsData.velocity.y > -this.speed)
-        {
-            this.physicsData.force.y = -this.acceleration;
-        }
-    }
-    else if (difference.y < -10)
-    {
-        if (this.physicsData.velocity.y < this.speed)
-        {
-            this.physicsData.force.y = this.acceleration;
-        }
-    }
-    else {
-        this.physicsData.velocity.y *= 0.7;
-    }
-}
-
-function ProtectAuxShipBehaviour(_initPosition, _rotation, _game)
-{
-    AuxShipBehaviour.call(this, _initPosition, _rotation, _game);
-    this.speed = 200;
-}
-
-ProtectAuxShipBehaviour.prototype = Object.create(AuxShipBehaviour.prototype);
-ProtectAuxShipBehaviour.prototype.constructor = AuxShipBehaviour;
-
-ProtectAuxShipBehaviour.prototype.updateState = function(data, _game)
-{
-    var self = this;
-    this.updatePhysics(data, _game);
-    
-    
-    var shipElements = _game.getEntitiesByBehaviourName(['ship']);
-    for (var ind in shipElements)
-    {
-        if (!shipElements[ind].element.isRemote())
-        {
-            var position = shipElements[ind].element.cur_data.position.clone();
-            position.x -= Math.sin(this.initData.rotation) * 100;
-            this.moveTowards(data, position);
-            this.shootFilter.signal(this, data, _game);
-            break;
-        }
-    }
-    this.removeIfOut(data, _game);
-    
-    return data;
-};
-
-function AttackAuxShipBehaviour(_initPosition, _rotation, _game)
-{
-    AuxShipBehaviour.call(this, _initPosition, _rotation, _game);
-    this.speed = 200;
-    this.currentEnemyShip;
-}
-
-AttackAuxShipBehaviour.prototype = Object.create(AuxShipBehaviour.prototype);
-AttackAuxShipBehaviour.prototype.constructor = AuxShipBehaviour;
-
-AttackAuxShipBehaviour.prototype.updateState = function(data, _game)
-{
-    var self = this;
-    this.updatePhysics(data, _game);
-    
-    if (this.currentEnemyShip && _game.getEntity(this.currentEnemyShip.element.entityIndex) !== undefined)
-    {
-        var position = this.currentEnemyShip.element.cur_data.position.clone();
-        position.x -= 200;
-        this.moveTowards(data, position);
-    }
-    else
-    {
-        this.physicsData.force.x = 0;
-        this.physicsData.force.y = 0;
-        var shipElements = _game.getEntitiesByBehaviourName(['enemy']);
-        for (var ind in shipElements)
-        {
-            if (shipElements[ind].element.isRemote())
+            if (!colBehaviour.isRemote())
             {
-                this.currentEnemyShip = shipElements[ind];
-                break;
+                var score_drawable = new Text("-"+self.currentMoney+"u", 'bin/carrier_command.png', 'bin/carrier_command.xml', 15);
+                _game.addLocalEntity(score_drawable, new FadingScoreBehaviour(self.cur_data.position, score_drawable), false);
+                
+                _moneyCallback(self.currentMoney);
+                self.currentMoney = 0;
             }
         }
-    }
-    this.shootFilter.signal(this, data, _game);
-    this.removeIfOut(data, _game);
+        if (colName.substring(0, 5) === "coin_")
+        {
+            var value = colName.substring(colName.lastIndexOf("_")+1,colName.length);
+            self.currentMoney += parseInt(value);
+            
+            var score_drawable = new Text("+"+value+"u", 'bin/carrier_command.png', 'bin/carrier_command.xml', 15);
+            _game.addLocalEntity(score_drawable, new FadingScoreBehaviour(self.cur_data.position, score_drawable), false);
+            
+            self.collect_sound.play();
+        }
+    };
     
-    return data;
-};
+    this.currentMoney = 0;
+    
+    this.collect_sound = _game.getAudioManager().createAudio("bin/pick.wav");
+
+    this.maxVelocity = 400;
+    this.acceleration = 300;
+}
+
+CollectShipBehaviour.prototype = Object.create(ShipBehaviour.prototype);
+CollectShipBehaviour.prototype.constructor = CollectShipBehaviour;
+
+function AttackShipBehaviour(_position, _rotation, _game, _selectBehaviour, _laserType)
+{
+    ShipBehaviour.call(this, _position, _rotation, _game, _selectBehaviour);
+    
+    var laserRange = 0;
+    var laserWidth = 90;
+    
+    switch(_laserType)
+    {
+        case playerLaserTypes.None:
+            this.shootFilter = new RepeatEliminationFilter(function(){}, 0);
+            break;
+        case playerLaserTypes.Single:
+            this.shootFilter = new RepeatEliminationFilter(shoot_callback, 10);
+            laserRange = 100;
+            break;
+        case playerLaserTypes.Double:
+            this.shootFilter = new RepeatEliminationFilter(shoot_callback, 6);
+            laserRange = 175;
+            break;
+        case playerLaserTypes.Triple:
+            this.shootFilter = new RepeatEliminationFilter(shoot_callback, 3);
+            laserRange = 250;
+            break;
+    }
+
+    var coneDrawable = new Cone(laserWidth, laserRange);
+    this.coneBehaviour = new ConeBehaviour(Math.radians( _rotation - 90), laserWidth, laserRange);
+    this.coneBehaviour.attachToObject(this);
+    _game.addLocalEntity(coneDrawable, this.coneBehaviour);
+    
+
+    this.maxVelocity = 300;
+    this.acceleration = 200;
+}
+
+AttackShipBehaviour.prototype = Object.create(ShipBehaviour.prototype);
+AttackShipBehaviour.prototype.constructor = AttackShipBehaviour;

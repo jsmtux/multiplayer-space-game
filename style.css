@@ -36,6 +36,18 @@ ul.horizontal li{
     background-color: #4E9599;
 }
 
+.defense-color {
+    background-color: #50C75D;
+}
+
+.attack-color {
+    background-color: #FF596D;
+}
+
+.resource-color {
+    background-color: #4E9599;
+}
+
 li img {
     height: 35px;
     position: relative;

@@ -131,117 +131,37 @@ function dropCoins()
     setTimeout(dropCoins, 2000 + Math.random()*4000);
 }
 
-priceAuxShipSpan.innerHTML = 150;
-
 // Top level functions
-function menuButtonSelection(name, id)
+var startPoint;
+var rotation;
+if(isServer)
 {
-    var playerShipLaserSelection = document.getElementById(name);
-
-    for(i=0; i<playerShipLaserSelection.childElementCount; i++) {
-        if (id === i)
-        {
-            playerShipLaserSelection.children[i].className =  "active";
-        }
-        else
-        {
-            playerShipLaserSelection.children[i].className =  "";            
-        }
-    }
+    startPoint = new Phaser.Point(150,300);
+    rotation = 90;
+}
+else
+{
+    startPoint = new Phaser.Point(resolution.x - 150,300);
+    rotation = 270;
 }
 
-var prevShipId;
-
-var currentMainShipAttributes = new MainShipAttributes;
-
-var isPlayerShipConfOpened = false;
-function openShipConf(divName)
+function launchResourceShip()
 {
-    var ShipConfDiv = document.getElementById(divName);
-    if (!isPlayerShipConfOpened)
-    {
-        ShipConfDiv.style.maxHeight = "250px";
-        ShipConfDiv.style.height = "250px";
-    }
-    else
-    {
-        ShipConfDiv.style.maxHeight = "0px";
-    }
-    isPlayerShipConfOpened = !isPlayerShipConfOpened;
+    var currentMainShipAttributes = new ShipAttributes;
+    game.addEntity(new Drawable('bin/resource_ship.png', DrawableLayer.MIDDLE),
+                new CollectShipBehaviour(startPoint, rotation, game, selectBehaviour, onMoneyHit));
 }
 
-function playerShipLaserSelection(id)
+function launchDefenseShip()
 {
-    menuButtonSelection('playerShipLaserConf', id);
-    currentMainShipAttributes.setLaserType(id);
-    priceMainShipSpan.innerHTML = currentMainShipAttributes.shipValue;  
+    var currentMainShipAttributes = new ShipAttributes;
+    game.addEntity(new Drawable('bin/defense_ship.png', DrawableLayer.MIDDLE),
+                new ShipBehaviour(startPoint, rotation, game, selectBehaviour));
 }
 
-function playerShipShieldSelection(id)
+function launchAttackShip()
 {
-    menuButtonSelection('playerShipShieldConf', id);
-    currentMainShipAttributes.setShieldType(id);
-    priceMainShipSpan.innerHTML = currentMainShipAttributes.shipValue;  
-}
-
-function addPlayerShip()
-{
-    if ((prevShipId === undefined || !game.getEntity(prevShipId) !== undefined) && playerMoney.checkAndSubstract(currentMainShipAttributes.shipValue))
-    {
-        if (isServer)
-        {
-            prevShipId = game.addEntity(new Drawable('bin/player.png', DrawableLayer.MIDDLE),
-                new ShipBehaviour(new Phaser.Point(150,300), 270, game, onMoneyHit, currentMainShipAttributes, selectBehaviour));
-        }
-        else
-        {
-            prevShipId = game.addEntity(new Drawable('bin/player.png', DrawableLayer.MIDDLE),
-                new ShipBehaviour(new Phaser.Point(resolution.x - 150,300), 90, game, onMoneyHit, currentMainShipAttributes, selectBehaviour));
-        }
-    }
-}
-
-
-var AuxShipBehaviourType = {
-    'Random': 0,
-    'Protect': 1,
-    'Attack': 2
-}
-var auxShipBehaviourId = AuxShipBehaviourType.Random;
-function auxShipBehaviourSelection(id)
-{
-    menuButtonSelection('auxShipBehaviourConf', id);
-    auxShipBehaviourId = id;
-}
-
-function addShip(y)
-{
-    if (!playerMoney.checkAndSubstract(150))
-    {
-        return;
-    }
-    var rotation;
-    var position;
-    if (isServer)
-    {
-        rotation = 270;
-        position = 0;
-    }
-    else
-    {
-        rotation = 90;
-        position = resolution.x;
-    }
-    switch (auxShipBehaviourId)
-    {
-        case AuxShipBehaviourType.Random:
-            game.addEntity(new Drawable('bin/enemy.png'), new AuxShipBehaviour(new Phaser.Point(position , 200), rotation, game));
-            break;
-        case AuxShipBehaviourType.Protect:
-            game.addEntity(new Drawable('bin/enemy.png'), new ProtectAuxShipBehaviour(new Phaser.Point(position , 200), rotation, game));
-            break;
-        case AuxShipBehaviourType.Attack:
-            game.addEntity(new Drawable('bin/enemy.png'), new AttackAuxShipBehaviour(new Phaser.Point(position , 200), rotation, game));
-            break;
-    }
+    var currentMainShipAttributes = new ShipAttributes;
+    game.addEntity(new Drawable('bin/attack_ship.png', DrawableLayer.MIDDLE),
+                new AttackShipBehaviour(startPoint, rotation, game, selectBehaviour, playerLaserTypes.Single));
 }

@@ -20,7 +20,7 @@ LaserBehaviour.prototype.constructor = LaserBehaviour;
 LaserBehaviour.prototype.updateState = function(data, _game)
 {
     this.updatePhysics(data, _game);
-    this.physicsData.velocity.x = -1000 * Math.sin(data.rotation);
+    this.physicsData.velocity.x = 1000 * Math.sin(data.rotation);
     this.physicsData.velocity.y = 1000 * Math.cos(data.rotation);
     this.removeIfOut(data, _game);
     return data;
@@ -92,6 +92,9 @@ function ShipBehaviour(_position, _rotation, _game, _selectBehaviour)
     this.slowOffset = 25;
     this.touchOffset = 55;
     
+    this.behaviourXMovement = 0;
+    this.behaviourYMovement = 0;
+    
     this.selectBehaviour = _selectBehaviour;
     this.targetDestination;
 }
@@ -106,32 +109,25 @@ ShipBehaviour.prototype.shoot = function(_data, _game)
 
 ShipBehaviour.prototype.updateState = function(data, _game)
 {
+    var selected = false;
     if (this.selectBehaviour.isCurrentShip(this))
     {
         this.selectBehaviour.position.x = data.position.x;
         this.selectBehaviour.position.y = data.position.y;
+        selected = true;
     }
+    this.updateSpecificBehaviour(_game, data, selected);
     this.updatePhysics(data, _game);
     this.updateKeyMovement(data, _game);
     this.removeIfOut(data, _game);
     this.barBehaviour.setPercentage(this.health);
     
-    var ships = _game.getEntitiesByBehaviourName(["ship"]);
-    for (var ind in ships)
-    {
-        var element = ships[ind].element;
-        if (element.isRemote())
-        {
-            var enemyData = element.cur_data;
-            if (enemyData && this.coneBehaviour.isInside(enemyData.position))
-            {
-                this.shoot(data, _game);
-            }
-        }
-    }
-    
     return data;
 };
+
+ShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _selected)
+{
+}
 
 ShipBehaviour.prototype.remove = function(_game)
 {
@@ -143,7 +139,6 @@ ShipBehaviour.prototype.remove = function(_game)
         this.selectBehaviour.setCurrentShip(undefined);
     }
     _game.removeEntity(this.barBehaviour.entityIndex);
-    _game.removeEntity(this.coneBehaviour.entityIndex);
 };
 
 ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
@@ -173,6 +168,15 @@ ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
         x_axis = this.targetDestination.x < data.position.x - this.touchOffset ? -1 : x_axis;
         y_axis = this.targetDestination.y > data.position.y + this.touchOffset ? 1 : 0;
         y_axis = this.targetDestination.y < data.position.y - this.touchOffset ? -1 : y_axis;
+    }
+
+    if (this.behaviourXMovement !== 0 || this.behaviourYMovement !== 0)
+    {
+        x_axis = this.behaviourXMovement;
+        y_axis = this.behaviourYMovement;
+    
+        this.behaviourXMovement = 0;
+        this.behaviourYMovement = 0;
     }
     
     if (x_axis > 0)
@@ -275,6 +279,34 @@ function CollectShipBehaviour(_position, _rotation, _game, _selectBehaviour, _mo
 CollectShipBehaviour.prototype = Object.create(ShipBehaviour.prototype);
 CollectShipBehaviour.prototype.constructor = CollectShipBehaviour;
 
+CollectShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _selected)
+{
+    if (!_selected)
+    {
+        var curPos = this.getCurrentPosition();
+        var entity = _game.getClosestEntity(curPos, ["coin_150", "coin_300", "coin_600"], 200, true);
+        if (entity !== undefined)
+        {
+            if ( curPos.x < entity.element.getCurrentPosition().x)
+            {
+                this.behaviourXMovement = 1;
+            }
+            if ( curPos.x > entity.element.getCurrentPosition().x)
+            {
+                this.behaviourXMovement = -1;
+            }
+            if ( curPos.y < entity.element.getCurrentPosition().y)
+            {
+                this.behaviourYMovement = 1;
+            }
+            if ( curPos.y > entity.element.getCurrentPosition().y)
+            {
+                this.behaviourYMovement = -1;
+            }
+        }
+    }
+};
+
 function AttackShipBehaviour(_position, _rotation, _game, _selectBehaviour, _laserType)
 {
     ShipBehaviour.call(this, _position, _rotation, _game, _selectBehaviour);
@@ -313,3 +345,26 @@ function AttackShipBehaviour(_position, _rotation, _game, _selectBehaviour, _las
 
 AttackShipBehaviour.prototype = Object.create(ShipBehaviour.prototype);
 AttackShipBehaviour.prototype.constructor = AttackShipBehaviour;
+
+AttackShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _selected)
+{
+    var ships = _game.getEntitiesByBehaviourName(["ship"]);
+    for (var ind in ships)
+    {
+        var element = ships[ind].element;
+        if (element.isRemote())
+        {
+            var enemyData = element.cur_data;
+            if (enemyData && this.coneBehaviour.isInside(enemyData.position))
+            {
+                this.shoot(_data, _game);
+            }
+        }
+    }    
+};
+
+AttackShipBehaviour.prototype.remove = function(_game)
+{
+    ShipBehaviour.prototype.remove.call(this, _game);
+    _game.removeEntity(this.coneBehaviour.entityIndex);
+};

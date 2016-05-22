@@ -88,9 +88,9 @@ Game.prototype.addEntity = function(_drawable, _element, _remote)
     return this.scene.addEntity(_drawable, _element);
 };
 
-Game.prototype.getClosestEntity = function(_position, _elementTypes, _treshold)
+Game.prototype.getClosestEntity = function(_position, _elementTypes, _treshold, _allow_remotes)
 {
-    return this.scene.getClosestEntity(_position, _elementTypes, _treshold);
+    return this.scene.getClosestEntity(_position, _elementTypes, _treshold, _allow_remotes);
 }
 
 Game.prototype.removeEntity = function(_index)

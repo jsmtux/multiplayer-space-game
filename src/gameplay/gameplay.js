@@ -53,7 +53,7 @@ game.addLocalEntity(selectDrawable, selectBehaviour);
 
 game.controller.selectionStartCallback = function(position)
 {    
-    var closestSelectable = game.getClosestEntity(position, ["ship"]);
+    var closestSelectable = game.getClosestEntity(position, ["ship"], 100, false);
     if (closestSelectable)
     {
         selectBehaviour.setCurrentShip(closestSelectable.element);

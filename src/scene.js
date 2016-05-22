@@ -40,7 +40,7 @@ Scene.prototype.getEntity = function(_index)
     return this.entities[_index];
 };
 
-Scene.prototype.getClosestEntity = function(_point, _elementTypes, _treshold)
+Scene.prototype.getClosestEntity = function(_point, _elementTypes, _treshold, _allow_remote)
 {
     var ret = undefined;
     var min_distance = undefined;
@@ -50,13 +50,17 @@ Scene.prototype.getClosestEntity = function(_point, _elementTypes, _treshold)
     }
     for (var ind in this.entities)
     {
-        if (!this.entities[ind].element.isRemote() && _elementTypes.indexOf(this.entities[ind].element.getName()) !== -1)
+        if ((_allow_remote || !this.entities[ind].element.isRemote()) && _elementTypes.indexOf(this.entities[ind].element.getName()) !== -1)
         {
-            var cur_distance = Phaser.Point.distance(this.entities[ind].drawable.sprite.position, _point);
-            if (ret === undefined || cur_distance < min_distance)
+            var position = this.entities[ind].element.getCurrentPosition();
+            if (position && _point)
             {
-                ret = this.entities[ind];
-                min_distance = cur_distance;
+                var cur_distance = Phaser.Point.distance(position, _point);
+                if (ret === undefined || cur_distance < min_distance)
+                {
+                    ret = this.entities[ind];
+                    min_distance = cur_distance;
+                }
             }
         }
     }

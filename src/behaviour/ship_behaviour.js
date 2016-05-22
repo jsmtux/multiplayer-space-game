@@ -51,7 +51,7 @@ function ShipBehaviour(_position, _rotation, _game, _selectBehaviour)
     
     var barDrawable = new HealthBar(75);
     this.barBehaviour = new BarBehaviour(_position, barDrawable);
-    this.barBehaviour.attachToObject(this, new Phaser.Point(-25, -35));
+    this.barBehaviour.attachToObject(this, new Phaser.Point(-25, -45));
     _game.addLocalEntity(barDrawable, this.barBehaviour);
 
     this.initPhysicsParams.collisionCallback = function(event) {
@@ -367,4 +367,22 @@ AttackShipBehaviour.prototype.remove = function(_game)
 {
     ShipBehaviour.prototype.remove.call(this, _game);
     _game.removeEntity(this.coneBehaviour.entityIndex);
+};
+
+function DefendShipBehaviour(_position, _rotation, _game, _selectBehaviour)
+{
+    ShipBehaviour.call(this, _position, _rotation, _game, _selectBehaviour);  
+    var shieldDrawable = new Drawable('bin/shield_1.png', DrawableLayer.BACK);
+    this.shieldBehaviour = new ShieldBehaviour();
+    this.shieldBehaviour.attachToObject(this); 
+    _game.addLocalEntity(shieldDrawable, this.shieldBehaviour); 
+}
+
+DefendShipBehaviour.prototype = Object.create(ShipBehaviour.prototype);
+DefendShipBehaviour.prototype.constructor = DefendShipBehaviour;
+
+DefendShipBehaviour.prototype.remove = function(_game)
+{
+    ShipBehaviour.prototype.remove.call(this, _game);
+    _game.removeEntity(this.shieldBehaviour.entityIndex);
 };

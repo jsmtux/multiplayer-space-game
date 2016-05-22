@@ -156,7 +156,7 @@ function launchDefenseShip()
 {
     var currentMainShipAttributes = new ShipAttributes;
     game.addEntity(new Drawable('bin/defense_ship.png', DrawableLayer.MIDDLE),
-                new ShipBehaviour(startPoint, rotation, game, selectBehaviour));
+                new DefendShipBehaviour(startPoint, rotation, game, selectBehaviour));
 }
 
 function launchAttackShip()

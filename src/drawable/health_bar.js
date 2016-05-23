@@ -68,3 +68,8 @@ HealthBar.prototype.getNetworkData = function()
 {
     return {"progress":100};
 };
+
+HealthBar.prototype.isCreated = function()
+{
+    return this.created;
+}

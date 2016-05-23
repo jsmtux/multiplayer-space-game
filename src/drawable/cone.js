@@ -59,3 +59,8 @@ Cone.prototype.draw = function(_element, _time)
 Cone.prototype.getNetworkData = function()
 {
 };
+
+Cone.prototype.isCreated = function()
+{
+    return this.created;
+}

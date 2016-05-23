@@ -67,6 +67,7 @@ Drawable.prototype.draw = function(_element, _time)
         var data = _element.getInterpolatedData(_time);
         this.sprite.position = data.position;
         this.sprite.rotation = data.rotation;
+        this.sprite.scale.setTo(data.scale, data.scale);
     }
 };
 
@@ -74,3 +75,8 @@ Drawable.prototype.getNetworkData = function()
 {
     return {"texture":this.texture_path};
 };
+
+Drawable.prototype.isCreated = function()
+{
+    return this.created;
+}

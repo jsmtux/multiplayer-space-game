@@ -240,6 +240,9 @@ function CollectShipBehaviour(_position, _rotation, _game, _selectBehaviour, _mo
     var self = this;
     var shipCollisionCallback = this.initPhysicsParams.collisionCallback;
     
+    this.radarSize = 100;
+    this.setRadarBehaviour(_game, this.radarSize);
+    
     this.initPhysicsParams.collisionCallback = function(event) {
         shipCollisionCallback(event);
         var colBehaviour = event.body.parentBehaviour;
@@ -279,12 +282,26 @@ function CollectShipBehaviour(_position, _rotation, _game, _selectBehaviour, _mo
 CollectShipBehaviour.prototype = Object.create(ShipBehaviour.prototype);
 CollectShipBehaviour.prototype.constructor = CollectShipBehaviour;
 
+CollectShipBehaviour.prototype.setRadarBehaviour = function(_game, _size)
+{
+
+    var radarDrawable = new Drawable('bin/radar_bg.png', DrawableLayer.BACK);
+    this.bgBehaviour = new EmptyBehaviour(0, _size / 75);
+    this.bgBehaviour.attachToObject(this); 
+    _game.addLocalEntity(radarDrawable, this.bgBehaviour); 
+    
+    var radarDrawableTop = new Drawable('bin/radar_top.png', DrawableLayer.FRONT);
+    this.radarBehaviour = new RadarBehaviour(0, _size / 75);
+    this.radarBehaviour.attachToObject(this); 
+    _game.addLocalEntity(radarDrawableTop, this.radarBehaviour); 
+}
+
 CollectShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _selected)
 {
     if (!_selected)
     {
         var curPos = this.getCurrentPosition();
-        var entity = _game.getClosestEntity(curPos, ["coin_150", "coin_300", "coin_600"], 200, true);
+        var entity = _game.getClosestEntity(curPos, ["coin_150", "coin_300", "coin_600"], this.radarSize, true);
         if (entity !== undefined)
         {
             if ( curPos.x < entity.element.getCurrentPosition().x)
@@ -305,6 +322,13 @@ CollectShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, 
             }
         }
     }
+};
+
+CollectShipBehaviour.prototype.remove = function(_game)
+{
+    ShipBehaviour.prototype.remove.call(this, _game);
+    _game.removeEntity(this.radarBehaviour.entityIndex);
+    _game.removeEntity(this.bgBehaviour.entityIndex);
 };
 
 function AttackShipBehaviour(_position, _rotation, _game, _selectBehaviour, _laserType)
@@ -371,11 +395,13 @@ AttackShipBehaviour.prototype.remove = function(_game)
 
 function DefendShipBehaviour(_position, _rotation, _game, _selectBehaviour)
 {
-    ShipBehaviour.call(this, _position, _rotation, _game, _selectBehaviour);  
+    ShipBehaviour.call(this, _position, _rotation, _game, _selectBehaviour);
     var shieldDrawable = new Drawable('bin/shield_1.png', DrawableLayer.BACK);
-    this.shieldBehaviour = new ShieldBehaviour();
+    var shieldGlowDrawable = new Drawable('bin/shield_1_over.png', DrawableLayer.FRONT);
+    var shieldGroup = new DrawableGroup([shieldDrawable, shieldGlowDrawable]);
+    this.shieldBehaviour = new ShieldBehaviour(Math.radians( _rotation - 90));
     this.shieldBehaviour.attachToObject(this); 
-    _game.addLocalEntity(shieldDrawable, this.shieldBehaviour); 
+    _game.addLocalEntity(shieldGroup, this.shieldBehaviour); 
 }
 
 DefendShipBehaviour.prototype = Object.create(ShipBehaviour.prototype);

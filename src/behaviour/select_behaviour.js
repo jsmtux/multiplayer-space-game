@@ -22,6 +22,7 @@ SelectBehaviour.prototype.updateState = function(data, _game)
         this.attachToObject(undefined);
         data.position = new Phaser.Point(-100, -100);
     }
+    data.rotation += 0.05;
     return data;
 };
 

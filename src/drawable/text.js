@@ -106,3 +106,8 @@ Text.prototype.getNetworkData = function()
 {
     return {"font":this.image, "description":this.imageDesc, "text":this.text};
 }
+
+Text.prototype.isCreated = function()
+{
+    return this.created;
+}

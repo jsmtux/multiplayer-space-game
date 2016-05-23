@@ -6,7 +6,7 @@ function Entity(_drawable, _behaviour)
 
 Entity.prototype.remove = function(_game)
 {
-    if (this.drawable.created)
+    if (this.drawable.isCreated())
     {
         this.drawable.remove();
     }

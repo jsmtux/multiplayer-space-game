@@ -372,7 +372,7 @@ AttackShipBehaviour.prototype.constructor = AttackShipBehaviour;
 
 AttackShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _selected)
 {
-    var ships = _game.getEntitiesByBehaviourName(["ship"]);
+    var ships = _game.getEntitiesByBehaviourName(["ship", "base"]);
     for (var ind in ships)
     {
         var element = ships[ind].element;

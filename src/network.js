@@ -90,7 +90,9 @@ NetworkManager.prototype.registerElement = function(_drawableInfo, _behaviour, _
     if (!_remote)
     {
         var ind = this.lastNetworkId++;
-        this.elements[ind] = _behaviour;
+        this.elements[ind] = {};
+        this.elements[ind].behaviour = _behaviour;
+        this.elements[ind].drawable = _drawableInfo;
         var data = _drawableInfo.getNetworkData();
         data['layer'] = _drawableInfo.layer;
         data['type_name'] = _behaviour.getName();
@@ -106,6 +108,7 @@ NetworkManager.prototype.registerElement = function(_drawableInfo, _behaviour, _
                 data['collisionResponse'] = 0;
             }
             data['shapeType'] = _behaviour.initPhysicsParams.shapeType;
+            data['size'] = _behaviour.initPhysicsParams.size;
         }
         this.drawableInfo[ind] = data;
     }
@@ -156,7 +159,7 @@ NetworkManager.prototype.sendUpdate = function()
         //object updated
         for(var ind in this.elements)
         {
-            elementChanges[ind] = mergeObjects(elementChanges[ind], this.elements[ind].cur_data);
+            elementChanges[ind] = mergeObjects(elementChanges[ind], this.elements[ind].behaviour.cur_data);
         }
 
         this.drawableInfo = {};

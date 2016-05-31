@@ -15,6 +15,7 @@ function Drawable(_texture, _layer)
     this.created = false;
     this.preloaded = false;
     this.layer = _layer;
+    this.tint = undefined;
 }
 
 Drawable.prototype.preload = function(_game)
@@ -79,4 +80,9 @@ Drawable.prototype.getNetworkData = function()
 Drawable.prototype.isCreated = function()
 {
     return this.created;
+}
+
+Drawable.prototype.tint = function(_value)
+{
+    this.sprite.tint = _value;
 }

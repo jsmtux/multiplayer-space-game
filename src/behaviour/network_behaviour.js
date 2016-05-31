@@ -9,6 +9,7 @@ function NetworkBehaviour(collisionResponse, _data, _game)
     this.networkInfoReceived = false;
     this.initPhysicsParams.collisionResponse = collisionResponse;
     this.initPhysicsParams.shapeType = _data['shapeType'];
+    this.initPhysicsParams.size = _data['size']
     this.remote_type_name = _data["type_name"];
     this.game = _game;
 }

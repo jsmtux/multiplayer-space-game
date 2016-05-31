@@ -93,14 +93,22 @@ function onMoneyHit(value)
 
 if (isServer)
 {
-    game.addEntity(new Drawable('bin/base.png',DrawableLayer.FRONT), new BaseBehaviour(new Phaser.Point(54,300), setBaseHealth));
+    game.addEntity(new Drawable('bin/base_2.png',DrawableLayer.FRONT), new BaseBehaviour(new Phaser.Point(54,300), setBaseHealth));
+    var shieldDrawable = new Drawable('bin/baseArmor3.png',DrawableLayer.FRONT);
+    game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(50,130), shieldDrawable));
+    var shieldDrawable = new Drawable('bin/baseArmor4.png',DrawableLayer.FRONT);
+    game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(50,470), shieldDrawable));
+    var shieldDrawable = new Drawable('bin/baseArmor1.png',DrawableLayer.FRONT);
+    game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(50,220), shieldDrawable));
+    var shieldDrawable = new Drawable('bin/baseArmor2.png',DrawableLayer.FRONT);
+    game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(50,380), shieldDrawable));
     dropCoins();
 }
 else
 {
     game.networkManager.onConnection = function()
     {
-        game.addEntity(new Drawable('bin/base.png',DrawableLayer.FRONT), new BaseBehaviour(new Phaser.Point(resolution.x - 54,300), setBaseHealth, 180));
+        game.addEntity(new Drawable('bin/base_2.png',DrawableLayer.FRONT), new BaseBehaviour(new Phaser.Point(resolution.x - 54,300), setBaseHealth, 180));
     };
 }
 

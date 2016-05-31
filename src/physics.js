@@ -32,13 +32,11 @@ PhysicsEngine.prototype.registerElement = function(_behaviour, parameters)
         body = sphereBody;
     } else if (type === ShapeType.RECTANGLE)
     {
-        var x = 25.0;
-        var y = 250.0;
         if (parameters.mass)
         {
             mass = parameters.mass;
         }
-        var rectangleShape = new CANNON.Box(new CANNON.Vec3(x, y, y));
+        var rectangleShape = new CANNON.Box(new CANNON.Vec3(parameters.size.x, parameters.size.y, parameters.size.y));
         var rectangleBody = new CANNON.Body({mass : mass});
         rectangleBody.addShape(rectangleShape);
         body = rectangleBody;        

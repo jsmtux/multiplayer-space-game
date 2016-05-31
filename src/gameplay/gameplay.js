@@ -4,7 +4,25 @@ window.ondragstart = function() { return false; };
 var parameterString = decodeURIComponent(location.search.substr(1));
 var parameters = JSON.parse(parameterString);
 
-var isServer = parameters.type === "server";
+var GameModes = {
+    'sp': 1,
+    'server' : 2,
+    'client' : 3
+};
+
+var gameMode;
+if (parameters.type === "sp")
+{
+    gameMode = GameModes.sp;
+}
+else if (parameters.type === "server")
+{
+    gameMode = GameModes.server;
+}
+else
+{
+    gameMode = GameModes.client;
+}
 var matchName = parameters.name;
 var volume = parameters.volume;
 
@@ -45,7 +63,7 @@ function createCallback()
 }
 
 var scene = new Scene();
-var game = new PhaserGame(scene, isServer, matchName, resolution, {'preload': preloadCallback, 'create':createCallback, 'update' : updateCallback});
+var game = new PhaserGame(scene, gameMode, matchName, resolution, {'preload': preloadCallback, 'create':createCallback, 'update' : updateCallback});
 
 var selectDrawable = new Drawable('bin/crossair_friend_selected.png', DrawableLayer.BACK);
 var selectBehaviour = new SelectBehaviour(selectDrawable);
@@ -53,7 +71,7 @@ game.addLocalEntity(selectDrawable, selectBehaviour);
 
 game.controller.selectionStartCallback = function(position)
 {    
-    var closestSelectable = game.getClosestEntity(position, ["ship"], 100, false);
+    var closestSelectable = game.getClosestEntity(position, ["ship"], 100, BehaviourSide.Friend);
     if (closestSelectable)
     {
         selectBehaviour.setCurrentShip(closestSelectable.element);
@@ -91,25 +109,34 @@ function onMoneyHit(value)
     playerMoney.add(value);
 }
 
-if (isServer)
+function spawnBase(leftPosition)
 {
-    game.addEntity(new Drawable('bin/base_2.png',DrawableLayer.FRONT), new BaseBehaviour(new Phaser.Point(54,300), setBaseHealth));
-    var shieldDrawable = new Drawable('bin/baseArmor3.png',DrawableLayer.FRONT);
-    game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(50,130), shieldDrawable));
-    var shieldDrawable = new Drawable('bin/baseArmor4.png',DrawableLayer.FRONT);
-    game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(50,470), shieldDrawable));
-    var shieldDrawable = new Drawable('bin/baseArmor1.png',DrawableLayer.FRONT);
-    game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(50,220), shieldDrawable));
-    var shieldDrawable = new Drawable('bin/baseArmor2.png',DrawableLayer.FRONT);
-    game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(50,380), shieldDrawable));
-    dropCoins();
-}
-else
-{
-    game.networkManager.onConnection = function()
+    var ret = [];
+    var position;
+    var rotation;
+    var shieldPosition;
+    if (leftPosition)
     {
-        game.addEntity(new Drawable('bin/base_2.png',DrawableLayer.FRONT), new BaseBehaviour(new Phaser.Point(resolution.x - 54,300), setBaseHealth, 180));
-    };
+        position = 54;
+        rotation = 0;
+        shieldPosition = 50;
+    }
+    else
+    {
+        position = resolution.x - 54;
+        rotation = 180;
+        shieldPosition = resolution.x - 40;
+    }
+    ret.push(game.addEntity(new Drawable('bin/base_2.png',DrawableLayer.FRONT), new BaseBehaviour(new Phaser.Point(position,300), setBaseHealth, rotation)));
+    var shieldDrawable = new Drawable('bin/baseArmor3.png',DrawableLayer.FRONT);
+    ret.push(game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(shieldPosition,130), shieldDrawable, rotation)));
+    var shieldDrawable = new Drawable('bin/baseArmor4.png',DrawableLayer.FRONT);
+    ret.push(game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(shieldPosition,470), shieldDrawable, rotation)));
+    var shieldDrawable = new Drawable('bin/baseArmor1.png',DrawableLayer.FRONT);
+    ret.push(game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(shieldPosition,220), shieldDrawable, rotation)));
+    var shieldDrawable = new Drawable('bin/baseArmor2.png',DrawableLayer.FRONT);
+    ret.push(game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(shieldPosition,380), shieldDrawable, rotation)));
+    return ret;
 }
 
 function dropCoins()
@@ -142,7 +169,7 @@ function dropCoins()
 // Top level functions
 var startPoint;
 var rotation;
-if(isServer)
+if(gameMode === GameModes.server || gameMode === GameModes.sp)
 {
     startPoint = new Phaser.Point(150,300);
     rotation = 90;
@@ -172,4 +199,34 @@ function launchAttackShip()
     var currentMainShipAttributes = new ShipAttributes;
     game.addEntity(new Drawable('bin/attack_ship.png', DrawableLayer.MIDDLE),
                 new AttackShipBehaviour(startPoint, rotation, game, selectBehaviour, playerLaserTypes.Single));
+}
+
+if (gameMode === GameModes.server)
+{
+    spawnBase(true);
+    dropCoins();
+}
+else if (gameMode === GameModes.client)
+{
+    game.networkManager.onConnection = function()
+    {
+        game.addEntity(new Drawable('bin/base_2.png',DrawableLayer.FRONT), new BaseBehaviour(new Phaser.Point(resolution.x - 54,300), setBaseHealth, 180));
+    };
+}
+else if (gameMode === GameModes.sp)
+{
+    spawnBase(true);
+    var enemyBase = spawnBase(false);
+    for(var i in enemyBase)
+    {
+        game.getEntity(enemyBase[i]).element.setEnemy();
+    }
+    setInterval(function(){
+        game.addEntity(new Drawable('bin/attack_ship.png', DrawableLayer.MIDDLE),new AiAttackShipBehaviour(new Phaser.Point(resolution.x - 150,300), 270, game, selectBehaviour, playerLaserTypes.Single));
+    }, 4000);
+    dropCoins();
+}
+else
+{
+    console.error("Invalid game mode");
 }

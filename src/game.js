@@ -1,11 +1,14 @@
-function Game(_scene, _isServer, _matchName, _resolution, _callbacks)
+function Game(_scene, _gameMode, _matchName, _resolution, _callbacks)
 {
     this.scene = _scene;
     this.lastUpdated = getMillis();
     this.updateFps = 15;
     this.controller = new Controller();
     this.physicsEngine = new PhysicsEngine();
-    this.networkManager = new NetworkManager(_isServer, _matchName, this);
+    if (_gameMode !== GameModes.sp)
+    {
+        this.networkManager = new NetworkManager(_gameMode === GameModes.server, _matchName, this);
+    }
     this.finishedLoading = false;
     this.resolution = _resolution;
     this.properties = {};
@@ -47,7 +50,10 @@ Game.prototype.updateElements = function()
         this.scene.entities[entity].drawable.create(this);
         this.scene.entities[entity].element.updateData(this);
     }
-    this.networkManager.sendUpdate();
+    if (this.networkManager)
+    {
+        this.networkManager.sendUpdate();
+    }
 };
 
 Game.prototype.getTextureManager = function()
@@ -88,9 +94,9 @@ Game.prototype.addEntity = function(_drawable, _element, _remote)
     return this.scene.addEntity(_drawable, _element);
 };
 
-Game.prototype.getClosestEntity = function(_position, _elementTypes, _treshold, _allow_remotes)
+Game.prototype.getClosestEntity = function(_position, _elementTypes, _treshold, _entity_side)
 {
-    return this.scene.getClosestEntity(_position, _elementTypes, _treshold, _allow_remotes);
+    return this.scene.getClosestEntity(_position, _elementTypes, _treshold, _entity_side);
 }
 
 Game.prototype.removeEntity = function(_index)
@@ -100,7 +106,10 @@ Game.prototype.removeEntity = function(_index)
         var entity = this.scene.entities[_index];
         var remote = entity.element.isRemote();
         var id = entity.element.networkId;
-        this.networkManager.removeElement(id, remote);
+        if (this.networkManager)
+        {
+            this.networkManager.removeElement(id, remote);
+        }
     }
     this.scene.removeEntity(_index, this);
 };
@@ -117,7 +126,10 @@ Game.prototype.getEntitiesByBehaviourName = function(_names)
 
 Game.prototype.SignalPropertyChange = function(_name, _text)
 {
-    this.networkManager.SignalPropertyChange(_name, _text);
+    if (this.networkManager)
+    {
+        this.networkManager.SignalPropertyChange(_name, _text);
+    }
 };
 
 Game.prototype.ReceivePropertyChange = function(_name, _text)

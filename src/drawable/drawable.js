@@ -15,7 +15,6 @@ function Drawable(_texture, _layer)
     this.created = false;
     this.preloaded = false;
     this.layer = _layer;
-    this.tint = undefined;
 }
 
 Drawable.prototype.preload = function(_game)

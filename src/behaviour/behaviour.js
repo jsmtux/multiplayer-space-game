@@ -9,6 +9,7 @@ function Behaviour(_name)
     this.initData = new ElementRenderData();
     this.attachedObject = undefined;
     this.attachedObjectOffset;
+    this.localEnemy = false;
 }
 
 Behaviour.prototype.remove = function(_game)
@@ -52,6 +53,23 @@ Behaviour.prototype.isRemote = function()
 {
     return false;
 };
+
+var BehaviourSide = {
+    'Enemy' : 0,
+    'Friend' : 1,
+    'Any' : 2
+};
+
+Behaviour.prototype.getSide = function()
+{
+    var enemySide = this.isRemote() || this.localEnemy;
+    return enemySide? BehaviourSide.Enemy : BehaviourSide.Friend;
+}
+
+Behaviour.prototype.setEnemy = function()
+{
+    this.localEnemy = true;
+}
 
 Behaviour.prototype.getName = function()
 {

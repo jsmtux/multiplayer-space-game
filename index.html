@@ -46,12 +46,16 @@ and open the template in the editor.
             </div>
             <div class="mdl-card__actions">
                 <form>
+                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-sp">
+                        <input type="radio" id="option-sp" class="mdl-radio__button" name="options" value="1" checked>
+                        <span class="mdl-radio__label">Single player</span>
+                    </label>
                     <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-server">
-                        <input type="radio" id="option-server" class="mdl-radio__button" name="options" value="1" checked>
+                        <input type="radio" id="option-server" class="mdl-radio__button" name="options" value="2">
                         <span class="mdl-radio__label">Server</span>
                     </label>
                     <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-client">
-                        <input type="radio" id="option-client" class="mdl-radio__button" name="options" value="2">
+                        <input type="radio" id="option-client" class="mdl-radio__button" name="options" value="3">
                         <span class="mdl-radio__label">Client</span>
                     </label>
                 </form>
@@ -75,12 +79,17 @@ and open the template in the editor.
         
         <script>
             function onPlayClick(){
+                var spRadioButton = document.getElementById("option-sp");
                 var serverRadioButton = document.getElementById("option-server");
                 var nameTextInput = document.getElementById("textName");
                 var volumeInput = document.getElementById("volume-slider");
                 
                 var urlParameters = {};
-                if (serverRadioButton.checked)
+                if (spRadioButton.checked)
+                {
+                    urlParameters.type = "sp";
+                }
+                else if (serverRadioButton.checked)
                 {
                     urlParameters.type = "server";
                 }

@@ -7,7 +7,7 @@ function LaserBehaviour(_position, _rotation, _game)
     this.initData.rotation = _rotation;
     var self = this;
     this.initPhysicsParams.collisionCallback = function(event) {
-        if (event.body.parentBehaviour.isRemote())
+        if (event.body.parentBehaviour.getSide() !== self.getSide())
         {
             _game.removeEntity(self.entityIndex);
         }
@@ -29,13 +29,11 @@ LaserBehaviour.prototype.updateState = function(data, _game)
 function shoot_callback(_element, _data, _game)
 {
     var new_drawable = new Drawable('bin/laserRed.png');
-    _game.addEntity(new_drawable, new LaserBehaviour(_data.position, _data.rotation, _game));
+    var new_behaviour = new LaserBehaviour(_data.position, _data.rotation, _game)
+    new_behaviour.localEnemy = _element.localEnemy;
+    _game.addEntity(new_drawable, new_behaviour);
     
     _element.shoot_sound.play();
-}
-
-function BaseShipBehaviour(_position, _name, _game)
-{
 }
 
 function ShipBehaviour(_position, _rotation, _game, _selectBehaviour)
@@ -59,12 +57,12 @@ function ShipBehaviour(_position, _rotation, _game, _selectBehaviour)
         var colName = colBehaviour.getName();
         if (colName === "base")
         {
-            if (colBehaviour.isRemote())
+            if (colBehaviour.getSide() !== self.getSide())
             {
                 _game.removeEntity(self.entityIndex);
             }
         }
-        if (colName === "laser" && colBehaviour.isRemote())
+        if (colName === "laser" && colBehaviour.getSide() !== self.getSide())
         {
             self.health -= 25;
             if (self.health <= 0)
@@ -141,6 +139,11 @@ ShipBehaviour.prototype.remove = function(_game)
     _game.removeEntity(this.barBehaviour.entityIndex);
 };
 
+ShipBehaviour.prototype.setDestination = function(_position)
+{
+    this.targetDestination = _position;
+}
+
 ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
 {
 
@@ -151,7 +154,7 @@ ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
     var x_axis;
     var y_axis;
     
-    if (_game.controller.touchPos && this.selectBehaviour.isCurrentShip(this))
+    if (this.getSide() === BehaviourSide.Friend && _game.controller.touchPos && this.selectBehaviour.isCurrentShip(this))
     {
         this.targetDestination = new Phaser.Point(_game.controller.touchPos.x, _game.controller.touchPos.y);
     }
@@ -250,7 +253,7 @@ function CollectShipBehaviour(_position, _rotation, _game, _selectBehaviour, _mo
         
         if (colName === "base")
         {
-            if (!colBehaviour.isRemote())
+            if (colBehaviour.getSide() === self.getSide())
             {
                 var score_drawable = new Text("-"+self.currentMoney+"u", 'bin/carrier_command.png', 'bin/carrier_command.xml', 15);
                 _game.addLocalEntity(score_drawable, new FadingScoreBehaviour(self.cur_data.position, score_drawable), false);
@@ -301,7 +304,7 @@ CollectShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, 
     if (!_selected)
     {
         var curPos = this.getCurrentPosition();
-        var entity = _game.getClosestEntity(curPos, ["coin_150", "coin_300", "coin_600"], this.radarSize, true);
+        var entity = _game.getClosestEntity(curPos, ["coin_150", "coin_300", "coin_600"], this.radarSize, BehaviourSide.Friend);
         if (entity !== undefined)
         {
             if ( curPos.x < entity.element.getCurrentPosition().x)
@@ -345,11 +348,11 @@ function AttackShipBehaviour(_position, _rotation, _game, _selectBehaviour, _las
             break;
         case playerLaserTypes.Single:
             this.shootFilter = new RepeatEliminationFilter(shoot_callback, 10);
-            laserRange = 100;
+            laserRange = 150;
             break;
         case playerLaserTypes.Double:
             this.shootFilter = new RepeatEliminationFilter(shoot_callback, 6);
-            laserRange = 175;
+            laserRange = 200;
             break;
         case playerLaserTypes.Triple:
             this.shootFilter = new RepeatEliminationFilter(shoot_callback, 3);
@@ -376,7 +379,7 @@ AttackShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _
     for (var ind in ships)
     {
         var element = ships[ind].element;
-        if (element.isRemote())
+        if (element.getSide() !== this.getSide())
         {
             var enemyData = element.cur_data;
             if (enemyData && this.coneBehaviour.isInside(enemyData.position))

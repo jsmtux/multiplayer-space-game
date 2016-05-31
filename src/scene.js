@@ -40,7 +40,7 @@ Scene.prototype.getEntity = function(_index)
     return this.entities[_index];
 };
 
-Scene.prototype.getClosestEntity = function(_point, _elementTypes, _treshold, _allow_remote)
+Scene.prototype.getClosestEntity = function(_point, _elementTypes, _treshold, _entity_side)
 {
     var ret = undefined;
     var min_distance = undefined;
@@ -50,7 +50,8 @@ Scene.prototype.getClosestEntity = function(_point, _elementTypes, _treshold, _a
     }
     for (var ind in this.entities)
     {
-        if ((_allow_remote || !this.entities[ind].element.isRemote()) && _elementTypes.indexOf(this.entities[ind].element.getName()) !== -1)
+        if ((_entity_side === BehaviourSide.Any || this.entities[ind].element.getSide() === _entity_side)
+                && _elementTypes.indexOf(this.entities[ind].element.getName()) !== -1)
         {
             var position = this.entities[ind].element.getCurrentPosition();
             if (position && _point)

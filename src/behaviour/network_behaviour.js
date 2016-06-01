@@ -1,6 +1,6 @@
 //Behaviour used for representing remote elements
 //updateNetworkInfo is called from the network manager when new info is received
-function NetworkBehaviour(collisionResponse, _data, _game)
+function NetworkBehaviour(collisionResponse, _data, _game, _drawable)
 {
     Behaviour.call(this, "network");
     asPhysical.call(this);
@@ -12,6 +12,7 @@ function NetworkBehaviour(collisionResponse, _data, _game)
     this.initPhysicsParams.size = _data['size']
     this.remote_type_name = _data["type_name"];
     this.game = _game;
+    this.drawable = _drawable;
 }
 
 NetworkBehaviour.prototype = Object.create(Behaviour.prototype);
@@ -43,22 +44,26 @@ NetworkBehaviour.prototype.updateState = function(data, _game)
     }
 }
 
-NetworkBehaviour.prototype.updateNetworkInfo = function(NetworkInfo)
+NetworkBehaviour.prototype.updateNetworkInfo = function(behaviourInfo, drawableInfo)
 {
-    if (typeof NetworkInfo === "string" && NetworkInfo === "deleted")
+    if (typeof behaviourInfo === "string" && behaviourInfo === "deleted")
     {
         //Remove game element without sending network
     }
     else
     {
-        if (NetworkInfo.position)
+        if (behaviourInfo.position)
         {
-            this.netPos = NetworkInfo.position;
+            this.netPos = behaviourInfo.position;
             this.networkInfoReceived = true;
         }
-        if (NetworkInfo.rotation)
+        if (behaviourInfo.rotation)
         {
-            this.netRotation = NetworkInfo.rotation;
+            this.netRotation = behaviourInfo.rotation;
+        }
+        if (drawableInfo.tint)
+        {
+            this.drawable.tint(drawableInfo.tint);
         }
     }
 }

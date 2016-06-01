@@ -210,7 +210,7 @@ else if (gameMode === GameModes.client)
 {
     game.networkManager.onConnection = function()
     {
-        game.addEntity(new Drawable('bin/base_2.png',DrawableLayer.FRONT), new BaseBehaviour(new Phaser.Point(resolution.x - 54,300), setBaseHealth, 180));
+        spawnBase(false);
     };
 }
 else if (gameMode === GameModes.sp)

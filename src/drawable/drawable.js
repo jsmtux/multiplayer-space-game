@@ -83,5 +83,18 @@ Drawable.prototype.isCreated = function()
 
 Drawable.prototype.tint = function(_value)
 {
-    this.sprite.tint = _value;
+    if (this.sprite)
+    {
+        this.sprite.tint = _value;
+    }
+}
+
+Drawable.prototype.getTint = function()
+{
+    var ret = undefined;
+    if (this.sprite)
+    {
+        ret = this.sprite.tint;
+    }
+    return ret;
 }

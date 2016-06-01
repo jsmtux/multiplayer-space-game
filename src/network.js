@@ -135,6 +135,7 @@ NetworkManager.prototype.sendUpdate = function()
         var toSend = {};
         
         var elementChanges = {};
+        var drawableChanges = {};
         var isReliable = false;
         
         //object deletion
@@ -160,10 +161,13 @@ NetworkManager.prototype.sendUpdate = function()
         for(var ind in this.elements)
         {
             elementChanges[ind] = mergeObjects(elementChanges[ind], this.elements[ind].behaviour.cur_data);
+            drawableChanges[ind] = {};
+            drawableChanges[ind].tint = this.elements[ind].drawable.getTint();
         }
 
         this.drawableInfo = {};
         toSend['element_changes'] = elementChanges;
+        toSend['drawable_changes'] = drawableChanges;
     
         //Random variable updating
         toSend['game_info'] = this.buffered_property_updates;
@@ -238,6 +242,7 @@ NetworkManager.prototype.receiveNetworkUpdate = function(_data)
     }
     
     var elementChanges = data['element_changes'];
+    var drawableChanges = data['drawable_changes'];
     for (element in elementChanges)
     {
         // Check if this is a new element
@@ -250,15 +255,17 @@ NetworkManager.prototype.receiveNetworkUpdate = function(_data)
                 {
                     collisionResponse = elementChanges[element].collisionResponse;
                 }
-                var behaviour = new NetworkBehaviour(collisionResponse, elementChanges[element], this.game);
-                this.game.addEntity(new Drawable(elementChanges[element].texture, elementChanges[element].layer), behaviour, true);
+                var drawable = new Drawable(elementChanges[element].texture, elementChanges[element].layer);
+                var behaviour = new NetworkBehaviour(collisionResponse, elementChanges[element], this.game, drawable);
+                this.game.addEntity(drawable, behaviour, true);
                 this.remote_elements[element] = behaviour;
             }
             if (elementChanges[element].font !== undefined)
             {
                 var collisionResponse = 0;
-                var behaviour = new NetworkBehaviour(collisionResponse, elementChanges[element], this.game);
-                this.game.addEntity(new Text(elementChanges[element].text, elementChanges[element].font, elementChanges[element].description), behaviour, true);
+                var drawable = new Text(elementChanges[element].text, elementChanges[element].font, elementChanges[element].description);
+                var behaviour = new NetworkBehaviour(collisionResponse, elementChanges[element], this.game, drawable);
+                this.game.addEntity(drawable, behaviour, true);
                 this.remote_elements[element] = behaviour;
             }
         }
@@ -276,7 +283,7 @@ NetworkManager.prototype.receiveNetworkUpdate = function(_data)
                 // The updated info is not reliable. If we are receiving a previous package it will be ignored
                 if (this.lastPacketReceived === messageControl.packet_id)
                 {
-                    this.remote_elements[element].updateNetworkInfo(elementChanges[element]);
+                    this.remote_elements[element].updateNetworkInfo(elementChanges[element], drawableChanges[element]);
                 }
             }
         }

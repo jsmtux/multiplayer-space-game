@@ -94,6 +94,11 @@ Game.prototype.addEntity = function(_drawable, _element, _remote)
     return this.scene.addEntity(_drawable, _element);
 };
 
+Game.prototype.getCloseEntities = function(_point, _elementTypes, _treshold, _entity_side)
+{
+    return this.scene.getCloseEntities(_point, _elementTypes, _treshold, _entity_side);
+}
+
 Game.prototype.getClosestEntity = function(_position, _elementTypes, _treshold, _entity_side)
 {
     return this.scene.getClosestEntity(_position, _elementTypes, _treshold, _entity_side);

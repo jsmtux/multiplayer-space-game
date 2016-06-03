@@ -221,9 +221,9 @@ else if (gameMode === GameModes.sp)
     {
         game.getEntity(enemyBase[i]).element.setEnemy();
     }
-    setInterval(function(){
+    /*setInterval(function(){
         game.addEntity(new Drawable('bin/attack_ship.png', DrawableLayer.MIDDLE),new AiAttackShipBehaviour(new Phaser.Point(resolution.x - 150,300), 270, game, selectBehaviour, playerLaserTypes.Single));
-    }, 4000);
+    }, 4000);*/
     dropCoins();
 }
 else

@@ -236,6 +236,11 @@ ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
     }
 };
 
+ShipBehaviour.prototype.getShipType = function()
+{
+    return undefined;
+};
+
 function CollectShipBehaviour(_position, _rotation, _game, _selectBehaviour, _moneyCallback)
 {
     ShipBehaviour.call(this, _position, _rotation, _game, _selectBehaviour);
@@ -334,6 +339,11 @@ CollectShipBehaviour.prototype.remove = function(_game)
     _game.removeEntity(this.bgBehaviour.entityIndex);
 };
 
+CollectShipBehaviour.prototype.getShipType = function()
+{
+    return "CollectShip";
+};
+
 function AttackShipBehaviour(_position, _rotation, _game, _selectBehaviour, _laserType)
 {
     ShipBehaviour.call(this, _position, _rotation, _game, _selectBehaviour);
@@ -396,6 +406,11 @@ AttackShipBehaviour.prototype.remove = function(_game)
     _game.removeEntity(this.coneBehaviour.entityIndex);
 };
 
+AttackShipBehaviour.prototype.getShipType = function()
+{
+    return "AttackShip";
+};
+
 function DefendShipBehaviour(_position, _rotation, _game, _selectBehaviour)
 {
     ShipBehaviour.call(this, _position, _rotation, _game, _selectBehaviour);
@@ -403,8 +418,13 @@ function DefendShipBehaviour(_position, _rotation, _game, _selectBehaviour)
     var shieldGlowDrawable = new Drawable('bin/shield_1_over.png', DrawableLayer.FRONT);
     var shieldGroup = new DrawableGroup([shieldDrawable, shieldGlowDrawable]);
     this.shieldBehaviour = new ShieldBehaviour(Math.radians( _rotation - 90));
-    this.shieldBehaviour.attachToObject(this); 
+    this.shieldBehaviour.attachToObject(this);
     _game.addLocalEntity(shieldGroup, this.shieldBehaviour); 
+    
+    this.lineDrawable = new Line(new Phaser.Point(0,0), new Phaser.Point(0,0));
+    this.lineBehaviour = new ShieldBehaviour(0);
+    //this.lineBehaviour.attachToObject(this);
+    _game.addLocalEntity(this.lineDrawable, this.lineBehaviour);
 }
 
 DefendShipBehaviour.prototype = Object.create(ShipBehaviour.prototype);
@@ -414,4 +434,29 @@ DefendShipBehaviour.prototype.remove = function(_game)
 {
     ShipBehaviour.prototype.remove.call(this, _game);
     _game.removeEntity(this.shieldBehaviour.entityIndex);
+};
+
+DefendShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _selected)
+{
+    var found = false;
+    var ships = _game.getCloseEntities(_data.position, ["ship"], 200, BehaviourSide.Any);
+    for (var ind in ships)
+    {
+        var element = ships[ind].element;
+        if (element.getShipType() == "DefendShip" && element !== this)
+        {
+            console.log("Defense ship is close");
+            found = true;
+            this.lineDrawable.setLine(_data.position, element.getCurrentPosition());
+        }
+    }
+    if (!found)
+    {
+        this.lineDrawable.resetLine();
+    }
+};
+
+DefendShipBehaviour.prototype.getShipType = function()
+{
+    return "DefendShip";
 };

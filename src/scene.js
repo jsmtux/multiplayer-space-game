@@ -40,6 +40,36 @@ Scene.prototype.getEntity = function(_index)
     return this.entities[_index];
 };
 
+Scene.prototype.getCloseEntities = function(_point, _elementTypes, _treshold, _entity_side)
+{
+    var ret = [];
+    if (_treshold === undefined)
+    {
+        _treshold = 50;
+    }
+    if (_entity_side === undefined)
+    {
+        _entity_side = BehaviourSide.Any;
+    }
+    for (var ind in this.entities)
+    {
+        if ((_entity_side === BehaviourSide.Any || this.entities[ind].element.getSide() === _entity_side)
+                && _elementTypes.indexOf(this.entities[ind].element.getName()) !== -1)
+        {
+            var position = this.entities[ind].element.getCurrentPosition();
+            if (position && _point)
+            {
+                var cur_distance = Phaser.Point.distance(position, _point);
+                if (cur_distance < _treshold)
+                {
+                    ret.push(this.entities[ind]);
+                }
+            }
+        }
+    }
+    return ret;
+};
+
 Scene.prototype.getClosestEntity = function(_point, _elementTypes, _treshold, _entity_side)
 {
     var ret = undefined;
@@ -47,6 +77,10 @@ Scene.prototype.getClosestEntity = function(_point, _elementTypes, _treshold, _e
     if (_treshold === undefined)
     {
         _treshold = 50;
+    }
+    if (_entity_side === undefined)
+    {
+        _entity_side = BehaviourSide.Any;
     }
     for (var ind in this.entities)
     {

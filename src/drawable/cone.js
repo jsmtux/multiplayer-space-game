@@ -21,7 +21,7 @@ Cone.prototype.create = function(_game)
         this.sprite = phaser_game.make.graphics(100, 200);
 
         // set a fill and line style
-        this.sprite.beginFill(0xAA1100);
+        this.sprite.beginFill(0xAA1100, 0.4);
 
         // draw a shape
         var numSegments = 10;

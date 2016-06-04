@@ -3,7 +3,7 @@ function Line(_startPos, _endPos)
     this.startPos = _startPos;
     this.endPos = _endPos;
     this.created = false;
-    
+    this.needsRedraw = true;
     this.sprite;
 }
 
@@ -30,23 +30,28 @@ Line.prototype.create = function(_game)
 
 Line.prototype.redrawLine = function()
 {
-    this.sprite.clear();
-    this.sprite.lineStyle(10, 0xffd900, 1);
-    this.sprite.moveTo(this.startPos.x, this.startPos.y);
-    this.sprite.lineTo(this.endPos.x, this.endPos.y);
-    this.sprite.endFill();
+    if (this.sprite)
+    {
+        this.sprite.clear();
+        this.sprite.lineStyle(10, 0xffd900, 1);
+        this.sprite.moveTo(this.startPos.x, this.startPos.y);
+        this.sprite.lineTo(this.endPos.x, this.endPos.y);
+        this.sprite.endFill();
+        this.needsRedraw = false;
+    }
 };
 
 Line.prototype.setLine = function(_startPos, _endPos)
 {
     this.startPos = _startPos;
     this.endPos = _endPos;
-    this.redrawLine();
+    this.needsRedraw = true;
 }
 
 Line.prototype.resetLine = function()
 {
     this.setLine(new Phaser.Point(0,0), new Phaser.Point(0,0));
+    this.needsRedraw = true;
 }
 
 Line.prototype.remove = function()
@@ -61,6 +66,10 @@ Line.prototype.draw = function(_element, _time)
 {
     if (this.created)
     {
+        if (this.needsRedraw)
+        {
+            this.redrawLine();
+        }
         var data = _element.getInterpolatedData(_time);
         this.sprite.position = data.position;
         this.sprite.rotation = data.rotation;

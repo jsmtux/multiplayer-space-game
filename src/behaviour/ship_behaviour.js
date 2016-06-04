@@ -421,38 +421,54 @@ function DefendShipBehaviour(_position, _rotation, _game, _selectBehaviour)
     this.shieldBehaviour.attachToObject(this);
     _game.addLocalEntity(shieldGroup, this.shieldBehaviour); 
     
-    this.lineDrawable = new Line(new Phaser.Point(0,0), new Phaser.Point(0,0));
-    this.lineBehaviour = new ShieldBehaviour(0);
-    //this.lineBehaviour.attachToObject(this);
-    _game.addLocalEntity(this.lineDrawable, this.lineBehaviour);
+    this.lines = [];
 }
 
 DefendShipBehaviour.prototype = Object.create(ShipBehaviour.prototype);
 DefendShipBehaviour.prototype.constructor = DefendShipBehaviour;
 
+DefendShipBehaviour.prototype.getLine = function(index, _game)
+{
+    if (this.lines.length <= index)
+    {
+        var drawable = new Line(new Phaser.Point(0,0), new Phaser.Point(0,0));
+        var behaviour = new ShieldBehaviour(0);
+        this.lines.push(
+                {'drawable':drawable,
+                    'behaviour': behaviour});
+        
+        _game.addLocalEntity(drawable, behaviour);
+    }
+    return this.lines[index];
+}
+
 DefendShipBehaviour.prototype.remove = function(_game)
 {
     ShipBehaviour.prototype.remove.call(this, _game);
     _game.removeEntity(this.shieldBehaviour.entityIndex);
+    for (var i in this.lines)
+    {
+        _game.removeEntity(this.lines[i].behaviour.entityIndex);
+    }
 };
 
 DefendShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _selected)
 {
-    var found = false;
     var ships = _game.getCloseEntities(_data.position, ["ship"], 200, BehaviourSide.Any);
-    for (var ind in ships)
+    var max = Math.max(ships.length, this.lines.length);
+    for (var ind = 0; ind < max; ind ++)
     {
-        var element = ships[ind].element;
-        if (element.getShipType() == "DefendShip" && element !== this)
+        var line = this.getLine(ind, _game);
+        line.drawable.resetLine();
+        if (ind < ships.length)
         {
-            console.log("Defense ship is close");
-            found = true;
-            this.lineDrawable.setLine(_data.position, element.getCurrentPosition());
+            var element = ships[ind].element;
+            if ((element.getShipType === undefined || element.getShipType() === "DefendShip")
+                    && element !== this)
+            {
+                line.drawable.setLine(_data.position, element.getCurrentPosition());
+            }
         }
-    }
-    if (!found)
-    {
-        this.lineDrawable.resetLine();
     }
 };
 

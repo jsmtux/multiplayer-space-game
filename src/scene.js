@@ -42,7 +42,7 @@ Scene.prototype.getEntity = function(_index)
 
 Scene.prototype.getCloseEntities = function(_point, _elementTypes, _treshold, _entity_side)
 {
-    var ret = [];
+    var tmp = [];
     if (_treshold === undefined)
     {
         _treshold = 50;
@@ -62,10 +62,17 @@ Scene.prototype.getCloseEntities = function(_point, _elementTypes, _treshold, _e
                 var cur_distance = Phaser.Point.distance(position, _point);
                 if (cur_distance < _treshold)
                 {
-                    ret.push(this.entities[ind]);
+                    tmp.push([cur_distance, this.entities[ind]]);
                 }
             }
         }
+    }
+    tmp.sort(function(a, b){return a[0] < b[0] ? 1 : -1});
+    
+    var ret = [];
+    for (var i in tmp)
+    {
+        ret.push(tmp[i][1]);
     }
     return ret;
 };

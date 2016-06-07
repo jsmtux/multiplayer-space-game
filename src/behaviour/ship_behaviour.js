@@ -427,6 +427,8 @@ function DefendShipBehaviour(_position, _rotation, _game, _selectBehaviour)
 DefendShipBehaviour.prototype = Object.create(ShipBehaviour.prototype);
 DefendShipBehaviour.prototype.constructor = DefendShipBehaviour;
 
+DefendShipBehaviour.shieldDistance = 200;
+
 DefendShipBehaviour.prototype.getLine = function(index, _game)
 {
     if (this.lines.length <= index)
@@ -454,7 +456,7 @@ DefendShipBehaviour.prototype.remove = function(_game)
 
 DefendShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _selected)
 {
-    var ships = _game.getCloseEntities(_data.position, ["ship"], 200, BehaviourSide.Any);
+    var ships = _game.getCloseEntities(_data.position, ["ship"], DefendShipBehaviour.shieldDistance, BehaviourSide.Any);
     var max = Math.max(ships.length, this.lines.length);
     for (var ind = 0; ind < max; ind ++)
     {

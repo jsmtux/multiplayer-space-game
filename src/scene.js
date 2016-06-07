@@ -40,7 +40,7 @@ Scene.prototype.getEntity = function(_index)
     return this.entities[_index];
 };
 
-Scene.prototype.getCloseEntities = function(_point, _elementTypes, _treshold, _entity_side)
+Scene.prototype.getCloseEntities = function(_point, _elementTypes, _treshold, _entity_side, _ordered)
 {
     var tmp = [];
     if (_treshold === undefined)
@@ -67,13 +67,17 @@ Scene.prototype.getCloseEntities = function(_point, _elementTypes, _treshold, _e
             }
         }
     }
-    tmp.sort(function(a, b){return a[0] < b[0] ? 1 : -1});
-    
+    if (_ordered === true)
+    {
+        tmp.sort(function(a, b){return a[0] < b[0] ? 1 : -1});
+    }
+
     var ret = [];
     for (var i in tmp)
     {
         ret.push(tmp[i][1]);
     }
+
     return ret;
 };
 

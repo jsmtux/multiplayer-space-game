@@ -33,7 +33,7 @@ Line.prototype.redrawLine = function()
     if (this.sprite)
     {
         this.sprite.clear();
-        this.sprite.lineStyle(10, 0xffd900, 1);
+        this.sprite.lineStyle(10, 0x0f9412, 0.4);
         this.sprite.moveTo(this.startPos.x, this.startPos.y);
         this.sprite.lineTo(this.endPos.x, this.endPos.y);
         this.sprite.endFill();

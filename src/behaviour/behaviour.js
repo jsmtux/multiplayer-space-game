@@ -103,7 +103,11 @@ Behaviour.prototype.getInterpolatedData = function(_time)
             Phaser.Point.add(ret.position, this.attachedObjectOffset, ret.position);
         }
         ret.scale = interpolateNumber(this.old_data.scale, this.cur_data.scale, _time);
-        ret.rotation = interpolateNumber(this.old_data.rotation, this.cur_data.rotation, _time);
+        
+        var old_rotation = Math.fmod(this.old_data.rotation, Math.doublePI);
+        var cur_rotation = Math.fmod(this.cur_data.rotation, Math.doublePI);
+        
+        ret.rotation = interpolateNumber(old_rotation, cur_rotation, _time);
     }
     return ret;
 };

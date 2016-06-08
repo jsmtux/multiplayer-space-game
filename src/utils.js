@@ -14,6 +14,10 @@ Math.degrees = function(radians) {
   return radians * 180 / Math.PI;
 };
 
+Math.fmod = function (a,b) { return Number((a - (Math.floor(a / b) * b)).toPrecision(8)); };
+
+Math.doublePI = Math.PI * 2;
+
 function TimeFilter(_game)
 {
 }

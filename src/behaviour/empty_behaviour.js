@@ -22,6 +22,11 @@ EmptyBehaviour.prototype.setPosition = function(_position)
     this.position = _position;
 }
 
+EmptyBehaviour.prototype.setRotation = function(_rotation)
+{
+    this.rotation = _rotation;
+}
+
 EmptyBehaviour.prototype.updateState = function(data, _game)
 {
     data.rotation = this.rotation;

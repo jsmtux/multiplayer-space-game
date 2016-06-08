@@ -37,10 +37,17 @@ PhysicsEngine.prototype.registerElement = function(_behaviour, parameters)
         {
             mass = parameters.mass;
         }
-        var rectangleShape = new CANNON.Box(new CANNON.Vec3(parameters.size.x, parameters.size.y, parameters.size.y));
+        var rectangleShape = new CANNON.Box(new CANNON.Vec3(parameters.size.x, parameters.size.y, 1.0));
         var rectangleBody = new CANNON.Body({mass : mass});
         rectangleBody.addShape(rectangleShape);
-        body = rectangleBody;        
+        body = rectangleBody;
+        body.updateBoxSize = function(width, height)
+        {
+            rectangleShape.halfExtents.set(width,height,1.0);
+            rectangleShape.updateConvexPolyhedronRepresentation();
+            rectangleShape.updateBoundingSphereRadius();
+            rectangleBody.computeAABB();
+        }     
     }
     var position = new CANNON.Vec3(0,0,0);
     if (parameters.position)
@@ -71,9 +78,15 @@ PhysicsEngine.prototype.updateElement = function(_behaviour, _data, _game)
     _data.position = new Phaser.Point(phisPos.x, phisPos.y);
 };
 
+PhysicsEngine.prototype.updateElementSize = function(_behaviour, _width, _height)
+{
+    _behaviour.physicsData.updateBoxSize(_width, _height);
+};
+
 PhysicsEngine.prototype.updateInfo = function(_behaviour, _data, _game)
 {
     _behaviour.physicsData.position = new CANNON.Vec3(_data.position.x,_data.position.y,0);
+    _behaviour.physicsData.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1), _data.rotation);
 };
 
 PhysicsEngine.prototype.updateSimulation = function(_timeStep)
@@ -128,9 +141,17 @@ PhysicsEngineDebug.prototype.updateElement = function(_behaviour, _data, _game)
     this.game.getEntity(this.drawableElements[_behaviour.entityIndex]).element.setPosition(_data.position);
 };
 
+PhysicsEngineDebug.prototype.updateElementSize = function(_behaviour, _width, _height)
+{
+    PhysicsEngine.prototype.updateElementSize.call(this, _behaviour, _width, _height);
+    this.game.getEntity(this.drawableElements[_behaviour.entityIndex]).drawable.setSize(_width, _height);
+};
+
 PhysicsEngineDebug.prototype.updateInfo = function(_behaviour, _data, _game)
 {
-    PhysicsEngine.prototype.updateInfo.call(this, _behaviour, _data, _game)
+    PhysicsEngine.prototype.updateInfo.call(this, _behaviour, _data, _game);
+    this.game.getEntity(this.drawableElements[_behaviour.entityIndex]).element.setPosition(_data.position);
+    this.game.getEntity(this.drawableElements[_behaviour.entityIndex]).element.setRotation(_data.rotation);
 };
 
 PhysicsEngineDebug.prototype.updateSimulation = function(_timeStep)

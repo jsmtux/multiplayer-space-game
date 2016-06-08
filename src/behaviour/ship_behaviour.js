@@ -277,6 +277,10 @@ function CollectShipBehaviour(_position, _rotation, _game, _selectBehaviour, _mo
             
             self.collect_sound.play();
         }
+        if (colName === "shield_wall_element")
+        {
+            console.log("Ook!!");
+        }
     };
     
     this.currentMoney = 0;
@@ -434,7 +438,7 @@ DefendShipBehaviour.prototype.getLine = function(index, _game)
     if (this.lines.length <= index)
     {
         var drawable = new Line(new Phaser.Point(0,0), new Phaser.Point(0,0));
-        var behaviour = new ShieldBehaviour(0);
+        var behaviour = new ShieldWallBehaviour(drawable);
         this.lines.push(
                 {'drawable':drawable,
                     'behaviour': behaviour});
@@ -461,14 +465,14 @@ DefendShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _
     for (var ind = 0; ind < max; ind ++)
     {
         var line = this.getLine(ind, _game);
-        line.drawable.resetLine();
+        line.behaviour.resetLine();
         if (ind < ships.length)
         {
             var element = ships[ind].element;
             if ((element.getShipType === undefined || element.getShipType() === "DefendShip")
                     && element !== this)
             {
-                line.drawable.setLine(_data.position, element.getCurrentPosition());
+                line.behaviour.setLine(_data.position, element.getCurrentPosition(), _game);
             }
         }
     }

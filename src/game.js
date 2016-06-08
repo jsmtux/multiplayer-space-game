@@ -4,7 +4,14 @@ function Game(_scene, _gameMode, _matchName, _resolution, _callbacks)
     this.lastUpdated = getMillis();
     this.updateFps = 15;
     this.controller = new Controller();
-    this.physicsEngine = new PhysicsEngine();
+    if (Configuration.physicsDebug)
+    {
+        this.physicsEngine = new PhysicsEngineDebug(this);
+    }
+    else
+    {
+        this.physicsEngine = new PhysicsEngine();
+    }
     if (_gameMode !== GameModes.sp)
     {
         this.networkManager = new NetworkManager(_gameMode === GameModes.server, _matchName, this);

@@ -16,7 +16,7 @@ Behaviour.prototype.remove = function(_game)
 {
     if (this.physicsData !== undefined)
     {
-        _game.getPhysicsEngine().unRegisterElement(this.physicsData);
+        _game.getPhysicsEngine().unRegisterElement(this);
     }
 };
 

@@ -45,6 +45,7 @@ PhaserGame.prototype.preload = function()
     this.backLayer = this.phaser_game.add.group();
     this.middleLayer = this.phaser_game.add.group();
     this.frontLayer = this.phaser_game.add.group();
+    this.debugLayer = this.phaser_game.add.group();
 };
 
 PhaserGame.prototype.create = function()

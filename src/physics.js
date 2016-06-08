@@ -16,6 +16,7 @@ PhysicsEngine.prototype.registerElement = function(_behaviour, parameters)
     if (type === undefined)
     {
         type = ShapeType.SPHERE;
+        parameters.shapeType = ShapeType.SPHERE;
     }
     var body;
     if (type === ShapeType.SPHERE)
@@ -56,11 +57,12 @@ PhysicsEngine.prototype.registerElement = function(_behaviour, parameters)
         body.addEventListener("collide", parameters.collisionCallback);
     }
     body.parentBehaviour = _behaviour;
+    return body;
 };
 
-PhysicsEngine.prototype.unRegisterElement = function(_body)
+PhysicsEngine.prototype.unRegisterElement = function(_behaviour)
 {
-    this.bodiesToRemove.push(_body);
+    this.bodiesToRemove.push(_behaviour.physicsData);
 };
 
 PhysicsEngine.prototype.updateElement = function(_behaviour, _data, _game)
@@ -82,4 +84,56 @@ PhysicsEngine.prototype.updateSimulation = function(_timeStep)
         this.world.remove(this.bodiesToRemove[i]);
     }
     this.bodiesToRemove = [];
+};
+
+function PhysicsEngineDebug(_game)
+{
+    PhysicsEngine.call(this);
+    this.drawableElements = {};
+    this.game = _game;
+}
+
+PhysicsEngineDebug.prototype = Object.create(PhysicsEngine.prototype);
+PhysicsEngineDebug.prototype.constructor = PhysicsEngineDebug;
+
+PhysicsEngineDebug.prototype.registerElement = function(_behaviour, parameters)
+{
+    var body = PhysicsEngine.prototype.registerElement.call(this, _behaviour, parameters);
+    var drawable;
+    switch(parameters.shapeType)
+    {
+        case ShapeType.SPHERE:
+            var drawable = new Circle(25);
+            break;
+        case ShapeType.RECTANGLE:
+            var drawable = new Rect(parameters.size.x, parameters.size.y);
+            break;
+    }
+    
+    var behaviour = new EmptyBehaviour();
+    
+    this.drawableElements[_behaviour.entityIndex] = this.game.addLocalEntity(drawable, behaviour);
+    return body;
+}
+
+PhysicsEngineDebug.prototype.unRegisterElement = function(_behaviour)
+{
+    PhysicsEngine.prototype.unRegisterElement.call(this, _behaviour);
+    this.game.removeEntity(this.drawableElements[_behaviour.entityIndex]);
+};
+
+PhysicsEngineDebug.prototype.updateElement = function(_behaviour, _data, _game)
+{
+    PhysicsEngine.prototype.updateElement.call(this, _behaviour, _data, _game);
+    this.game.getEntity(this.drawableElements[_behaviour.entityIndex]).element.setPosition(_data.position);
+};
+
+PhysicsEngineDebug.prototype.updateInfo = function(_behaviour, _data, _game)
+{
+    PhysicsEngine.prototype.updateInfo.call(this, _behaviour, _data, _game)
+};
+
+PhysicsEngineDebug.prototype.updateSimulation = function(_timeStep)
+{
+    PhysicsEngine.prototype.updateSimulation.call(this, _timeStep);
 };

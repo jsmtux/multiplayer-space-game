@@ -18,7 +18,7 @@ Line.prototype.create = function(_game)
     {
         var phaser_game = _game.phaser_game;
 
-        this.sprite = phaser_game.make.graphics(100, 200);
+        this.sprite = phaser_game.make.graphics(1000, 2000);
 
         _game.backLayer.add(this.sprite);
         

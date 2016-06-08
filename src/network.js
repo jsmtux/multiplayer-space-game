@@ -22,7 +22,7 @@ function NetworkManager(isServer, _matchName, _game)
     
     this.lastPacketReceived; // Last package id received
     
-    this.debugMode = false;
+    this.debugMode = Configuration.networkDebug;
     this.debugModeFailRate = 0.5;
     this.debugModePing = 200;
 

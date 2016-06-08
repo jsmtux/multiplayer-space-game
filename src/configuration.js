@@ -4,5 +4,7 @@ var Configuration = {
     'serverPeer': 'server',
     'clientPeer': 'client',
     'x_res': 1280,
-    'y_res': 720
+    'y_res': 720,
+    'networkDebug': false,
+    'physicsDebug': true
 };

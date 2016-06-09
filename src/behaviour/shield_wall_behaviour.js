@@ -47,11 +47,13 @@ ShieldWallBehaviour.prototype.setLine = function(_startPos, _endPos, _game)
 {
     if (this.inited)
     {
-        this.position = _startPos;
+        var line = new Phaser.Line(_startPos.x, _startPos.y, _endPos.x, _endPos.y);
+        line.midPoint(this.position);
+
         this.rotation = Phaser.Point.angle(_endPos, _startPos);
         this.drawable.setLine(_startPos, _endPos);
         //modifying box size does not work yet
-        //var length = _startPos.distance(_endPos);
-        //_game.getPhysicsEngine().updateElementSize(this, 10, length / 2);
+        var length = _startPos.distance(_endPos);
+        _game.getPhysicsEngine().updateElementSize(this, length / 2, 10);
     }
 }

@@ -468,6 +468,11 @@ DefendShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _
         line.behaviour.resetLine();
         if (ind < ships.length)
         {
+            
+            if (ships[ind].element.entityIndex < this.entityIndex)
+            {
+                continue;
+            }
             var element = ships[ind].element;
             if ((element.getShipType === undefined || element.getShipType() === "DefendShip")
                     && element !== this)

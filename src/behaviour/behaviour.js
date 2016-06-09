@@ -107,6 +107,16 @@ Behaviour.prototype.getInterpolatedData = function(_time)
         var old_rotation = Math.fmod(this.old_data.rotation, Math.doublePI);
         var cur_rotation = Math.fmod(this.cur_data.rotation, Math.doublePI);
         
+        if (old_rotation - cur_rotation > Math.PI)
+        {
+            cur_rotation += Math.doublePI;
+        }
+        
+        if (cur_rotation - old_rotation > Math.PI)
+        {
+            old_rotation += Math.doublePI;
+        }
+        
         ret.rotation = interpolateNumber(old_rotation, cur_rotation, _time);
     }
     return ret;

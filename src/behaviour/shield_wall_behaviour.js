@@ -54,6 +54,6 @@ ShieldWallBehaviour.prototype.setLine = function(_startPos, _endPos, _game)
         this.drawable.setLine(_startPos, _endPos);
         //modifying box size does not work yet
         var length = _startPos.distance(_endPos);
-        _game.getPhysicsEngine().updateElementSize(this, length / 2, 10);
+        _game.getPhysicsEngine().updateElementSize(this, length / 2, 7);
     }
 }

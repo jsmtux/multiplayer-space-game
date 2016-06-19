@@ -30,13 +30,70 @@ var volume = parameters.volume;
 var baseHealthSpan = document.getElementById("baseHealth");
 var enemyBaseHealthSpan = document.getElementById("enemyHealth");
 var moneySpan = document.getElementById("money");
-var priceMainShipSpan = document.getElementById("priceMainShip");
-var priceAuxShipSpan = document.getElementById("priceAuxShip");
+var CollectCostSpan = document.getElementById("CollectCostSpan");
+var AttackCostSpan = document.getElementById("AttackCostSpan");
+var DefendCostSpan = document.getElementById("DefendCostSpan");
 
 //\HTML interaction
 var resolution = new Phaser.Point(Configuration.x_res, Configuration.y_res);
 var size = new Phaser.Point(window.innerWidth, window.innerHeight - 104);
 
+var launchedShips = [];
+launchedShips[ShipBehaviourTypes.Collect] = [];
+launchedShips[ShipBehaviourTypes.Defend] = [];
+launchedShips[ShipBehaviourTypes.Attack] = [];
+
+var shipPrices = [];
+shipPrices[ShipBehaviourTypes.Collect] = [[1, 0], [8, 100]];
+shipPrices[ShipBehaviourTypes.Defend] = [[4,100], [8,200]];
+shipPrices[ShipBehaviourTypes.Attack] = [[0,200]];
+
+function getShipPrice(type)
+{
+    var number = launchedShips[type].length;
+    for(var i in shipPrices[type])
+    {
+        if (number < shipPrices[type][i][0])
+        {
+            return shipPrices[type][i][1];
+        }
+    }
+    return shipPrices[type][shipPrices[type].length - 1][1];
+}
+
+function launchResourceShip()
+{
+    if (playerMoney.checkAndSubstract(getShipPrice(ShipBehaviourTypes.Collect)))
+    {
+        var currentMainShipAttributes = new ShipAttributes;
+        
+        launchedShips[ShipBehaviourTypes.Collect].push(
+            game.addEntity(new Drawable('bin/resource_ship.png', DrawableLayer.MIDDLE),
+                    new CollectShipBehaviour(startPoint, rotation, game, selectBehaviour, onMoneyHit)));
+    }
+}
+
+function launchDefenseShip()
+{
+    if (playerMoney.checkAndSubstract(getShipPrice(ShipBehaviourTypes.Defend)))
+    {
+        var currentMainShipAttributes = new ShipAttributes;
+        launchedShips[ShipBehaviourTypes.Defend].push(
+            game.addEntity(new Drawable('bin/defense_ship.png', DrawableLayer.MIDDLE),
+                    new DefendShipBehaviour(startPoint, rotation, game, selectBehaviour)));
+    }
+}
+
+function launchAttackShip()
+{
+    if (playerMoney.checkAndSubstract(getShipPrice(ShipBehaviourTypes.Attack)))
+    {
+        var currentMainShipAttributes = new ShipAttributes;
+        launchedShips[ShipBehaviourTypes.Attack].push(
+            game.addEntity(new Drawable('bin/attack_ship.png', DrawableLayer.MIDDLE),
+                    new AttackShipBehaviour(startPoint, rotation, game, selectBehaviour, playerLaserTypes.Single)));
+    }
+}
 
 function updateCallback()
 {
@@ -46,6 +103,30 @@ function updateCallback()
     }
     this.displayCanvas.style.width = size.x + 'px';
     this.displayCanvas.style.height = size.y + 'px';
+    
+    for (var shipType in launchedShips)
+    {
+        for (var ship in launchedShips[shipType])
+        {
+            if (game.getEntity(launchedShips[shipType][ship]) == undefined)
+            {
+                launchedShips[shipType].splice(ship, 1);
+            }
+        }
+        var cost = getShipPrice(shipType);
+        switch(parseInt(shipType))
+        {
+            case ShipBehaviourTypes.Attack:
+                AttackCostSpan.innerHTML = cost;
+                break;
+            case ShipBehaviourTypes.Defend:
+                DefendCostSpan.innerHTML = cost;
+                break;
+            case ShipBehaviourTypes.Collect:
+                CollectCostSpan.innerHTML = cost;
+                break;
+        }
+    }
 }
 
 var music;
@@ -129,13 +210,13 @@ function spawnBase(leftPosition)
     }
     ret.push(game.addEntity(new Drawable('bin/base_2.png',DrawableLayer.FRONT), new BaseBehaviour(new Phaser.Point(position,300), setBaseHealth, rotation)));
     var shieldDrawable = new Drawable('bin/baseArmor3.png',DrawableLayer.FRONT);
-    ret.push(game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(shieldPosition,130), shieldDrawable, rotation)));
+    ret.push(game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(shieldPosition,130), shieldDrawable, rotation, game)));
     var shieldDrawable = new Drawable('bin/baseArmor4.png',DrawableLayer.FRONT);
-    ret.push(game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(shieldPosition,470), shieldDrawable, rotation)));
+    ret.push(game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(shieldPosition,470), shieldDrawable, rotation, game)));
     var shieldDrawable = new Drawable('bin/baseArmor1.png',DrawableLayer.FRONT);
-    ret.push(game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(shieldPosition,220), shieldDrawable, rotation)));
+    ret.push(game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(shieldPosition,220), shieldDrawable, rotation, game)));
     var shieldDrawable = new Drawable('bin/baseArmor2.png',DrawableLayer.FRONT);
-    ret.push(game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(shieldPosition,380), shieldDrawable, rotation)));
+    ret.push(game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(shieldPosition,380), shieldDrawable, rotation, game)));
     return ret;
 }
 
@@ -180,27 +261,6 @@ else
     rotation = 270;
 }
 
-function launchResourceShip()
-{
-    var currentMainShipAttributes = new ShipAttributes;
-    game.addEntity(new Drawable('bin/resource_ship.png', DrawableLayer.MIDDLE),
-                new CollectShipBehaviour(startPoint, rotation, game, selectBehaviour, onMoneyHit));
-}
-
-function launchDefenseShip()
-{
-    var currentMainShipAttributes = new ShipAttributes;
-    game.addEntity(new Drawable('bin/defense_ship.png', DrawableLayer.MIDDLE),
-                new DefendShipBehaviour(startPoint, rotation, game, selectBehaviour));
-}
-
-function launchAttackShip()
-{
-    var currentMainShipAttributes = new ShipAttributes;
-    game.addEntity(new Drawable('bin/attack_ship.png', DrawableLayer.MIDDLE),
-                new AttackShipBehaviour(startPoint, rotation, game, selectBehaviour, playerLaserTypes.Single));
-}
-
 if (gameMode === GameModes.server)
 {
     spawnBase(true);
@@ -216,14 +276,9 @@ else if (gameMode === GameModes.client)
 else if (gameMode === GameModes.sp)
 {
     spawnBase(true);
-    var enemyBase = spawnBase(false);
-    for(var i in enemyBase)
-    {
-        game.getEntity(enemyBase[i]).element.setEnemy();
-    }
-    /*setInterval(function(){
+    setInterval(function(){
         game.addEntity(new Drawable('bin/attack_ship.png', DrawableLayer.MIDDLE),new AiAttackShipBehaviour(new Phaser.Point(resolution.x - 150,300), 270, game, selectBehaviour, playerLaserTypes.Single));
-    }, 4000);*/
+    }, 10000);
     dropCoins();
 }
 else

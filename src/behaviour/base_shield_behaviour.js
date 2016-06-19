@@ -1,5 +1,5 @@
 //Used by the bases at both sides of the screen
-function BaseShieldBehaviour(_position, _drawable, _rotation)
+function BaseShieldBehaviour(_position, _drawable, _rotation, _game)
 {
     Behaviour.call(this, "base");
     asPhysical.call(this);
@@ -12,7 +12,7 @@ function BaseShieldBehaviour(_position, _drawable, _rotation)
     {
         this.rotation = Math.radians(_rotation);
     }
-    this.health = 100;
+    this.health = 10;
     var self = this;
     this.initPhysicsParams.collisionCallback = function(event) {
         var colName = event.body.parentBehaviour.getName();
@@ -24,7 +24,7 @@ function BaseShieldBehaviour(_position, _drawable, _rotation)
         }
         if (self.health < 0)
         {
-            console.log("SHIELD OFF");
+            _game.removeEntity(self.entityIndex);
         }
     };
 }

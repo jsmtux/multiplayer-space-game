@@ -36,6 +36,12 @@ function shoot_callback(_element, _data, _game)
     _element.shoot_sound.play();
 }
 
+var ShipBehaviourTypes = {
+    "Attack": 0,
+    "Collect": 1,
+    "Defend": 2
+}
+
 function ShipBehaviour(_position, _rotation, _game, _selectBehaviour)
 {
     Behaviour.call(this, "ship");
@@ -65,19 +71,23 @@ function ShipBehaviour(_position, _rotation, _game, _selectBehaviour)
         if (colName === "laser" && colBehaviour.getSide() !== self.getSide())
         {
             self.health -= 25;
-            if (self.health <= 0)
+        }
+        if (colName === "shield_wall_element" && colBehaviour.getSide() !== self.getSide())
+        {
+            self.health -= 100;
+        }
+        if (self.health <= 0)
+        {
+            _game.removeEntity(self.entityIndex);
+            while(self.currentMoney > 0)
             {
-                _game.removeEntity(self.entityIndex);
-                while(self.currentMoney > 0)
-                {
-                    var curPos = self.cur_data.position;
-                    var x_rand = (Math.random() * 50) - 25;
-                    var y_rand = (Math.random() * 50) - 25;
-                    _game.addEntity(
-                            new Drawable(('bin/rock_bronze.png'),DrawableLayer.FRONT), 
-                            new CoinBehaviour(new Phaser.Point(curPos.x + x_rand, curPos.y + y_rand), 150, _game, false));
-                    self.currentMoney -= 150;                    
-                }
+                var curPos = self.cur_data.position;
+                var x_rand = (Math.random() * 50) - 25;
+                var y_rand = (Math.random() * 50) - 25;
+                _game.addEntity(
+                        new Drawable(('bin/rock_bronze.png'),DrawableLayer.FRONT), 
+                        new CoinBehaviour(new Phaser.Point(curPos.x + x_rand, curPos.y + y_rand), 150, _game, false));
+                self.currentMoney -= 150;                    
             }
         }
     };
@@ -277,10 +287,6 @@ function CollectShipBehaviour(_position, _rotation, _game, _selectBehaviour, _mo
             
             self.collect_sound.play();
         }
-        if (colName === "shield_wall_element")
-        {
-            console.log("Ook!!");
-        }
     };
     
     this.currentMoney = 0;
@@ -345,7 +351,7 @@ CollectShipBehaviour.prototype.remove = function(_game)
 
 CollectShipBehaviour.prototype.getShipType = function()
 {
-    return "CollectShip";
+    return ShipBehaviourTypes.Collect;
 };
 
 function AttackShipBehaviour(_position, _rotation, _game, _selectBehaviour, _laserType)
@@ -389,6 +395,7 @@ AttackShipBehaviour.prototype.constructor = AttackShipBehaviour;
 
 AttackShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _selected)
 {
+    
     var ships = _game.getEntitiesByBehaviourName(["ship", "base"]);
     for (var ind in ships)
     {
@@ -401,7 +408,20 @@ AttackShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _
                 this.shoot(_data, _game);
             }
         }
-    }    
+    }
+    
+    var enemySide;
+    if (this.getSide() == BehaviourSide.Enemy)
+    {
+        enemySide = BehaviourSide.Friend;
+    }
+    else
+    {
+        enemySide = BehaviourSide.Enemy;
+    }
+    
+    var ships = _game.getCloseEntities(_data.position, ["ship"], DefendShipBehaviour.shieldDistance, enemySide);
+    
 };
 
 AttackShipBehaviour.prototype.remove = function(_game)
@@ -412,7 +432,7 @@ AttackShipBehaviour.prototype.remove = function(_game)
 
 AttackShipBehaviour.prototype.getShipType = function()
 {
-    return "AttackShip";
+    return ShipBehaviourTypes.Attack;
 };
 
 function DefendShipBehaviour(_position, _rotation, _game, _selectBehaviour)
@@ -474,7 +494,7 @@ DefendShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _
                 continue;
             }
             var element = ships[ind].element;
-            if ((element.getShipType === undefined || element.getShipType() === "DefendShip")
+            if ((element.getShipType === undefined || element.getShipType() === ShipBehaviourTypes.Defend)
                     && element !== this)
             {
                 line.behaviour.setLine(_data.position, element.getCurrentPosition(), _game);
@@ -485,5 +505,5 @@ DefendShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _
 
 DefendShipBehaviour.prototype.getShipType = function()
 {
-    return "DefendShip";
+    return ShipBehaviourTypes.Defend;
 };

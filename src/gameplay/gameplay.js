@@ -160,7 +160,7 @@ game.controller.selectionStartCallback = function(position)
     
 }
 
-var playerMoney = new Money(0, moneySpan);
+var playerMoney = new Money(1000, moneySpan);
 
 //Property updating
 function setBaseHealth(_health)
@@ -219,7 +219,7 @@ function spawnBase(leftPosition)
     ret.push(game.addEntity(shieldDrawable, new BaseShieldBehaviour(new Phaser.Point(shieldPosition,380), shieldDrawable, rotation, game)));
     return ret;
 }
-
+/*
 function dropCoins()
 {
     var kind = Math.random();
@@ -245,6 +245,33 @@ function dropCoins()
     var xpos = 200 + (resolution.x - 400) * Math.random();
     game.addEntity(new Drawable(path,DrawableLayer.FRONT), new CoinBehaviour(new Phaser.Point(xpos,0), value, game));
     setTimeout(dropCoins, 2000 + Math.random()*4000);
+}
+
+*/
+
+
+function AIDirector()
+{
+    
+}
+
+AIDirector.prototype.Start = function()
+{
+    /*setInterval(function(){
+        game.addEntity(new Drawable('bin/attack_ship.png', DrawableLayer.MIDDLE),new AiAttackShipBehaviour(new Phaser.Point(resolution.x - 150,300), 270, game, selectBehaviour, playerLaserTypes.Single));
+    }, 10000);*/
+    var self = this;
+    setInterval(function(){
+        game.addEntity(new Drawable('bin/meteor.png', DrawableLayer.MIDDLE),new MeteorBehaviour(self.getRandomInitPosition(), game));
+    }, 1000);
+}
+
+AIDirector.prototype.getRandomInitPosition = function()
+{
+    var ret = new Phaser.Point(resolution.x - 150,300)
+    var margin = 0.1;
+    ret.y = resolution.y * Math.random() * (1 - 2 * margin) + resolution.y * margin;
+    return ret;
 }
 
 // Top level functions
@@ -276,10 +303,12 @@ else if (gameMode === GameModes.client)
 else if (gameMode === GameModes.sp)
 {
     spawnBase(true);
-    setInterval(function(){
+    var aiDirector = new AIDirector();
+    aiDirector.Start();
+    /*setInterval(function(){
         game.addEntity(new Drawable('bin/attack_ship.png', DrawableLayer.MIDDLE),new AiAttackShipBehaviour(new Phaser.Point(resolution.x - 150,300), 270, game, selectBehaviour, playerLaserTypes.Single));
     }, 10000);
-    dropCoins();
+    dropCoins();*/
 }
 else
 {

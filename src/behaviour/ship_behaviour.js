@@ -87,7 +87,7 @@ function ShipBehaviour(_position, _rotation, _game, _selectBehaviour)
                 _game.addEntity(
                         new Drawable(('bin/rock_bronze.png'),DrawableLayer.FRONT), 
                         new CoinBehaviour(new Phaser.Point(curPos.x + x_rand, curPos.y + y_rand), 150, _game, false));
-                self.currentMoney -= 150;                    
+                self.currentMoney -= 150;
             }
         }
     };
@@ -396,7 +396,7 @@ AttackShipBehaviour.prototype.constructor = AttackShipBehaviour;
 AttackShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _selected)
 {
     
-    var ships = _game.getEntitiesByBehaviourName(["ship", "base"]);
+    var ships = _game.getEntitiesByBehaviourName(["ship", "base", "meteor"]);
     for (var ind in ships)
     {
         var element = ships[ind].element;

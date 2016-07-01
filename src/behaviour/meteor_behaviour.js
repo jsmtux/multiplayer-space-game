@@ -7,20 +7,21 @@ function MeteorBehaviour(_position, _game)
     this.initData.rotation = 270;
     var self = this;
     this.initPhysicsParams.collisionCallback = function(event) {
-        if (event.body.parentBehaviour.getSide() !== self.getSide())
+        var collisionName = event.body.parentBehaviour.getName();
+        if (collisionName === "laser" || collisionName === "base" || collisionName === "shield_wall_element")
         {
             _game.removeEntity(self.entityIndex);
-        }
-        if (event.body.parentBehaviour.getName() === "laser")
-        {
-            for(var i = 0; i < 4; i++)
+            if (collisionName !== "base")
             {
-                var curPos = self.cur_data.position;
-                var x_rand = (Math.random() * 50) - 25;
-                var y_rand = (Math.random() * 50) - 25;
-                _game.addEntity(
-                        new Drawable(('bin/rock_bronze.png'),DrawableLayer.FRONT), 
-                        new CoinBehaviour(new Phaser.Point(curPos.x + x_rand, curPos.y + y_rand), 150, _game, false));
+                for(var i = 0; i < 4; i++)
+                {
+                    var curPos = self.cur_data.position;
+                    var x_rand = (Math.random() * 50) - 25;
+                    var y_rand = (Math.random() * 50) - 25;
+                    _game.addEntity(
+                            new Drawable(('bin/rock_bronze.png'),DrawableLayer.FRONT), 
+                            new CoinBehaviour(new Phaser.Point(curPos.x + x_rand, curPos.y + y_rand), 150, _game, false));
+                }
             }
         }
     };

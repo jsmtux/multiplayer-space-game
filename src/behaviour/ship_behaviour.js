@@ -379,11 +379,6 @@ function AttackShipBehaviour(_position, _rotation, _game, _selectBehaviour, _las
             laserRange = 250;
             break;
     }
-
-    var coneDrawable = new Cone(laserWidth, laserRange);
-    this.coneBehaviour = new ConeBehaviour(Math.radians( _rotation - 90), laserWidth, laserRange);
-    this.coneBehaviour.attachToObject(this);
-    _game.addLocalEntity(coneDrawable, this.coneBehaviour);
     
 
     this.maxVelocity = 300;
@@ -395,19 +390,9 @@ AttackShipBehaviour.prototype.constructor = AttackShipBehaviour;
 
 AttackShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _selected)
 {
-    
-    var ships = _game.getEntitiesByBehaviourName(["ship", "base", "meteor"]);
-    for (var ind in ships)
+    if (this.selectBehaviour.isCurrentShip(this))
     {
-        var element = ships[ind].element;
-        if (element.getSide() !== this.getSide())
-        {
-            var enemyData = element.cur_data;
-            if (enemyData && this.coneBehaviour.isInside(enemyData.position))
-            {
                 this.shoot(_data, _game);
-            }
-        }
     }
     
     var enemySide;

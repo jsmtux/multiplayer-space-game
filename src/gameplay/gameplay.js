@@ -249,21 +249,55 @@ function dropCoins()
 
 */
 
-
-function AIDirector()
+function Stage1()
 {
     
 }
 
+Stage1.prototype.Start = function(director)
+{
+    var interval = setInterval(function(){
+        game.addEntity(new Drawable('bin/meteor.png', DrawableLayer.MIDDLE),new MeteorBehaviour(director.getRandomInitPosition(), game));
+    }, 1000);
+    setTimeout(function(){
+        clearInterval(interval);
+        director.Next();
+    }, 4000);
+}
+
+function Stage2()
+{
+    
+}
+
+Stage2.prototype.Start = function(director)
+{
+    var interval = setInterval(function(){
+        game.addEntity(new Drawable('bin/meteor.png', DrawableLayer.MIDDLE),new MeteorBehaviour(director.getRandomInitPosition(), game));
+    }, 2000);
+    
+    setInterval(function(){
+        game.addEntity(new Drawable('bin/attack_ship.png', DrawableLayer.MIDDLE),new AiAttackShipBehaviour(new Phaser.Point(resolution.x - 150,300), 270, game, selectBehaviour, playerLaserTypes.Single));
+    }, 3000);
+}
+
+function AIDirector()
+{
+    this.stages = [];
+    this.curStage = 0;
+    
+    this.stages.push(new Stage1());
+    this.stages.push(new Stage2());
+}
+
 AIDirector.prototype.Start = function()
 {
-    /*setInterval(function(){
-        game.addEntity(new Drawable('bin/attack_ship.png', DrawableLayer.MIDDLE),new AiAttackShipBehaviour(new Phaser.Point(resolution.x - 150,300), 270, game, selectBehaviour, playerLaserTypes.Single));
-    }, 10000);*/
-    var self = this;
-    setInterval(function(){
-        game.addEntity(new Drawable('bin/meteor.png', DrawableLayer.MIDDLE),new MeteorBehaviour(self.getRandomInitPosition(), game));
-    }, 1000);
+    this.Next();
+}
+
+AIDirector.prototype.Next = function()
+{
+    this.stages[this.curStage++].Start(this);
 }
 
 AIDirector.prototype.getRandomInitPosition = function()
@@ -305,10 +339,6 @@ else if (gameMode === GameModes.sp)
     spawnBase(true);
     var aiDirector = new AIDirector();
     aiDirector.Start();
-    /*setInterval(function(){
-        game.addEntity(new Drawable('bin/attack_ship.png', DrawableLayer.MIDDLE),new AiAttackShipBehaviour(new Phaser.Point(resolution.x - 150,300), 270, game, selectBehaviour, playerLaserTypes.Single));
-    }, 10000);
-    dropCoins();*/
 }
 else
 {

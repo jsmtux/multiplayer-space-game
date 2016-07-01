@@ -12,4 +12,5 @@ AiAttackShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data,
     AttackShipBehaviour.prototype.updateSpecificBehaviour.call(this, _game, _data, _selected);
     var yPos = Math.random() * 500 + 100;
     this.setDestination(new Phaser.Point(200,yPos));
+    this.shoot(_data, _game);
 }

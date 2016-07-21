@@ -6,5 +6,5 @@ var Configuration = {
     'x_res': 1280,
     'y_res': 720,
     'networkDebug': false,
-    'physicsDebug': true
+    'physicsDebug': false
 };

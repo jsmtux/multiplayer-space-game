@@ -249,28 +249,44 @@ function dropCoins()
 
 */
 
-function Stage1()
+function SimpleCollect()
 {
     
 }
 
-Stage1.prototype.Start = function(director)
+SimpleCollect.prototype.Start = function(director)
 {
     var interval = setInterval(function(){
         game.addEntity(new Drawable('bin/meteor.png', DrawableLayer.MIDDLE),new MeteorBehaviour(director.getRandomInitPosition(), game));
-    }, 1000);
+    }, 4000);
     setTimeout(function(){
         clearInterval(interval);
         director.Next();
-    }, 4000);
+    }, 30000);
 }
 
-function Stage2()
+function MoreCollect()
 {
     
 }
 
-Stage2.prototype.Start = function(director)
+MoreCollect.prototype.Start = function(director)
+{
+    var interval = setInterval(function(){
+        game.addEntity(new Drawable('bin/meteor.png', DrawableLayer.MIDDLE),new MeteorBehaviour(director.getRandomInitPosition(), game));
+    }, 10000);
+    setTimeout(function(){
+        clearInterval(interval);
+        director.Next();
+    }, 30000);
+}
+
+function CollectAndShip()
+{
+    
+}
+
+CollectAndShip.prototype.Start = function(director)
 {
     var interval = setInterval(function(){
         game.addEntity(new Drawable('bin/meteor.png', DrawableLayer.MIDDLE),new MeteorBehaviour(director.getRandomInitPosition(), game));
@@ -278,7 +294,7 @@ Stage2.prototype.Start = function(director)
     
     setInterval(function(){
         game.addEntity(new Drawable('bin/attack_ship.png', DrawableLayer.MIDDLE),new AiAttackShipBehaviour(new Phaser.Point(resolution.x - 150,300), 270, game, selectBehaviour, playerLaserTypes.Single));
-    }, 3000);
+    }, 8000);
 }
 
 function AIDirector()
@@ -286,8 +302,9 @@ function AIDirector()
     this.stages = [];
     this.curStage = 0;
     
-    this.stages.push(new Stage1());
-    this.stages.push(new Stage2());
+    this.stages.push(new SimpleCollect());
+    this.stages.push(new MoreCollect());
+    this.stages.push(new CollectAndShip());
 }
 
 AIDirector.prototype.Start = function()

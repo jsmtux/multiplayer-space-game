@@ -412,7 +412,6 @@ AttackShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _
 AttackShipBehaviour.prototype.remove = function(_game)
 {
     ShipBehaviour.prototype.remove.call(this, _game);
-    _game.removeEntity(this.coneBehaviour.entityIndex);
 };
 
 AttackShipBehaviour.prototype.getShipType = function()

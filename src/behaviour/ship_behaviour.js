@@ -72,6 +72,10 @@ function ShipBehaviour(_position, _rotation, _game, _selectBehaviour)
         {
             self.health -= 25;
         }
+        if (colName === "meteor")
+        {
+            self.health -= 20;
+        }
         if (colName === "shield_wall_element" && colBehaviour.getSide() !== self.getSide())
         {
             self.health -= 100;
@@ -246,11 +250,6 @@ ShipBehaviour.prototype.updateKeyMovement = function(data, _game)
     }
 };
 
-ShipBehaviour.prototype.getShipType = function()
-{
-    return undefined;
-};
-
 function CollectShipBehaviour(_position, _rotation, _game, _selectBehaviour, _moneyCallback)
 {
     ShipBehaviour.call(this, _position, _rotation, _game, _selectBehaviour);
@@ -286,6 +285,15 @@ function CollectShipBehaviour(_position, _rotation, _game, _selectBehaviour, _mo
             _game.addLocalEntity(score_drawable, new FadingScoreBehaviour(self.cur_data.position, score_drawable), false);
             
             self.collect_sound.play();
+        }
+        
+        if (colName === "power_up_health")
+        {
+            self.health += 50;
+            if (self.health > 100)
+            {
+                self.health = 100;
+            }
         }
     };
     
@@ -349,11 +357,6 @@ CollectShipBehaviour.prototype.remove = function(_game)
     _game.removeEntity(this.bgBehaviour.entityIndex);
 };
 
-CollectShipBehaviour.prototype.getShipType = function()
-{
-    return ShipBehaviourTypes.Collect;
-};
-
 function AttackShipBehaviour(_position, _rotation, _game, _selectBehaviour, _laserType)
 {
     ShipBehaviour.call(this, _position, _rotation, _game, _selectBehaviour);
@@ -361,7 +364,34 @@ function AttackShipBehaviour(_position, _rotation, _game, _selectBehaviour, _las
     var laserRange = 0;
     var laserWidth = 90;
     
-    switch(_laserType)
+    this.updateShootFilter(_laserType);
+    
+    var shipCollisionCallback = this.initPhysicsParams.collisionCallback;
+    
+    var self = this;
+    
+    this.initPhysicsParams.collisionCallback = function(event) {
+        shipCollisionCallback(event);
+        var colBehaviour = event.body.parentBehaviour;
+        var colName = colBehaviour.getName();
+        
+        if (colName === "power_up_attack")
+        {
+            self.updateShootFilter(playerLaserTypes.Double);
+        }
+    };
+    
+
+    this.maxVelocity = 300;
+    this.acceleration = 200;
+}
+
+AttackShipBehaviour.prototype = Object.create(ShipBehaviour.prototype);
+AttackShipBehaviour.prototype.constructor = AttackShipBehaviour;
+
+AttackShipBehaviour.prototype.updateShootFilter = function(_type)
+{
+    switch(_type)
     {
         case playerLaserTypes.None:
             this.shootFilter = new RepeatEliminationFilter(function(){}, 0);
@@ -372,21 +402,14 @@ function AttackShipBehaviour(_position, _rotation, _game, _selectBehaviour, _las
             break;
         case playerLaserTypes.Double:
             this.shootFilter = new RepeatEliminationFilter(shoot_callback, 6);
-            laserRange = 200;
+            laserRange = 300;
             break;
         case playerLaserTypes.Triple:
             this.shootFilter = new RepeatEliminationFilter(shoot_callback, 3);
-            laserRange = 250;
+            laserRange = 500;
             break;
     }
-    
-
-    this.maxVelocity = 300;
-    this.acceleration = 200;
 }
-
-AttackShipBehaviour.prototype = Object.create(ShipBehaviour.prototype);
-AttackShipBehaviour.prototype.constructor = AttackShipBehaviour;
 
 AttackShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _selected)
 {
@@ -412,11 +435,6 @@ AttackShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _
 AttackShipBehaviour.prototype.remove = function(_game)
 {
     ShipBehaviour.prototype.remove.call(this, _game);
-};
-
-AttackShipBehaviour.prototype.getShipType = function()
-{
-    return ShipBehaviourTypes.Attack;
 };
 
 function DefendShipBehaviour(_position, _rotation, _game, _selectBehaviour)
@@ -478,16 +496,11 @@ DefendShipBehaviour.prototype.updateSpecificBehaviour = function(_game, _data, _
                 continue;
             }
             var element = ships[ind].element;
-            if ((element.getShipType === undefined || element.getShipType() === ShipBehaviourTypes.Defend)
+            if ((element.constructor === DefendShipBehaviour)
                     && element !== this)
             {
                 line.behaviour.setLine(_data.position, element.getCurrentPosition(), _game);
             }
         }
     }
-};
-
-DefendShipBehaviour.prototype.getShipType = function()
-{
-    return ShipBehaviourTypes.Defend;
 };

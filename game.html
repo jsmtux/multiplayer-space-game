@@ -10,17 +10,17 @@
         <body>
             <ul class="horizontal noselect">
               <li class="health">
-                  <img src="bin/heart_pixelart.png"></img>
+                  <img src="bin/shield.png"></img>
                   Base health 
                   <span id="baseHealth">0</span>%
               </li>
               <li class="enemyHealth">
-                  <img src="bin/sword_pixelart.png">
+                  <img src="bin/bolt_gold.png">
                   Enemy base health 
                   <span id="enemyHealth">0</span>%
               </li>
               <li class="money">
-                  <img src="bin/money_pixelart.png">
+                  <img src="bin/money.png">
                   Money 
                   <span id="money">0</span>u
               </li>
@@ -28,13 +28,13 @@
             <div id="game-window"></div>
             <ul class="horizontal noselect">
               <li class="attack-color" onclick="launchAttackShip()">
-                  <span><img src="bin/attack_ship.png">Attack ship - </span><span id="AttackCostSpan">100</span><span>u</span>
-              </li>
-              <li class="defense-color" onclick="launchDefenseShip()">
-                  <span><img src="bin/defense_ship.png">Defense ship - </span><span id="DefendCostSpan">100</span><span>u</span>
+                  <span><img src="bin/icon_attack.png">Attack ship - </span><span id="AttackCostSpan">100</span><span>u</span>
               </li>
               <li class="resource-color" onclick="launchResourceShip()">
-                  <span><img src="bin/resource_ship.png"></img>Resource ship - </span><span id="CollectCostSpan">100</span><span>u</span>
+                  <span><img src="bin/icon_resource.png"></img>Resource ship - </span><span id="CollectCostSpan">100</span><span>u</span>
+              </li>
+              <li class="defense-color" onclick="launchDefenseShip()">
+                  <span><img src="bin/icon_defense.png">Defense ship - </span><span id="DefendCostSpan">100</span><span>u</span>
               </li>
             </ul>
                 <script src="./src/configuration.js"></script>
@@ -71,6 +71,7 @@
 		<script src="./src/behaviour/ship_behaviour.js"></script>
 		<script src="./src/behaviour/ai_ship_behaviour.js"></script>
 		<script src="./src/behaviour/meteor_behaviour.js"></script>
+		<script src="./src/behaviour/power_up_behaviour.js"></script>
 
 		<script src="./src/audio_manager.js"></script>
 

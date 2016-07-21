@@ -3,7 +3,7 @@ function MeteorBehaviour(_position, _game)
     Behaviour.call(this, "meteor");
     asPhysical.call(this);
     this.initPhysicsParams.position = _position;
-    this.initPhysicsParams.collisionResponse = 0;
+    this.initPhysicsParams.mass = 15;
     this.initData.rotation = 270;
     var self = this;
     this.initPhysicsParams.collisionCallback = function(event) {

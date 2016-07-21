@@ -249,6 +249,29 @@ function dropCoins()
 
 */
 
+
+function TestStage()
+{
+    
+}
+
+TestStage.prototype.Start = function(director)
+{
+    var interval = setInterval(function(){
+        game.addEntity(new Drawable('bin/meteor.png', DrawableLayer.MIDDLE),new MeteorBehaviour(director.getRandomInitPosition(), game));
+    }, 1000);
+    var interval = setInterval(function(){
+        game.addEntity(new Drawable('bin/powerup_attack.png', DrawableLayer.MIDDLE),new PowerUpBehaviour(director.getRandomInitPosition(), game,PowerUpTypes.Attack));
+    }, 3000);
+    var interval = setInterval(function(){
+        game.addEntity(new Drawable('bin/powerup_health.png', DrawableLayer.MIDDLE),new PowerUpBehaviour(director.getRandomInitPosition(), game,PowerUpTypes.Health));
+    }, 3000);
+    setTimeout(function(){
+        clearInterval(interval);
+        director.Next();
+    }, 300000);
+}
+
 function SimpleCollect()
 {
     
@@ -274,6 +297,9 @@ MoreCollect.prototype.Start = function(director)
 {
     var interval = setInterval(function(){
         game.addEntity(new Drawable('bin/meteor.png', DrawableLayer.MIDDLE),new MeteorBehaviour(director.getRandomInitPosition(), game));
+    }, 10000);
+    var interval = setInterval(function(){
+        game.addEntity(new Drawable('bin/powerup_attack.png', DrawableLayer.MIDDLE),new PowerUpBehaviour(director.getRandomInitPosition(), game, PowerUpTypes.Attack));
     }, 10000);
     setTimeout(function(){
         clearInterval(interval);
@@ -302,6 +328,7 @@ function AIDirector()
     this.stages = [];
     this.curStage = 0;
     
+    //this.stages.push(new TestStage());
     this.stages.push(new SimpleCollect());
     this.stages.push(new MoreCollect());
     this.stages.push(new CollectAndShip());
